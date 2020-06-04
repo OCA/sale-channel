@@ -9,9 +9,8 @@ from odoo.addons.component.core import Component
 class Creator(Component):
     """ Just creates a record with given vals """
 
-    _inherit = "base"
+    _inherit = "processor"
     _name = "basic.creator"
-    _collection = "queue.job.chunk"
     _usage = "basic_create"
 
     def run(self, data):
