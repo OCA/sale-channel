@@ -85,6 +85,10 @@ class TestQueueJobChunk(TransactionComponentCase):
         chunk = self.env["queue.job.chunk"].create(self.chunk_data_contact[0])
         self.assertEqual(company, chunk.reference_company_id)
 
+    def test_reference(self):
+        chunk = self.env["queue.job.chunk"].create(self.chunk_data_contact[0])
+        self.assertEqual(chunk.reference, "res.partner,%i" % self.partner.id)
+
     def test_create_chunk_job(self):
         job_count = self.env["queue.job"].search_count([])
         self.env = self.env(
