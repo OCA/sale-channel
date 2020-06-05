@@ -203,17 +203,3 @@ class TestSaleOrderImport(SaleImportCase):
         new_sale_order = self.importer_component.run(json.dumps(json_import))
         new_payment = new_sale_order.transaction_ids
         self.assertEqual(new_payment.reference, "PMT-EXAMPLE-001")
-
-    def test_batch_run(self):
-        json_imports = self.sale_data_multi
-        count_attachment = self.env["ir.attachment"].search_count([])
-        count_chunk = self.env["queue.job.chunk"].search_count([])
-        count_sale_order = self.env["sale.order"].search_count([])
-        chunks = self.importer_component.batch_run_chunks(json_imports)
-        self.assertEqual(len(chunks.ids), 2)
-        count_attachment_after = self.env["ir.attachment"].search_count([])
-        count_chunk_after = self.env["queue.job.chunk"].search_count([])
-        count_sale_order_after = self.env["sale.order"].search_count([])
-        self.assertEqual(count_attachment + 1, count_attachment_after)
-        self.assertEqual(count_chunk + 2, count_chunk_after)
-        self.assertEqual(count_sale_order + 2, count_sale_order_after)
