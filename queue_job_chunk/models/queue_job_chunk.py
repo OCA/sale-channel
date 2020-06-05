@@ -22,7 +22,6 @@ class QueueJobChunk(models.Model):
                     rec.company_id = record.company_id
             else:
                 rec.reference = None
-                rec.company_id = None
 
     # component fields
     usage = fields.Char("Usage")
