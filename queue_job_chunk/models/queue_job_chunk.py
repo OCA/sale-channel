@@ -14,16 +14,15 @@ class QueueJobChunk(models.Model):
     @api.depends("model_name", "record_id")
     def _compute_reference(self):
         for rec in self:
+            rec.company_id = self.env.user.company_id
             if rec.model_name and rec.record_id:
                 rec.reference = "{},{}".format(rec.model_name, rec.record_id)
                 record = self.env[rec.model_name].browse(rec.record_id)
                 if "company_id" in record._fields:
                     rec.company_id = record.company_id
-                else:
-                    rec.company_id = self.env.user.company_id
             else:
-                rec.reference = False
-                rec.company_id = False
+                rec.reference = None
+                rec.company_id = None
 
     # component fields
     usage = fields.Char("Usage")
