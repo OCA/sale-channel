@@ -1,14 +1,5 @@
 from odoo import fields, models
 
-MAPPINGS_SALE_ORDER_ADDRESS_SIMPLE = [
-    "name",
-    "street",
-    "street2",
-    "zip",
-    "city",
-    "email",
-]
-
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"

@@ -1,6 +1,3 @@
-import base64
-import datetime
-import json
 from copy import deepcopy
 
 from marshmallow_objects import ValidationError as MarshmallowValidationError
@@ -20,37 +17,14 @@ MAPPINGS_SALE_ORDER_ADDRESS_SIMPLE = [
 
 
 class ImporterSaleChannel(Component):
-    _inherit = "processor.import"
+    _inherit = "processor"
     _name = "importer.sale.channel"
     _apply_on = ["sale.order"]
-
-    def batch_run_chunks(self, imports):
-        """
-        :param imports: json dict of multiple chunks # DISCUSSION
-        :return: chunks
-        For an up-to-date version of the imports format, check datamodels
-        methods prefixed by "si" are related to sale imports
-        """
-        name = "SaleImport_" + str(datetime.datetime.today())
-        data_encoded = base64.b64encode(json.dumps(imports).encode("utf-8"))
-        attachment_vals = {"name": name, "db_datas": data_encoded, "store_fname": name}
-        attachment = self.env["ir.attachment"].create(attachment_vals)
-        result = self.env["queue.job.chunk"]
-        for el in imports:
-            dump = json.dumps(el)
-            chunk_vals = {
-                "usage": "import",
-                "apply_on_model": "sale.order",
-                "data_str": dump,
-                "model_id": "ir.attachment",
-                "record_id": attachment.id,
-            }
-            result += self.env["queue.job.chunk"].create(chunk_vals)
-        return result
+    _usage = "json_import"
 
     def run(self, raw_data):
         """
-        :param raw_data: json-like string # DISCUSSION
+        :param raw_data: json-like string
         :return: generated sale order
         """
         # we need this step because the chunk data is stored as
@@ -78,8 +52,6 @@ class ImporterSaleChannel(Component):
         return so_vals
 
     def _si_process_simple_fields(self, so_vals):
-        # TODO actually use these fields
-        del so_vals["transaction_id"]
         del so_vals["currency_code"]
         del so_vals["payment"]
 
@@ -100,7 +72,7 @@ class ImporterSaleChannel(Component):
 
     def _si_get_partner(self, so_vals, sale_channel):
         external_id = so_vals["address_customer"].get("external_id")
-        binding = self.env["res.partner.binding"].search(
+        binding = self.env["sale.channel.partner"].search(
             [
                 ("external_id", "=", external_id),
                 ("sale_channel_id", "=", sale_channel.id),
@@ -321,7 +293,7 @@ class ImporterSaleChannel(Component):
     def _si_sync_binding(self, sale_order, data):
         if not data["address_customer"].get("external_id"):
             return
-        existing_binding = self.env["res.partner.binding"].search(
+        existing_binding = self.env["sale.channel.partner"].search(
             [
                 ("sale_channel_id", "=", sale_order.sale_channel_id.id),
                 ("partner_id", "=", sale_order.partner_id.id),
@@ -333,7 +305,7 @@ class ImporterSaleChannel(Component):
                 "partner_id": sale_order.partner_id.id,
                 "external_id": data["address_customer"]["external_id"],
             }
-            self.env["res.partner.binding"].create(binding_vals)
+            self.env["sale.channel.partner"].create(binding_vals)
 
     def _si_create_payment(self, sale_order, data):
         if not data.get("payment"):
@@ -346,7 +318,7 @@ class ImporterSaleChannel(Component):
             "type": "server2server",
             "state": "done",
             "amount": pmt_data["amount"],
-            "fees": 0.00,  # DISCUSSION
+            "fees": 0.00,
             "reference": pmt_data["reference"],
             "acquirer_reference": pmt_data["reference"],
             "sale_order_ids": [4, 0, [sale_order.id]],
@@ -356,7 +328,7 @@ class ImporterSaleChannel(Component):
         sale_order.transaction_ids = new_pmt
 
     def helper_find_binding(self, sale_channel, external_id):
-        binding = self.env["res.partner.binding"].search(
+        binding = self.env["sale.channel.partner"].search(
             [
                 ("external_id", "=", external_id),
                 ("sale_channel_id", "=", sale_channel.id),

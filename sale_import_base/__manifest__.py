@@ -11,7 +11,7 @@
         "sale_partner_version",
         "product_code_unique",
         "datamodel",
-        "sale_channel_partner_binding",
+        "sale_channel_partner",
         "sale_exception",
     ],
     "license": "AGPL-3",

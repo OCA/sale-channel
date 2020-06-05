@@ -25,3 +25,4 @@ class SaleOrderPaymentDatamodel(BaseDatamodel):
     amount = fields.Decimal()
     reference = fields.Str()
     currency_code = fields.Str()
+    transaction_id = fields.Integer()
