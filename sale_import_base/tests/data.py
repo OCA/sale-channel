@@ -15,7 +15,6 @@ data = {
         "street2": "bis",
         "zip": "69100",
         "city": "Lyon",
-        "email": "not-required@example.com",
         "country_code": "FR",
     },
     "address_invoicing": {
@@ -24,7 +23,6 @@ data = {
         "street2": "bis",
         "zip": "69100",
         "city": "Lyon",
-        "email": "whatever@example.com",
         "country_code": "FR",
     },
     "lines": [

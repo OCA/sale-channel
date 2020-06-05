@@ -23,9 +23,14 @@ class TestSaleOrderImport(SaleImportCase):
         """ Base scenario: create partner """
         json_import = self.sale_data
         partner_count = self.env["res.partner"].search_count([])
-        new_sale_order = self.importer_component.run(json.dumps(json_import))
+        self.importer_component.run(json.dumps(json_import))
         partner_count_after_import = self.env["res.partner"].search_count([])
         self.assertEqual(partner_count_after_import, partner_count + 3)
+
+    def test_binding_created(self):
+        """ When we create a partner, a binding is created """
+        json_import = self.sale_data
+        new_sale_order = self.importer_component.run(json.dumps(json_import))
         binding_count = self.env["sale.channel.partner"].search_count(
             [
                 ("sale_channel_id", "=", self.sale_channel_ebay.id),
@@ -38,77 +43,34 @@ class TestSaleOrderImport(SaleImportCase):
     def test_import_existing_partner_match_external_id(self):
         """ During import, if a partner is matched on external_id/channel
         combination, his address is updated """
-        # Import once to create partner
         json_import = self.sale_data
-        self.importer_component.run(json.dumps(json_import))
-        # New import that updates partner
+        partner_colleen = self.env.ref("base.res_partner_address_28")
         del json_import["address_customer"]["email"]
         json_import["address_customer"]["street"] = "new street"
-        json_import["payment"]["reference"] = "PMT-EXAMPLE-002"
-        new_sale_order = self.importer_component.run(json.dumps(json_import))
-        self.assertEqual(new_sale_order.partner_id.street, "new street")
-        binding_count = self.env["sale.channel.partner"].search_count(
-            [
-                ("sale_channel_id", "=", self.sale_channel_ebay.id),
-                ("partner_id", "=", new_sale_order.partner_id.id),
-                ("external_id", "=", "ThomasJeanEbay"),
-            ]
-        )
-        self.assertEqual(binding_count, 1)
+        json_import["address_customer"]["external_id"] = "id_from_ebay1"
+        self.importer_component.run(json.dumps(json_import))
+        self.assertEqual(partner_colleen.street, "new street")
 
     def test_import_existing_partner_match_email(self):
         """ During import, if a partner is matched on email,
         its address is updated """
-        # Import once to create partner
         json_import = self.sale_data
-        self.importer_component.run(json.dumps(json_import))
-        # New import that updates partner
-        json_import["address_customer"]["external_id"] = "SomethingNew"
+        partner_gemini = self.env.ref("base.res_partner_3")
+        json_import["address_customer"]["email"] = "gemini.furniture39@example.com"
         json_import["address_customer"]["street"] = "new street"
-        json_import["payment"]["reference"] = "PMT-EXAMPLE-002"
-        new_sale_order = self.importer_component.run(json.dumps(json_import))
-        self.assertEqual(new_sale_order.partner_id.street, "new street")
-        binding_count = self.env["sale.channel.partner"].search_count(
-            [
-                ("sale_channel_id", "=", self.sale_channel_ebay.id),
-                ("partner_id", "=", new_sale_order.partner_id.id),
-                ("external_id", "=", "ThomasJeanEbay"),
-            ]
-        )
-        self.assertEqual(binding_count, 1)
+        self.importer_component.run(json.dumps(json_import))
+        self.assertEqual(partner_gemini.street, "new street")
 
     def test_import_existing_partner_match_email_disallowed(self):
-        """ Test that if there is no external_id match, and email match is
-        disallowed, we just create a partner """
-        # Import once to create partner
+        """ Test that if email match is disallowed, we just create a partner """
+        partner_count = self.env["res.partner"].search_count([])
         json_import = self.sale_data
-        first_so = self.importer_component.run(json.dumps(json_import))
-        # New import that can't match to an existing partner
-        json_import["address_customer"]["external_id"] = "SomethingNew"
+        json_import["address_customer"]["email"] = "gemini.furniture39@example.com"
+        json_import["address_customer"]["street"] = "new street"
         self.sale_channel_ebay.allow_match_on_email = False
-        json_import["payment"]["reference"] = "PMT-EXAMPLE-002"
-        second_so = self.importer_component.run(json.dumps(json_import))
-        count = self.env["res.partner"].search_count(
-            [("email", "=", "thomasjean@gmail.com")]
-        )
-        self.assertEqual(count, 2)
-        binding_count = self.env["sale.channel.partner"].search_count(
-            [
-                ("sale_channel_id", "=", self.sale_channel_ebay.id),
-                ("partner_id", "=", first_so.partner_id.id),
-                ("external_id", "=", "ThomasJeanEbay"),
-            ]
-        )
-        self.assertEqual(binding_count, 1)
-        binding_count = self.env["sale.channel.partner"].search_count(
-            [
-                ("sale_channel_id", "=", self.sale_channel_ebay.id),
-                ("partner_id", "=", second_so.partner_id.id),
-                ("external_id", "=", "SomethingNew"),
-            ]
-        )
-        self.assertEqual(binding_count, 1)
-        self.assertNotEqual(first_so.partner_id, second_so.partner_id)
+        self.importer_component.run(json.dumps(json_import))
+        new_partner_count = self.env["res.partner"].search_count([])
+        self.assertEqual(partner_count + 3, new_partner_count)
 
     def test_product_missing(self):
         """ Test product code validation effectively blocks the job """
@@ -162,23 +124,6 @@ class TestSaleOrderImport(SaleImportCase):
         new_sale_order = self.importer_component.run(json.dumps(json_import))
         self.assertEqual(new_sale_order.fiscal_position_id, self.fpos_swiss)
         self.assertEqual(new_sale_order.order_line[0].tax_id, self.tax_swiss)
-
-    def test_import_existing_partner_update_addresses(self):
-        """ During import, if a partner is matched, his
-         address is updated """
-        json_import = self.sale_data
-        self.importer_component.run(json.dumps(json_import))
-        # New import that should update the addresses
-        json_import["address_customer"]["street"] = "new val customer"
-        json_import["address_invoicing"]["street"] = "new val invoicing"
-        json_import["payment"]["reference"] = "PMT-EXAMPLE-002"
-        new_sale_order = self.importer_component.run(json.dumps(json_import))
-        self.assertEqual(new_sale_order.partner_id.street, "new val customer")
-        self.assertEqual(new_sale_order.partner_invoice_id.street, "new val invoicing")
-        self.assertEqual(
-            new_sale_order.partner_shipping_id.street,
-            self.sale_order_example_vals["address_shipping"]["street"],
-        )
 
     def test_order_line_description(self):
         """ Test that a description is taken into account, or
