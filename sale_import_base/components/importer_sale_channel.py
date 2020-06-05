@@ -35,8 +35,6 @@ class ImporterSaleChannel(Component):
             so_datamodel_load = self.env.datamodels["sale.order"].load_json(raw_data)
         except MarshmallowValidationError:
             raise ValidationError(MarshmallowValidationError)
-        except Exception:
-            raise
         json_data_initial = so_datamodel_load.dump()
         json_data = deepcopy(json_data_initial)
         so_vals = self.process_data(json_data)
@@ -58,7 +56,7 @@ class ImporterSaleChannel(Component):
         del so_vals["payment"]
 
     def _process_m2os(self, so_vals):
-        channel_id = self.get_channel(so_vals)
+        channel_id = self.collection.reference
         partner_id = self.get_partner(so_vals, channel_id)
         self.process_addresses(partner_id, so_vals)
         self.process_lines(so_vals)
@@ -326,12 +324,3 @@ class ImporterSaleChannel(Component):
         }
         new_pmt = self.env["payment.transaction"].create(payment_vals)
         sale_order.transaction_ids = new_pmt
-
-    def _helper_find_binding(self, sale_channel, external_id):
-        binding = self.env["sale.channel.partner"].search(
-            [
-                ("external_id", "=", external_id),
-                ("sale_channel_id", "=", sale_channel.id),
-            ]
-        )
-        return binding
