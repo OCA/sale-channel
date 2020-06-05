@@ -1,4 +1,5 @@
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+#  Copyright (c) Akretion 2020
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl)
 {
     "name": "Sale Import Base",
     "summary": "Base for importing Sale Orders through a JSON file format",
