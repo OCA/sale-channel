@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="api_key_amazon" model="auth.api.key">
+        <field name="name">Demo Api Key for Amazon</field>
+        <field name="key">abc123</field>
+        <field name="user_id" eval="ref('base.user_admin')"/>
+    </record>
+    <record id="api_key_ebay" model="auth.api.key">
+        <field name="name">Demo Api Key for Ebay</field>
+        <field name="key">123abc</field>
+        <field name="user_id" eval="ref('base.user_admin')"/>
+    </record>
+    <record id="sale_channel.sale_channel_amazon" model="sale.channel">
+        <field name="api_key" eval="ref('sale_import_rest.api_key_amazon')"/>
+    </record>
+    <record id="sale_channel.sale_channel_ebay" model="sale.channel">
+        <field name="api_key" eval="ref('sale_import_rest.api_key_ebay')"/>
+    </record>
+</odoo>
