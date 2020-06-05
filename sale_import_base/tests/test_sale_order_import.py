@@ -10,6 +10,7 @@ from .common_sale_order_import import SaleImportCase
 class TestSaleOrderImport(SaleImportCase):
     def setUp(self):
         super().setUp()
+        self.sale_channel_ebay = self.env.ref("sale_channel.sale_channel_ebay")
 
     def test_invalid_json(self):
         """ An invalid input will stop the job """
@@ -25,7 +26,7 @@ class TestSaleOrderImport(SaleImportCase):
         new_sale_order = self.importer_component.run(json.dumps(json_import))
         partner_count_after_import = self.env["res.partner"].search_count([])
         self.assertEqual(partner_count_after_import, partner_count + 3)
-        binding_count = self.env["res.partner.binding"].search_count(
+        binding_count = self.env["sale.channel.partner"].search_count(
             [
                 ("sale_channel_id", "=", self.sale_channel_ebay.id),
                 ("partner_id", "=", new_sale_order.partner_id.id),
@@ -46,7 +47,7 @@ class TestSaleOrderImport(SaleImportCase):
         json_import["payment"]["reference"] = "PMT-EXAMPLE-002"
         new_sale_order = self.importer_component.run(json.dumps(json_import))
         self.assertEqual(new_sale_order.partner_id.street, "new street")
-        binding_count = self.env["res.partner.binding"].search_count(
+        binding_count = self.env["sale.channel.partner"].search_count(
             [
                 ("sale_channel_id", "=", self.sale_channel_ebay.id),
                 ("partner_id", "=", new_sale_order.partner_id.id),
@@ -67,7 +68,7 @@ class TestSaleOrderImport(SaleImportCase):
         json_import["payment"]["reference"] = "PMT-EXAMPLE-002"
         new_sale_order = self.importer_component.run(json.dumps(json_import))
         self.assertEqual(new_sale_order.partner_id.street, "new street")
-        binding_count = self.env["res.partner.binding"].search_count(
+        binding_count = self.env["sale.channel.partner"].search_count(
             [
                 ("sale_channel_id", "=", self.sale_channel_ebay.id),
                 ("partner_id", "=", new_sale_order.partner_id.id),
@@ -91,7 +92,7 @@ class TestSaleOrderImport(SaleImportCase):
             [("email", "=", "thomasjean@gmail.com")]
         )
         self.assertEqual(count, 2)
-        binding_count = self.env["res.partner.binding"].search_count(
+        binding_count = self.env["sale.channel.partner"].search_count(
             [
                 ("sale_channel_id", "=", self.sale_channel_ebay.id),
                 ("partner_id", "=", first_so.partner_id.id),
@@ -99,7 +100,7 @@ class TestSaleOrderImport(SaleImportCase):
             ]
         )
         self.assertEqual(binding_count, 1)
-        binding_count = self.env["res.partner.binding"].search_count(
+        binding_count = self.env["sale.channel.partner"].search_count(
             [
                 ("sale_channel_id", "=", self.sale_channel_ebay.id),
                 ("partner_id", "=", second_so.partner_id.id),
