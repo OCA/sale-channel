@@ -25,21 +25,21 @@ class SaleImportCase(
 
     @classmethod
     def setUpTaxes(cls):
-        Tax = cls.env["account.tax"]
+        tax_obj = cls.env["account.tax"]
         tax_vals = {
             "name": "Fictional tax 9%",
             "amount": "9.00",
             "type_tax_use": "sale",
             "company_id": cls.env.ref("base.main_company").id,
         }
-        cls.tax = Tax.create(tax_vals)
+        cls.tax = tax_obj.create(tax_vals)
         cls.product_order.taxes_id = cls.tax
 
     @classmethod
     def setUpFpos(cls):
-        Tax = cls.env["account.tax"]
-        Fpos = cls.env["account.fiscal.position"]
-        FposLine = cls.env["account.fiscal.position.tax"]
+        tax_obj = cls.env["account.tax"]
+        fiscal_pos_obj = cls.env["account.fiscal.position"]
+        fiscal_pos_line_obj = cls.env["account.fiscal.position.tax"]
 
         # CH
         fpos_vals_swiss = {
@@ -49,20 +49,20 @@ class SaleImportCase(
             "zip_to": 0,
             "auto_apply": True,
         }
-        cls.fpos_swiss = Fpos.create(fpos_vals_swiss)
+        cls.fpos_swiss = fiscal_pos_obj.create(fpos_vals_swiss)
         tax_vals_swiss = {
-            "name": "Swiss Export Tax",
+            "name": "Swiss Export tax_obj",
             "amount": "0.00",
             "type_tax_use": "sale",
             "company_id": cls.env.ref("base.main_company").id,
         }
-        cls.tax_swiss = Tax.create(tax_vals_swiss)
+        cls.tax_swiss = tax_obj.create(tax_vals_swiss)
         fpos_line_vals = {
             "position_id": cls.fpos_swiss.id,
             "tax_src_id": cls.tax.id,
             "tax_dest_id": cls.tax_swiss.id,
         }
-        FposLine.create(fpos_line_vals)
+        fiscal_pos_line_obj.create(fpos_line_vals)
 
     @classmethod
     def setUpPaymentAcquirer(cls):
