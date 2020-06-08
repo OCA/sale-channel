@@ -22,9 +22,13 @@ class TestSaleOrderImport(SaleImportCase):
     def test_create_partner(self):
         """ Base scenario: create partner """
         data = self.sale_data
-        partner_count = self.env["res.partner"].search_count([])
+        partner_count = (
+            self.env["res.partner"].with_context(active_test=False).search_count([])
+        )
         self.importer_component.run(json.dumps(data))
-        partner_count_after_import = self.env["res.partner"].search_count([])
+        partner_count_after_import = (
+            self.env["res.partner"].with_context(active_test=False).search_count([])
+        )
         self.assertEqual(partner_count_after_import, partner_count + 3)
 
     def test_binding_created(self):
@@ -63,14 +67,18 @@ class TestSaleOrderImport(SaleImportCase):
 
     def test_import_existing_partner_match_email_disallowed(self):
         """ Test that if email match is disallowed, we just create a partner """
-        partner_count = self.env["res.partner"].search_count([])
+        partner_count = (
+            self.env["res.partner"].with_context(active_test=False).search_count([])
+        )
         data = self.sale_data
         data["address_customer"]["email"] = "gemini.furniture39@example.com"
         data["address_customer"]["street"] = "new street"
         self.sale_channel_ebay.allow_match_on_email = False
         self.importer_component.run(json.dumps(data))
-        new_partner_count = self.env["res.partner"].search_count([])
-        self.assertEqual(partner_count + 3, new_partner_count)
+        new_partner_count = (
+            self.env["res.partner"].with_context(active_test=False).search_count([])
+        )
+        self.assertEqual(new_partner_count, partner_count + 3)
 
     def test_product_missing(self):
         """ Test product code validation effectively blocks the job """
