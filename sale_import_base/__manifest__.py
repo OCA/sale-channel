@@ -14,6 +14,7 @@
         "datamodel",
         "sale_channel_partner",
         "sale_exception",
+        "onchange_helper",
     ],
     "license": "AGPL-3",
     "data": ["data/sale_exception.xml", "views/sale_channel.xml"],

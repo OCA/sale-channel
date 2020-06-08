@@ -27,7 +27,7 @@ class SaleOrderAddressDatamodel(BaseDatamodel):
                 _("Could not determine one country from country code")
             )
 
-    name = fields.Str()
+    name = fields.Str(required=True)
     street = fields.Str(required=True)
     street2 = fields.Str()
     zip = fields.Integer(required=True)

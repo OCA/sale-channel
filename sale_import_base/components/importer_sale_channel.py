@@ -1,21 +1,11 @@
 #  Copyright (c) Akretion 2020
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl)
-from copy import deepcopy
 
 from marshmallow_objects import ValidationError as MarshmallowValidationError
 
 from odoo.exceptions import ValidationError
 
 from odoo.addons.component.core import Component
-
-MAPPINGS_SALE_ORDER_ADDRESS_SIMPLE = [
-    "name",
-    "street",
-    "street2",
-    "zip",
-    "city",
-    "email",
-]
 
 
 class ImporterSaleChannel(Component):
@@ -35,275 +25,144 @@ class ImporterSaleChannel(Component):
             so_datamodel_load = self.env.datamodels["sale.order"].load_json(raw_data)
         except MarshmallowValidationError:
             raise ValidationError(MarshmallowValidationError)
-        json_data_initial = so_datamodel_load.dump()
-        json_data = deepcopy(json_data_initial)
-        so_vals = self.process_data(json_data)
+        data = so_datamodel_load.dump()
+        so_vals = self._prepare_vals(data)
         new_sale_order = self.env["sale.order"].create(so_vals)
-        self.finalize(new_sale_order, json_data_initial)
+        self._finalize(new_sale_order, data)
         return new_sale_order
 
-    # DATAMODEL PROCESSORS
-    def _process_data(self, so_vals):
-        """ Transform values in-place
-         to make it usable in create() """
-        self.process_simple_fields(so_vals)
-        self.process_m2os(so_vals)
-        so_vals = self.simulate_onchanges(so_vals)
-        return so_vals
-
-    def _process_simple_fields(self, so_vals):
-        del so_vals["currency_code"]
-        del so_vals["payment"]
-
-    def _process_m2os(self, so_vals):
-        channel_id = self.collection.reference
-        partner_id = self.get_partner(so_vals, channel_id)
-        self.process_addresses(partner_id, so_vals)
-        self.process_lines(so_vals)
-        self.process_amount(so_vals)
-        self.process_invoice(so_vals)
-        self.process_sale_channel(so_vals)
-
-    def _get_channel(self, so_vals):
-        sale_channel = self.env["sale.channel"].search(
-            [("name", "=", so_vals["sale_channel"])]
+    def _prepare_vals(self, data):
+        partner = self._process_partner(data)
+        address_invoice = self._process_address(
+            partner, data["address_invoicing"], "invoice"
         )
-        return sale_channel
+        address_shipping = self._process_address(
+            partner, data["address_shipping"], "delivery"
+        )
+        so_vals = {
+            "partner_id": partner.id,
+            "partner_invoice_id": address_invoice.id,
+            "partner_shipping_id": address_shipping.id,
+            "si_amount_total": data["amount"]["amount_total"],
+            "si_amount_untaxed": data["amount"]["amount_untaxed"],
+            "si_amount_tax": data["amount"]["amount_tax"],
+            "order_line": [
+                (0, 0, self._prepare_sale_line(line)) for line in data["lines"]
+            ],
+            "sale_channel_id": self.collection.record_id,
+        }
+        result = self._execute_onchanges(so_vals)
+        return result
 
-    def _get_partner(self, so_vals, sale_channel):
-        external_id = so_vals["address_customer"].get("external_id")
+    def _process_partner(self, data):
+        partner = self._find_partner(data["address_customer"])
+        vals = self._prepare_partner(data["address_customer"])
+        if partner:
+            partner.write(vals)
+            return partner
+        else:
+            partner = self.env["res.partner"].create(vals)
+            self._binding_partner(partner, data["address_customer"]["external_id"])
+            return partner
+
+    def _find_partner(self, customer_data):
+        external_id = customer_data["external_id"]
         binding = self.env["sale.channel.partner"].search(
             [
                 ("external_id", "=", external_id),
-                ("sale_channel_id", "=", sale_channel.id),
+                ("sale_channel_id", "=", self.collection.record_id),
             ]
         )
+        channel = self.collection.reference
         if binding:
             return binding.partner_id
-        if sale_channel.allow_match_on_email:
+        elif channel.allow_match_on_email:
             partner = self.env["res.partner"].search(
-                [("email", "=", so_vals["address_customer"]["email"])]
+                [("email", "=", customer_data["email"])]
             )
             if partner:
+                self._binding_partner(partner, customer_data["external_id"])
                 return partner
-        return self.create_partner(so_vals)
 
-    def _create_partner(self, so_vals):
-        partner_vals = dict()
-        for field in MAPPINGS_SALE_ORDER_ADDRESS_SIMPLE:
-            partner_vals[field] = so_vals["address_customer"][field]
-        country = self.env["res.country"].search(
-            [("code", "=", so_vals["address_customer"]["country_code"])]
-        )
-        partner_vals["country_id"] = country.id
-        partner = self.env["res.partner"].create(partner_vals)
-        return partner
+    def _prepare_partner(self, data):
+        result = {
+            "name": data["name"],
+            "street": data["street"],
+            "street2": data.get("street2"),
+            "zip": data["zip"],
+            "city": data["city"],
+            "email": data.get("email"),
+        }
+        if data.get("state_code"):
+            state = self.env["res.country.state"].search(
+                [("code", "=", data["state_code"])]
+            )
+            result["state_id"] = state.id
+        country = self.env["res.country"].search([("code", "=", data["country_code"])])
+        result["country_id"] = country.id
+        return result
 
-    def _process_addresses(self, partner_id, so_vals):
-        # customer itself
-        vals_addr_customer = so_vals["address_customer"]
-        new_state = (
-            self.env["res.country.state"]
-            .search([("code", "=", vals_addr_customer.get("state_code"))])
-            .id
-        )
-        partner_id.state_id = new_state
-        new_country = (
-            self.env["res.country"]
-            .search([("code", "=", vals_addr_customer["country_code"])])
-            .id
-        )
-        partner_id.country_id = new_country
-        for field in MAPPINGS_SALE_ORDER_ADDRESS_SIMPLE:
-            new_val = vals_addr_customer.get(field)
-            if new_val:
-                setattr(partner_id, field, new_val)
-        so_vals["partner_id"] = partner_id.id
-        del so_vals["address_customer"]
-
+    def _process_address(self, partner, address, address_type):
         # invoice and shipping: find or create partner based on values
-        res_partner_obj = self.env["res.partner"]
-        vals_addr_invoicing = so_vals["address_invoicing"]
-        vals_addr_shipping = so_vals["address_shipping"]
-        for address_field in (
-            (vals_addr_shipping, "partner_shipping_id", "address_shipping", "delivery"),
-            (vals_addr_invoicing, "partner_invoice_id", "address_invoicing", "invoice"),
-        ):
-            addr = address_field[0]
-            field = address_field[1]
-            vals_key = address_field[2]
-            type_di = address_field[3]
-            if addr.get("state_code"):
-                addr["state_id"] = self.env["res.country.state"].search(
-                    [("code", "=", addr.get("state_code"))]
-                )
-                del addr["state_code"]
-            addr["country_id"] = self.env["res.country"].search(
-                [("code", "=", addr["country_code"])]
-            )
-            del addr["country_code"]
-            addr["parent_id"] = partner_id
-            addr["type"] = type_di
-            res_partner_virtual = res_partner_obj.new(addr)
-            # on create res.partner Odoo rewrites address values to be the
-            # same as the parent's, thus we force set to our values
-            for k, v in addr.items():
-                setattr(res_partner_virtual, k, v)
-            version = res_partner_virtual.get_address_version()
-            version.active = True
-            so_vals[field] = version.id
-            del so_vals[vals_key]
+        vals = self._prepare_partner(address)
+        addr_virtual = self.env["res.partner"].new(vals)
+        # on create res.partner Odoo rewrites address values to be the
+        # same as the parent's, thus we force set to our values
+        for k, v in vals.items():
+            setattr(addr_virtual, k, v)
+        addr_virtual.parent_id = partner.id
+        addr_virtual.type = address_type
+        return addr_virtual.get_address_version()
 
-    def _process_lines(self, so_vals):
-        lines = so_vals["lines"]
-        so_vals["order_line"] = list()
-        for line in lines:
-            product_id = (
-                self.env["product.product"]
-                .search([("default_code", "=", line["product_code"])])
-                .id
-            )
-            qty = line["qty"]
-            price_unit = line["price_unit"]
-            description = line.get("description") or None
-            discount = line["discount"]
-            line_vals_dict = {
-                "product_id": product_id,
-                "product_uom_qty": qty,
-                "price_unit": price_unit,
-                "name": description,
-                "discount": discount,
-            }
-            line_vals_command = (0, 0, line_vals_dict)
-            so_vals["order_line"].append(line_vals_command)
-        del so_vals["lines"]
-
-    def _process_amount(self, so_vals):
-        for k, v in so_vals["amount"].items():
-            si_key = "si_" + k
-            so_vals[si_key] = v
-        del so_vals["amount"]
-
-    def _process_invoice(self, so_vals):
-        # TODO actually use that val
-        del so_vals["invoice"]
-
-    def _process_sale_channel(self, so_vals):
-        channel = self.env["sale.channel"].search(
-            [("name", "=", so_vals.get("sale_channel"))]
+    def _prepare_sale_line(self, line_data):
+        product_id = (
+            self.env["product.product"]
+            .search([("default_code", "=", line_data["product_code"])])
+            .id
         )
-        if channel:
-            so_vals["sale_channel_id"] = channel.id
-            del so_vals["sale_channel"]
+        qty = line_data["qty"]
+        price_unit = line_data["price_unit"]
+        discount = line_data["discount"]
+        result = {
+            "product_id": product_id,
+            "product_uom_qty": qty,
+            "price_unit": price_unit,
+            "discount": discount,
+        }
+        description = line_data.get("description")
+        if description:
+            result["name"] = line_data.get("description")
+        return result
 
-    def _simulate_onchanges(self, order):
-        """ Drawn from connector_ecommerce module with modifications:
-        onchange fields, some syntax
-        Play the onchange of the sales order and it's lines
-        :param order: sales order values
-        :type: dict
-        :param order_lines: data of the sales order lines
-        :type: list of dict
-        :return: the sales order updated by the onchanges
-        :rtype: dict
-        """
-        order_onchange_fields = [
-            "partner_id",
-            "partner_shipping_id",
+    def _execute_onchanges(self, so_vals):
+        onchange_fields = [
             "payment_mode_id",
             "workflow_process_id",
             "fiscal_position_id",
+            "partner_id",
+            "partner_shipping_id",
+            "partner_invoice_id",
         ]
-
-        line_onchange_fields = ["product_id"]
-
-        # play onchange on sales order
-        order = self.simulate_onchanges_play_onchanges(
-            "sale.order", order, order_onchange_fields
+        so_vals_onchanged = self.env["sale.order"].play_onchanges(
+            so_vals, onchange_fields
         )
+        # we need a virtual SO for onchanges on the order lines
+        # because their onchanges depend on parent's values
+        virtual_so = self.env["sale.order"].new(so_vals_onchanged)
+        line_vals = so_vals["order_line"]
+        for line in line_vals:
+            line[2]["order_id"] = virtual_so
+        line_vals_onchanged = [
+            self.env["sale.order.line"].play_onchanges(line[2], ["product_id"])
+            for line in line_vals
+        ]
+        lines_onchanged_commands = [(0, 0, val) for val in line_vals_onchanged]
+        so_vals_onchanged["order_line"] = lines_onchanged_commands
+        return so_vals_onchanged
 
-        # play onchange on sales order line
-        processed_order_lines = []
-        line_lists = [order["order_line"]]
-
-        for line_list in line_lists:
-            for idx, command_line in enumerate(line_list):
-                # line_list format:[(0, 0, {...}), (0, 0, {...})]
-                if command_line[0] in (0, 1):  # create or update values
-                    # keeps command number and ID (or 0)
-                    old_line_data = deepcopy(command_line[2])
-                    # give a virtual order_id for the fiscal position/taxes
-                    old_line_data["order_id"] = self.env["sale.order"].new(order)
-                    new_line_data = self.simulate_onchanges_play_onchanges(
-                        "sale.order.line", old_line_data, line_onchange_fields
-                    )
-                    del new_line_data["order_id"]
-                    new_line = (command_line[0], command_line[1], new_line_data)
-                    processed_order_lines.append(new_line)
-                    # in place modification of the sales order line in the list
-                    line_list[idx] = new_line
-        return order
-
-    def _simulate_onchanges_play_onchanges(self, model, values, onchange_fields):
-        model = self.env[model]
-        onchange_specs = model._onchange_spec()
-
-        # we need all fields in the dict even the empty ones
-        # otherwise 'onchange()' will not apply changes to them
-        all_values = values.copy()
-        for field in model._fields:
-            if field not in all_values:
-                all_values[field] = False
-
-        # we work on a temporary record
-        new_record = model.new(all_values)
-
-        new_values = {}
-        for field in onchange_fields:
-            onchange_values = new_record.onchange(all_values, field, onchange_specs)
-            new_values_diff = self.simulate_onchanges_get_new_values(
-                values, onchange_values, model=model._name
-            )
-            new_values.update(new_values_diff)
-            all_values.update(new_values)
-
-        res = {f: v for f, v in all_values.items() if f in values or f in new_values}
-        return res
-
-    def _simulate_onchanges_get_new_values(self, record, on_change_result, model=None):
-        vals = on_change_result.get("value", {})
-        new_values = {}
-        for fieldname, value in vals.items():
-            if not record.get(fieldname):  # fieldname not in record:
-                if model:
-                    column = self.env[model]._fields[fieldname]
-                    if column.type == "many2one":
-                        value = value[0]  # many2one are tuple (id, name)
-                new_values[fieldname] = value
-        return new_values
-
-    # FINALIZERS
     def _finalize(self, new_sale_order, raw_import_data):
         """ Extend to add final operations """
-        self.sync_binding(new_sale_order, raw_import_data)
-        self.create_payment(new_sale_order, raw_import_data)
-
-    def _sync_binding(self, sale_order, data):
-        if not data["address_customer"].get("external_id"):
-            return
-        existing_binding = self.env["sale.channel.partner"].search(
-            [
-                ("sale_channel_id", "=", sale_order.sale_channel_id.id),
-                ("partner_id", "=", sale_order.partner_id.id),
-            ]
-        )
-        if not existing_binding:
-            binding_vals = {
-                "sale_channel_id": sale_order.sale_channel_id.id,
-                "partner_id": sale_order.partner_id.id,
-                "external_id": data["address_customer"]["external_id"],
-            }
-            self.env["sale.channel.partner"].create(binding_vals)
+        self._create_payment(new_sale_order, raw_import_data)
 
     def _create_payment(self, sale_order, data):
         if not data.get("payment"):
@@ -324,3 +183,12 @@ class ImporterSaleChannel(Component):
         }
         new_pmt = self.env["payment.transaction"].create(payment_vals)
         sale_order.transaction_ids = new_pmt
+
+    def _binding_partner(self, partner, external_id):
+        self.env["sale.channel.partner"].create(
+            {
+                "external_id": external_id,
+                "sale_channel_id": self.collection.record_id,
+                "partner_id": partner.id,
+            }
+        )
