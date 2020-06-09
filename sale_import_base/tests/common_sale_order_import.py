@@ -87,6 +87,7 @@ class SaleImportCase(
                 "apply_on_model": "res.partner",
                 "data_str": '{"name": "Dummy Partner"}',
                 "record_id": cls.env.ref("sale_channel.sale_channel_ebay"),
+                "model_name": "sale.channel",
             }
         )
         with dummy_chunk.work_on("sale.order") as work:

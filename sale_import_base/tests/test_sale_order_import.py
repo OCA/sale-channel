@@ -48,22 +48,27 @@ class TestSaleOrderImport(SaleImportCase):
         """ During import, if a partner is matched on external_id/channel
         combination, his address is updated """
         data = self.sale_data
-        partner_colleen = self.env.ref("base.res_partner_address_28")
-        del data["address_customer"]["email"]
+        partner = self.env.ref("base.res_partner_1")
+        self.env["sale.channel.partner"].create(
+            {
+                "partner_id": partner.id,
+                "external_id": "ThomasJeanEbay",
+                "sale_channel_id": self.sale_channel_ebay.id,
+            }
+        )
         data["address_customer"]["street"] = "new street"
-        data["address_customer"]["external_id"] = "id_from_ebay1"
         self.importer_component.run(json.dumps(data))
-        self.assertEqual(partner_colleen.street, "new street")
+        self.assertEqual(partner.street, "new street")
 
     def test_import_existing_partner_match_email(self):
         """ During import, if a partner is matched on email,
         its address is updated """
         data = self.sale_data
-        partner_gemini = self.env.ref("base.res_partner_3")
-        data["address_customer"]["email"] = "gemini.furniture39@example.com"
+        partner = self.env.ref("base.res_partner_3")
+        partner.write({"email": "thomasjean@example.com"})
         data["address_customer"]["street"] = "new street"
         self.importer_component.run(json.dumps(data))
-        self.assertEqual(partner_gemini.street, "new street")
+        self.assertEqual(partner.street, "new street")
 
     def test_import_existing_partner_match_email_disallowed(self):
         """ Test that if email match is disallowed, we just create a partner """
@@ -71,7 +76,8 @@ class TestSaleOrderImport(SaleImportCase):
             self.env["res.partner"].with_context(active_test=False).search_count([])
         )
         data = self.sale_data
-        data["address_customer"]["email"] = "gemini.furniture39@example.com"
+        partner = self.env.ref("base.res_partner_1")
+        partner.write({"email": "thomasjean@example.com"})
         data["address_customer"]["street"] = "new street"
         self.sale_channel_ebay.allow_match_on_email = False
         self.importer_component.run(json.dumps(data))

@@ -33,8 +33,11 @@ class ImporterSaleChannel(Component):
 
     def _prepare_vals(self, data):
         partner = self._process_partner(data)
-        address_invoice, address_shipping = self._process_addresses(
-            partner, data["address_invoicing"], data["address_shipping"]
+        address_invoice = self._process_address(
+            partner, data["address_invoicing"], "invoice"
+        )
+        address_shipping = self._process_address(
+            partner, data["address_shipping"], "delivery"
         )
         so_vals = {
             "partner_id": partner.id,
@@ -52,55 +55,42 @@ class ImporterSaleChannel(Component):
         return result
 
     def _process_partner(self, data):
-        partner = self._find_partner(data)
-        vals = self._extract_address_info(data["address_customer"])
+        partner = self._find_partner(data["address_customer"])
+        vals = self._prepare_partner(data["address_customer"])
         if partner:
             partner.write(vals)
-            result = partner
+            return partner
         else:
-            result = self.env["res.partner"].create(vals)
-            self.env["sale.channel.partner"].create(
-                {
-                    "external_id": data["address_customer"].get("external_id")
-                    or result.email,
-                    "sale_channel_id": self.collection.record_id,
-                    "partner_id": result.id,
-                }
-            )
-        return result
+            partner = self.env["res.partner"].create(vals)
+            self._binding_partner(partner, data["address_customer"]["external_id"])
+            return partner
 
-    def _find_partner(self, data):
-        external_id = data["address_customer"].get("external_id")
+    def _find_partner(self, customer_data):
+        external_id = customer_data["external_id"]
         binding = self.env["sale.channel.partner"].search(
             [
                 ("external_id", "=", external_id),
                 ("sale_channel_id", "=", self.collection.record_id),
             ]
         )
-        sale_channel = self.env["sale.channel"].browse(self.collection.record_id)
+        channel = self.collection.reference
         if binding:
             return binding.partner_id
-        elif sale_channel.allow_match_on_email:
+        elif channel.allow_match_on_email:
             partner = self.env["res.partner"].search(
-                [("email", "=", data["address_customer"]["email"])]
+                [("email", "=", customer_data["email"])]
             )
             if partner:
-                self.env["sale.channel.partner"].create(
-                    {
-                        "external_id": partner.email,
-                        "sale_channel_id": self.collection.record_id,
-                        "partner_id": partner.id,
-                    }
-                )
+                self._binding_partner(partner, customer_data["external_id"])
                 return partner
 
-    def _extract_address_info(self, data):
+    def _prepare_partner(self, data):
         result = {
-            "name": data.get("name") or data.get("email") or data.get("city"),
-            "street": data.get("street"),
+            "name": data["name"],
+            "street": data["street"],
             "street2": data.get("street2"),
-            "zip": data.get("zip"),
-            "city": data.get("city"),
+            "zip": data["zip"],
+            "city": data["city"],
             "email": data.get("email"),
         }
         if data.get("state_code"):
@@ -108,28 +98,21 @@ class ImporterSaleChannel(Component):
                 [("code", "=", data["state_code"])]
             )
             result["state_id"] = state.id
-        if data.get("country_code"):
-            country = self.env["res.country"].search(
-                [("code", "=", data["country_code"])]
-            )
-            result["country_id"] = country.id
+        country = self.env["res.country"].search([("code", "=", data["country_code"])])
+        result["country_id"] = country.id
         return result
 
-    def _process_addresses(self, partner, addr_invoice, addr_shipping):
+    def _process_address(self, partner, address, address_type):
         # invoice and shipping: find or create partner based on values
-        result = []
-        for addr in ((addr_invoice, "invoice"), (addr_shipping, "delivery")):
-            vals = self._extract_address_info(addr[0])
-            vals["type"] = addr[1]
-            addr_virtual = self.env["res.partner"].new(vals)
-            # on create res.partner Odoo rewrites address values to be the
-            # same as the parent's, thus we force set to our values
-            for k, v in vals.items():
-                setattr(addr_virtual, k, v)
-            addr_virtual["parent_id"] = partner.id
-            version = addr_virtual.get_address_version()
-            result.append(version)
-        return result
+        vals = self._prepare_partner(address)
+        addr_virtual = self.env["res.partner"].new(vals)
+        # on create res.partner Odoo rewrites address values to be the
+        # same as the parent's, thus we force set to our values
+        for k, v in vals.items():
+            setattr(addr_virtual, k, v)
+        addr_virtual.parent_id = partner.id
+        addr_virtual.type = address_type
+        return addr_virtual.get_address_version()
 
     def _prepare_sale_line(self, line_data):
         product_id = (
@@ -200,3 +183,12 @@ class ImporterSaleChannel(Component):
         }
         new_pmt = self.env["payment.transaction"].create(payment_vals)
         sale_order.transaction_ids = new_pmt
+
+    def _binding_partner(self, partner, external_id):
+        self.env["sale.channel.partner"].create(
+            {
+                "external_id": external_id,
+                "sale_channel_id": self.collection.record_id,
+                "partner_id": partner.id,
+            }
+        )
