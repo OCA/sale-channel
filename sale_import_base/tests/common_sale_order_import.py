@@ -51,7 +51,7 @@ class SaleImportCase(
         }
         cls.fpos_swiss = fiscal_pos_obj.create(fpos_vals_swiss)
         tax_vals_swiss = {
-            "name": "Swiss Export tax_obj",
+            "name": "Swiss Export",
             "amount": "0.00",
             "type_tax_use": "sale",
             "company_id": cls.env.ref("base.main_company").id,

@@ -46,9 +46,7 @@ class ImporterSaleChannel(Component):
             "si_amount_total": data["amount"]["amount_total"],
             "si_amount_untaxed": data["amount"]["amount_untaxed"],
             "si_amount_tax": data["amount"]["amount_tax"],
-            "order_line": [
-                (0, 0, self._prepare_sale_line(line)) for line in data["lines"]
-            ],
+            "order_line": self._prepare_sale_lines(data),
             "sale_channel_id": self.collection.record_id,
         }
         return self._execute_onchanges(so_vals)
@@ -108,25 +106,26 @@ class ImporterSaleChannel(Component):
         addr_virtual.type = address_type
         return addr_virtual.get_address_version()
 
+    def _prepare_sale_lines(self, data):
+        return [
+            (0, 0, self._prepare_sale_line(line_data)) for line_data in data["lines"]
+        ]
+
     def _prepare_sale_line(self, line_data):
         product_id = (
             self.env["product.product"]
             .search([("default_code", "=", line_data["product_code"])])
             .id
         )
-        qty = line_data["qty"]
-        price_unit = line_data["price_unit"]
-        discount = line_data["discount"]
-        result = {
+        vals = {
             "product_id": product_id,
-            "product_uom_qty": qty,
-            "price_unit": price_unit,
-            "discount": discount,
+            "product_uom_qty": line_data["qty"],
+            "price_unit": line_data["price_unit"],
+            "discount": line_data["discount"],
         }
-        description = line_data.get("description")
-        if description:
-            result["name"] = line_data.get("description")
-        return result
+        if line_data.get("description"):
+            vals["name"] = line_data["description"]
+        return vals
 
     def _execute_onchanges(self, so_vals):
         onchange_fields = [
