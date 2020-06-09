@@ -5,10 +5,10 @@ from marshmallow_objects import ValidationError, validates
 from odoo import _
 
 from odoo.addons.datamodel import fields
-from odoo.addons.datamodel.datamodels.base import BaseDatamodel
+from odoo.addons.datamodel.core import Datamodel
 
 
-class SaleOrderAddressDatamodel(BaseDatamodel):
+class SaleOrderAddressDatamodel(Datamodel):
     _name = "sale.order.address"
 
     @validates("state_code")

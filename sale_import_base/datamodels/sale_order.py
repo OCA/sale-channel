@@ -5,12 +5,10 @@ from marshmallow_objects import ValidationError, validates, validates_schema
 from odoo import _
 
 from odoo.addons.datamodel import fields
-from odoo.addons.datamodel.datamodels.base import BaseDatamodel
-
-FIELDS_REQUIRED_address_customer = ["email"]
+from odoo.addons.datamodel.core import Datamodel
 
 
-class SaleOrderDatamodel(BaseDatamodel):
+class SaleOrderDatamodel(Datamodel):
     _name = "sale.order"
 
     @validates("sale_channel")
@@ -43,7 +41,6 @@ class SaleOrderDatamodel(BaseDatamodel):
     amount = fields.NestedModel("sale.order.amount", required=True)
     invoice = fields.NestedModel("sale.order.invoice")
     sale_channel = fields.Str()
-    delivery_carrier = fields.NestedModel("delivery.carrier")
     payment = fields.NestedModel("sale.order.payment")
     currency_code = fields.Str(required=True)
     pricelist_id = fields.Integer(required=True)

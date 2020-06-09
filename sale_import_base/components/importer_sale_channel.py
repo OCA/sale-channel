@@ -23,8 +23,8 @@ class ImporterSaleChannel(Component):
         # a string (so we can edit it)
         try:
             so_datamodel_load = self.env.datamodels["sale.order"].load_json(raw_data)
-        except MarshmallowValidationError:
-            raise ValidationError(MarshmallowValidationError)
+        except MarshmallowValidationError as e:
+            raise ValidationError(e)
         data = so_datamodel_load.dump()
         so_vals = self._prepare_vals(data)
         new_sale_order = self.env["sale.order"].create(so_vals)
@@ -51,8 +51,7 @@ class ImporterSaleChannel(Component):
             ],
             "sale_channel_id": self.collection.record_id,
         }
-        result = self._execute_onchanges(so_vals)
-        return result
+        return self._execute_onchanges(so_vals)
 
     def _process_partner(self, data):
         partner = self._find_partner(data["address_customer"])
