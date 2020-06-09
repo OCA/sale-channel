@@ -36,7 +36,9 @@ class QueueJobChunk(models.Model):
     state_info = fields.Text("Additional state information")
     model_name = fields.Char("Model ID")
     record_id = fields.Integer("Record ID")
-    reference = fields.Char(string="Reference", compute=_compute_reference)
+    reference = fields.Reference(
+        selection=[], string="Reference", compute=_compute_reference
+    )
     company_id = fields.Many2one("res.company", compute=_compute_reference)
 
     @api.model_create_multi
