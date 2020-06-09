@@ -56,9 +56,8 @@ class TestSaleOrderImport(SaleImportCase):
                 "sale_channel_id": self.sale_channel_ebay.id,
             }
         )
-        data["address_customer"]["street"] = "new street"
         self.importer_component.run(json.dumps(data))
-        self.assertEqual(partner.street, "new street")
+        self.assertEqual(partner.street, "1 rue de Jean")
 
     def test_import_existing_partner_match_email(self):
         """ During import, if a partner is matched on email,
