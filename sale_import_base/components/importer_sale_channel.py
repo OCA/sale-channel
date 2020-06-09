@@ -102,13 +102,8 @@ class ImporterSaleChannel(Component):
         return result
 
     def _process_address(self, partner, address, address_type):
-        # invoice and shipping: find or create partner based on values
         vals = self._prepare_partner(address)
         addr_virtual = self.env["res.partner"].new(vals)
-        # on create res.partner Odoo rewrites address values to be the
-        # same as the parent's, thus we force set to our values
-        for k, v in vals.items():
-            setattr(addr_virtual, k, v)
         addr_virtual.parent_id = partner.id
         addr_virtual.type = address_type
         return addr_virtual.get_address_version()
