@@ -1,4 +1,5 @@
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+#  Copyright (c) Akretion 2020
+#  License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
 {
     "name": "Sale Import REST",
     "summary": "REST API for importig Sale Orders",
