@@ -26,12 +26,14 @@ class ImporterSaleChannel(Component):
         except MarshmallowValidationError as e:
             raise ValidationError(e)
         data = so_datamodel_load.dump()
-        so_vals = self._prepare_vals(data)
-        new_sale_order = self.env["sale.order"].create(so_vals)
-        self._finalize(new_sale_order, data)
-        return new_sale_order
+        so_vals = self._prepare_sale_vals(data)
+        sale_order = self.env["sale.order"].create(so_vals)
+        so_line_vals = self._prepare_sale_line_vals(data, sale_order)
+        self.env["sale.order.line"].create(so_line_vals)
+        self._finalize(sale_order, data)
+        return sale_order
 
-    def _prepare_vals(self, data):
+    def _prepare_sale_vals(self, data):
         partner = self._process_partner(data)
         address_invoice = self._process_address(
             partner, data["address_invoicing"], "invoice"
@@ -46,10 +48,17 @@ class ImporterSaleChannel(Component):
             "si_amount_total": data["amount"]["amount_total"],
             "si_amount_untaxed": data["amount"]["amount_untaxed"],
             "si_amount_tax": data["amount"]["amount_tax"],
-            "order_line": self._prepare_sale_lines(data),
             "sale_channel_id": self.collection.record_id,
         }
-        return self._execute_onchanges(so_vals)
+        onchange_fields = [
+            "payment_mode_id",
+            "workflow_process_id",
+            "fiscal_position_id",
+            "partner_id",
+            "partner_shipping_id",
+            "partner_invoice_id",
+        ]
+        return self.env["sale.order"].play_onchanges(so_vals, onchange_fields)
 
     def _process_partner(self, data):
         partner = self._find_partner(data["address_customer"])
@@ -106,12 +115,10 @@ class ImporterSaleChannel(Component):
         addr_virtual.type = address_type
         return addr_virtual.get_address_version()
 
-    def _prepare_sale_lines(self, data):
-        return [
-            (0, 0, self._prepare_sale_line(line_data)) for line_data in data["lines"]
-        ]
+    def _prepare_sale_line_vals(self, data, sale_order):
+        return [self._prepare_sale_line(line, sale_order) for line in data["lines"]]
 
-    def _prepare_sale_line(self, line_data):
+    def _prepare_sale_line(self, line_data, sale_order):
         product_id = (
             self.env["product.product"]
             .search([("default_code", "=", line_data["product_code"])])
@@ -122,36 +129,11 @@ class ImporterSaleChannel(Component):
             "product_uom_qty": line_data["qty"],
             "price_unit": line_data["price_unit"],
             "discount": line_data["discount"],
+            "order_id": sale_order.id,
         }
         if line_data.get("description"):
             vals["name"] = line_data["description"]
-        return vals
-
-    def _execute_onchanges(self, so_vals):
-        onchange_fields = [
-            "payment_mode_id",
-            "workflow_process_id",
-            "fiscal_position_id",
-            "partner_id",
-            "partner_shipping_id",
-            "partner_invoice_id",
-        ]
-        so_vals_onchanged = self.env["sale.order"].play_onchanges(
-            so_vals, onchange_fields
-        )
-        # we need a virtual SO for onchanges on the order lines
-        # because their onchanges depend on parent's values
-        virtual_so = self.env["sale.order"].new(so_vals_onchanged)
-        line_vals = so_vals["order_line"]
-        for line in line_vals:
-            line[2]["order_id"] = virtual_so
-        line_vals_onchanged = [
-            self.env["sale.order.line"].play_onchanges(line[2], ["product_id"])
-            for line in line_vals
-        ]
-        lines_onchanged_commands = [(0, 0, val) for val in line_vals_onchanged]
-        so_vals_onchanged["order_line"] = lines_onchanged_commands
-        return so_vals_onchanged
+        return self.env["sale.order.line"].play_onchanges(vals, ["product_id"])
 
     def _finalize(self, new_sale_order, raw_import_data):
         """ Extend to add final operations """
