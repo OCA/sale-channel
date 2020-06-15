@@ -62,12 +62,10 @@ class TestSaleOrderImport(SaleImportCase):
     def test_import_existing_partner_match_email(self):
         """ During import, if a partner is matched on email,
         its address is updated """
-        data = self.sale_data
         partner = self.env.ref("base.res_partner_3")
         partner.write({"email": "thomasjean@example.com"})
-        data["address_customer"]["street"] = "new street"
-        self.importer_component.run(json.dumps(data))
-        self.assertEqual(partner.street, "new street")
+        self.importer_component.run(json.dumps(self.sale_data))
+        self.assertEqual(partner.street, "1 rue de Jean")
 
     def test_import_existing_partner_match_email_disallowed(self):
         """ Test that if email match is disallowed, we just create a partner """
