@@ -145,8 +145,7 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertEqual(new_sale_order.order_line[1].name, expected_desc_2)
 
     def test_currency_code(self):
-        data = self.sale_data
-        errors = self.env.datamodels["sale.order"].validate(data)
+        errors = self.env.datamodels["sale.order"].validate(self.sale_data)
         self.assertFalse(errors)
         data["currency_code"] = "EUR"
         errors = self.env.datamodels["sale.order"].validate(data)
