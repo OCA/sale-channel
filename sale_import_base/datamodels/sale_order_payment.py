@@ -11,18 +11,6 @@ from odoo.addons.datamodel.core import Datamodel
 class SaleOrderPaymentDatamodel(Datamodel):
     _name = "sale.order.payment"
 
-    @validates("mode")
-    def _validate_mode(self, mode):
-        acquirer = self._env["payment.acquirer"].search([("name", "=", mode)])
-        if not acquirer:
-            raise ValidationError(_("No payment type found for given mode"))
-
-    @validates("currency_code")
-    def _validate_currency_id(self, code):
-        currency_id = self._env["res.currency"].search([("name", "=", code)])
-        if code and not currency_id:
-            raise ValidationError(_("No currency type found for given code"))
-
     mode = fields.Str(required=True)
     amount = fields.Decimal()
     reference = fields.Str()

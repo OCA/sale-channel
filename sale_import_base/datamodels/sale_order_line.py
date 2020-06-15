@@ -11,14 +11,6 @@ from odoo.addons.datamodel.core import Datamodel
 class SaleOrderLineDatamodel(Datamodel):
     _name = "sale.order.line"
 
-    @validates("product_code")
-    def _validate_product_code(self, code):
-        product = self._env["product.product"].search([("default_code", "=", code)])
-        if len(product.ids) != 1:
-            raise ValidationError(
-                _("Could not find one product with supplied product code")
-            )
-
     product_code = fields.Str(required=True)
     qty = fields.Decimal(required=True)
     price_unit = fields.Decimal(required=True)

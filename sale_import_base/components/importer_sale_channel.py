@@ -14,27 +14,34 @@ class ImporterSaleChannel(Component):
     _apply_on = ["sale.order"]
     _usage = "json_import"
 
-    def run(self, raw_data):
+    def run(self):
         """
         :param raw_data: json-like string
         :return: generated sale order
         """
-        # we need this step because the chunk data is stored as
-        # a string (so we can edit it)
         try:
-            so_datamodel_load = self.env.datamodels["sale.order"].load_json(raw_data)
+            so_datamodel_load = self.env.datamodels["sale.order"].load_json(
+                self.collection.data_str
+            )
         except MarshmallowValidationError as e:
             raise ValidationError(e)
+        errors = so_datamodel_load.run_custom_validators()
+        if errors:
+            raise ValidationError(errors)
         data = so_datamodel_load.dump()
         so_vals = self._prepare_sale_vals(data)
+        # REVIEW: in case an error occurs before the end, a SO will already
+        # have been created
         sale_order = self.env["sale.order"].create(so_vals)
+        # TODO reproduire le bug
         so_line_vals = self._prepare_sale_line_vals(data, sale_order)
         self.env["sale.order.line"].create(so_line_vals)
         self._finalize(sale_order, data)
         return sale_order
 
     def _prepare_sale_vals(self, data):
-        partner = self._process_partner(data)
+        # TODO use invoice data
+        partner = self._process_partner(data["address_customer"])
         address_invoice = self._process_address(
             partner, data["address_invoicing"], "invoice"
         )
@@ -58,17 +65,18 @@ class ImporterSaleChannel(Component):
             "partner_shipping_id",
             "partner_invoice_id",
         ]
-        return self.env["sale.order"].play_onchanges(so_vals, onchange_fields)
+        result = self.env["sale.order"].play_onchanges(so_vals, onchange_fields)
+        return result
 
-    def _process_partner(self, data):
-        partner = self._find_partner(data["address_customer"])
-        vals = self._prepare_partner(data["address_customer"])
+    def _process_partner(self, customer_data):
+        partner = self._find_partner(customer_data)
+        vals = self._prepare_partner(customer_data)
         if partner:
             partner.write(vals)
             return partner
         else:
             partner = self.env["res.partner"].create(vals)
-            self._binding_partner(partner, data["address_customer"]["external_id"])
+            self._binding_partner(partner, customer_data["external_id"])
             return partner
 
     def _find_partner(self, customer_data):
@@ -127,7 +135,7 @@ class ImporterSaleChannel(Component):
             "product_id": product_id,
             "product_uom_qty": line_data["qty"],
             "price_unit": line_data["price_unit"],
-            "discount": line_data["discount"],
+            "discount": line_data.get("discount"),
             "order_id": sale_order.id,
         }
         if line_data.get("description"):
@@ -152,11 +160,10 @@ class ImporterSaleChannel(Component):
             "fees": 0.00,
             "reference": pmt_data["reference"],
             "acquirer_reference": pmt_data["reference"],
-            "sale_order_ids": [4, 0, [sale_order.id]],
+            "sale_order_ids": [(4, sale_order.id, 0)],
             "currency_id": sale_order.currency_id.id,
         }
-        new_pmt = self.env["payment.transaction"].create(payment_vals)
-        sale_order.transaction_ids = new_pmt
+        self.env["payment.transaction"].create(payment_vals)
 
     def _binding_partner(self, partner, external_id):
         self.env["sale.channel.partner"].create(
