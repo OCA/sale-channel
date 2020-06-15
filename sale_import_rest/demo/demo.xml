@@ -2,12 +2,12 @@
 <odoo>
     <record id="api_key_amazon" model="auth.api.key">
         <field name="name">Demo Api Key for Amazon</field>
-        <field name="key">abc123</field>
+        <field name="key">ASecureKeyAmazon</field>
         <field name="user_id" eval="ref('base.user_admin')"/>
     </record>
     <record id="api_key_ebay" model="auth.api.key">
         <field name="name">Demo Api Key for Ebay</field>
-        <field name="key">123abc</field>
+        <field name="key">ASecureKeyEbay</field>
         <field name="user_id" eval="ref('base.user_admin')"/>
     </record>
     <record id="sale_channel.sale_channel_amazon" model="sale.channel">

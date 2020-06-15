@@ -7,7 +7,7 @@
     "category": "Generic Modules/Sale",
     "author": "Akretion",
     "website": "https://github.com/akretion/sale-import",
-    "depends": ["sale_import_base", "auth_api_key"],
+    "depends": ["sale_import_base", "auth_api_key", "base_rest"],
     "license": "AGPL-3",
     "data": ["views/sale_channel.xml"],
     "demo": ["demo/demo.xml"],
