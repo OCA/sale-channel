@@ -77,9 +77,8 @@ class TestSaleOrderImport(SaleImportCase):
         data = self.sale_data
         partner = self.env.ref("base.res_partner_1")
         partner.write({"email": "thomasjean@example.com"})
-        data["address_customer"]["street"] = "new street"
         self.sale_channel_ebay.allow_match_on_email = False
-        self.importer_component.run(json.dumps(data))
+        self.importer_component.run(json.dumps(self.sale_data))
         new_partner_count = (
             self.env["res.partner"].with_context(active_test=False).search_count([])
         )
