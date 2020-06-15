@@ -92,8 +92,7 @@ class TestSaleOrderImport(SaleImportCase):
 
     def test_product_search(self):
         """ Check we get the right product match on product code"""
-        data = self.sale_data
-        new_sale_order = self.importer_component.run(json.dumps(data))
+        new_sale_order = self.importer_component.run(json.dumps(self.sale_data))
         self.assertEqual(new_sale_order.order_line[0].product_id, self.product_order)
         self.assertEqual(new_sale_order.order_line[1].product_id, self.product_deliver)
 
