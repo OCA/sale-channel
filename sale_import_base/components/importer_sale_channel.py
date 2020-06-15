@@ -34,7 +34,7 @@ class ImporterSaleChannel(Component):
         return sale_order
 
     def _prepare_sale_vals(self, data):
-        partner = self._process_partner(data)
+        partner = self._process_partner(data["address_customer"])
         address_invoice = self._process_address(
             partner, data["address_invoicing"], "invoice"
         )
@@ -60,15 +60,15 @@ class ImporterSaleChannel(Component):
         ]
         return self.env["sale.order"].play_onchanges(so_vals, onchange_fields)
 
-    def _process_partner(self, data):
-        partner = self._find_partner(data["address_customer"])
-        vals = self._prepare_partner(data["address_customer"])
+    def _process_partner(self, customer_data):
+        partner = self._find_partner(customer_data)
+        vals = self._prepare_partner(customer_data)
         if partner:
             partner.write(vals)
             return partner
         else:
             partner = self.env["res.partner"].create(vals)
-            self._binding_partner(partner, data["address_customer"]["external_id"])
+            self._binding_partner(partner, customer_data["external_id"])
             return partner
 
     def _find_partner(self, customer_data):

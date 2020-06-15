@@ -52,7 +52,6 @@ data = {
     },
     "invoice": {"date": "1900-12-30", "number": "IN-123"},
     "currency_code": "USD",
-    "sale_channel": "Ebay",
     "payment": {
         "mode": "credit_card",
         "amount": 640.00,

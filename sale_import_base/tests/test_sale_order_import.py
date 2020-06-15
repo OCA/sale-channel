@@ -72,7 +72,6 @@ class TestSaleOrderImport(SaleImportCase):
         partner_count = (
             self.env["res.partner"].with_context(active_test=False).search_count([])
         )
-        data = self.sale_data
         partner = self.env.ref("base.res_partner_1")
         partner.write({"email": "thomasjean@example.com"})
         self.sale_channel_ebay.allow_match_on_email = False
@@ -145,7 +144,8 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertEqual(new_sale_order.order_line[1].name, expected_desc_2)
 
     def test_currency_code(self):
-        errors = self.env.datamodels["sale.order"].validate(self.sale_data)
+        data = self.sale_data
+        errors = self.env.datamodels["sale.order"].validate(data)
         self.assertFalse(errors)
         data["currency_code"] = "EUR"
         errors = self.env.datamodels["sale.order"].validate(data)
