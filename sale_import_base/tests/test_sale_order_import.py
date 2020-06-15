@@ -152,7 +152,6 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertTrue(errors)
 
     def test_payment_create(self):
-        data = self.sale_data
-        new_sale_order = self.importer_component.run(json.dumps(data))
+        new_sale_order = self.importer_component.run(json.dumps(self.sale_data))
         new_payment = new_sale_order.transaction_ids
         self.assertEqual(new_payment.reference, "PMT-EXAMPLE-001")
