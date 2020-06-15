@@ -110,9 +110,8 @@ class ImporterSaleChannel(Component):
 
     def _process_address(self, partner, address, address_type):
         vals = self._prepare_partner(address)
+        vals.update({"partner_id": partner.id, "type": address_type})
         addr_virtual = self.env["res.partner"].new(vals)
-        addr_virtual.parent_id = partner.id
-        addr_virtual.type = address_type
         return addr_virtual.get_address_version()
 
     def _prepare_sale_line_vals(self, data, sale_order):
