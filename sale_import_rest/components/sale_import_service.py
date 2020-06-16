@@ -10,10 +10,7 @@ class SaleImportService(Component):
     _collection_name = "sale.import.rest.services"
     _default_auth = "public"
 
-    def create(self, **params):
-        api_key = params.get("api_key")
-        if not api_key:
-            return {"response": "No API key given"}
+    def create(self, api_key, sale_order_data, **params):
         api_key_id = self.env["auth.api.key"].search([("api_key", "=", api_key)])
         if not api_key_id:
             return {"response": "Couldn't find a matching API key"}
@@ -22,9 +19,6 @@ class SaleImportService(Component):
         )
         if not sale_channel:
             return {"response": "API key does not map to any sale channel"}
-        payload = params.get("payload")
-        if not payload:
-            return {"response": "No payload found"}
         try:
             vals = [
                 {
@@ -34,7 +28,7 @@ class SaleImportService(Component):
                     "model_name": "sale.channel",
                     "record_id": sale_channel.id,
                 }
-                for data_str in payload
+                for data_str in sale_order_data
             ]
             chunk_ids = self.env["queue.job.chunk"].create(vals)
         except Exception as e:
