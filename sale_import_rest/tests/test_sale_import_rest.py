@@ -28,8 +28,11 @@ class TestSaleOrderImport(SaleImportCase, HttpCase, BaseRestCase):
         }
 
     # @odoo.tools.mute_logger("odoo.addons.base_rest.http")
-    def testChunksCreated(self):
+    def test_chunks_created(self):
         chunk_count_initial = self.env["queue.job.chunk"].search_count([])
         requests.post(self.url, json=self.request_content)
         chunk_count_after = self.env["queue.job.chunk"].search_count([])
         self.assertEqual(chunk_count_initial + 1, chunk_count_after)
+
+    def test_controller_create_function(self):
+        pass
