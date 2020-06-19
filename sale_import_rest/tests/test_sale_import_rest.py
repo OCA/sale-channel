@@ -1,38 +1,38 @@
 #  Copyright (c) Akretion 2020
 #  License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
 
-import requests
+from odoo.exceptions import ValidationError
 
-import odoo.tools
-from odoo.tests import HttpCase
-
-from odoo.addons.base_rest.tests.common import BaseRestCase
+from odoo.addons.base_rest.controllers.main import _PseudoCollection
+from odoo.addons.component.core import WorkContext
 from odoo.addons.sale_import_base.tests.common_sale_order_import import SaleImportCase
 
 
-@odoo.tests.common.at_install(False)
-@odoo.tests.common.post_install(True)
-class TestSaleOrderImport(SaleImportCase, HttpCase, BaseRestCase):
+class TestSaleOrderImport(SaleImportCase):
     def setUp(self):
         super().setUp()
-        self.setUpRegistry()
-        host = "127.0.0.1"
-        port = odoo.tools.config["http_port"]
-        self.url = "http://%s:%d/sale-import/import" % (host, port)
-        # self.request_content = "{
-        # \"api_key\": \"ASecureKeyEbay\",\"payload\": [\"%s\"]
-        # }" % self.sale_data
-        self.request_content = {
-            "api_key": "ASecureKeyEbay",
-            "payload": [self.sale_data],
-        }
+        self.api_key = "ASecureKeyEbay"
+        collection = _PseudoCollection("sale.import.endpoints", self.env)
+        self.sale_import_service_env = WorkContext(
+            model_name="sale.order", collection=collection
+        )
 
-    # @odoo.tools.mute_logger("odoo.addons.base_rest.http")
     def test_chunks_created(self):
         chunk_count_initial = self.env["queue.job.chunk"].search_count([])
-        requests.post(self.url, json=self.request_content)
+        import_service = self.sale_import_service_env.component(usage="import")
+        import_service.create(self.api_key, self.sale_data_multi)
         chunk_count_after = self.env["queue.job.chunk"].search_count([])
-        self.assertEqual(chunk_count_initial + 1, chunk_count_after)
+        self.assertEqual(chunk_count_initial + 2, chunk_count_after)
 
-    def test_controller_create_function(self):
-        pass
+    def test_wrong_key(self):
+        import_service = self.sale_import_service_env.component(usage="import")
+        with self.assertRaises(ValidationError):
+            import_service.create("aWrongKey", self.sale_data_multi)
+
+    def test_key_not_mapped_to_channel(self):
+        new_key = self.env["auth.api.key"].create(
+            {"name": "aName", "key": "aKey", "user_id": 1}
+        )
+        import_service = self.sale_import_service_env.component(usage="import")
+        with self.assertRaises(ValidationError):
+            import_service.create(new_key.key, self.sale_data_multi)
