@@ -9,6 +9,12 @@ from odoo.addons.sale_import_base.tests.common_sale_order_import import SaleImpo
 
 
 class TestSaleOrderImport(SaleImportCase):
+    @property
+    def payload_multi_sale(self):
+        result = [self.chunk_vals["data_str"], self.chunk_vals["data_str"]]
+        result[1]["payment"]["reference"] = "PMT-002"
+        return result
+
     def setUp(self):
         super().setUp()
         self.api_key = "ASecureKeyEbay"
@@ -20,14 +26,14 @@ class TestSaleOrderImport(SaleImportCase):
     def test_chunks_created(self):
         chunk_count_initial = self.env["queue.job.chunk"].search_count([])
         import_service = self.sale_import_service_env.component(usage="import")
-        import_service.create(self.api_key, self.sale_data_multi)
+        import_service.create(self.api_key, self.payload_multi_sale)
         chunk_count_after = self.env["queue.job.chunk"].search_count([])
         self.assertEqual(chunk_count_initial + 2, chunk_count_after)
 
     def test_wrong_key(self):
         import_service = self.sale_import_service_env.component(usage="import")
         with self.assertRaises(ValidationError):
-            import_service.create("aWrongKey", self.sale_data_multi)
+            import_service.create("aWrongKey", self.payload_multi_sale)
 
     def test_key_not_mapped_to_channel(self):
         new_key = self.env["auth.api.key"].create(
@@ -35,4 +41,4 @@ class TestSaleOrderImport(SaleImportCase):
         )
         import_service = self.sale_import_service_env.component(usage="import")
         with self.assertRaises(ValidationError):
-            import_service.create(new_key.key, self.sale_data_multi)
+            import_service.create(new_key.key, self.payload_multi_sale)

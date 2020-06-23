@@ -13,7 +13,9 @@ class SaleImportService(Component):
     _collection_name = "sale.import.endpoints"
     _default_auth = "public"
 
-    def create(self, api_key, sale_order_data, **params):
+    def create(
+        self, api_key, sale_order_data, **params
+    ):  # pylint: disable=method-required-super
         api_key_id = self.env["auth.api.key"]._retrieve_api_key(api_key)
         sale_channel = self.env["sale.channel"].search(
             [("api_key", "=", api_key_id.id)]
