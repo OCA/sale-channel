@@ -14,15 +14,15 @@ class ImporterSaleChannel(Component):
     _apply_on = ["sale.order"]
     _usage = "json_import"
 
-    def run(self, raw_data):
+    def run(self):
         """
         :param raw_data: json-like string
         :return: generated sale order
         """
-        # we need this step because the chunk data is stored as
-        # a string (so we can edit it)
         try:
-            so_datamodel_load = self.env.datamodels["sale.order"].load_json(raw_data)
+            so_datamodel_load = self.env.datamodels["sale.order"].load_json(
+                self.collection.data_str
+            )
         except MarshmallowValidationError as e:
             raise ValidationError(e)
         data = so_datamodel_load.dump()
@@ -58,7 +58,8 @@ class ImporterSaleChannel(Component):
             "partner_shipping_id",
             "partner_invoice_id",
         ]
-        return self.env["sale.order"].play_onchanges(so_vals, onchange_fields)
+        result = self.env["sale.order"].play_onchanges(so_vals, onchange_fields)
+        return result
 
     def _process_partner(self, customer_data):
         partner = self._find_partner(customer_data)
@@ -152,11 +153,10 @@ class ImporterSaleChannel(Component):
             "fees": 0.00,
             "reference": pmt_data["reference"],
             "acquirer_reference": pmt_data["reference"],
-            "sale_order_ids": [4, 0, [sale_order.id]],
+            "sale_order_ids": [(4, sale_order.id, 0)],
             "currency_id": sale_order.currency_id.id,
         }
-        new_pmt = self.env["payment.transaction"].create(payment_vals)
-        sale_order.transaction_ids = new_pmt
+        self.env["payment.transaction"].create(payment_vals)
 
     def _binding_partner(self, partner, external_id):
         self.env["sale.channel.partner"].create(

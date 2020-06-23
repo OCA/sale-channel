@@ -1,5 +1,6 @@
 #  Copyright (c) Akretion 2020
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl)
+import json
 from copy import deepcopy
 
 from odoo.addons.component.tests.common import SavepointComponentCase
@@ -22,6 +23,13 @@ class SaleImportCase(
         cls.setUpMisc()
         cls.sale_order_example_vals = data
         cls.sale_order_example_vals["pricelist_id"] = cls.env.ref("product.list0").id
+        cls.last_sale_id = cls.env["sale.order"].search([], order="id desc", limit=1).id
+
+    @classmethod
+    def get_created_sales(cls):
+        return cls.env["sale.order"].search(
+            [("id", ">", cls.last_sale_id)], order="id desc"
+        )
 
     @classmethod
     def setUpTaxes(cls):
@@ -81,27 +89,19 @@ class SaleImportCase(
     @classmethod
     def setUpMisc(cls):
         cls.env = cls.env(context=dict(cls.env.context, test_queue_job_no_delay=True))
-        dummy_chunk = cls.env["queue.job.chunk"].create(
-            {
-                "usage": "basic_create",
-                "apply_on_model": "res.partner",
-                "data_str": '{"name": "Dummy Partner"}',
-                "record_id": cls.env.ref("sale_channel.sale_channel_ebay"),
-                "model_name": "sale.channel",
-            }
-        )
-        with dummy_chunk.work_on("sale.order") as work:
-            cls.importer_component = work.component(usage="json_import")
 
     @property
-    def sale_data(self):
-        return deepcopy(self.sale_order_example_vals)
+    def chunk_vals(self):
+        return {
+            "apply_on_model": "sale.order",
+            "data_str": deepcopy(self.sale_order_example_vals),
+            "usage": "json_import",
+            "model_name": "sale.channel",
+            "record_id": self.env.ref("sale_channel.sale_channel_ebay").id,
+        }
 
-    @property
-    def sale_data_multi(self):
-        result = [
-            deepcopy(self.sale_order_example_vals),
-            deepcopy(self.sale_order_example_vals),
-        ]
-        result[1]["payment"]["reference"] = "PMT-EXAMPLE-002"
-        return result
+    @classmethod
+    def _helper_create_chunk(cls, vals_dict):
+        """ Converts data_str content to appropriate JSON format """
+        vals_dict["data_str"] = json.dumps(vals_dict["data_str"])
+        return cls.env["queue.job.chunk"].create(vals_dict)
