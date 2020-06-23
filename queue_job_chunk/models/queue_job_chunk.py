@@ -52,17 +52,17 @@ class QueueJobChunk(models.Model):
         self.enqueue_job()
 
     def enqueue_job(self):
-        return self.with_delay()._enqueue_job()
+        return self.with_delay().process_chunk()
 
     @job
-    def _enqueue_job(self):
+    def process_chunk(self):
         self.ensure_one()
         usage = self.usage
         apply_on = self.apply_on_model
         with self.work_on(apply_on) as work:
             try:
                 processor = work.component(usage=usage)
-                result = processor.run(self.data_str)
+                result = processor.run()
             except Exception as e:
                 self.state = "fail"
                 self.state_info = str(e)
