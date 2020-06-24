@@ -37,9 +37,9 @@ class QueueJobChunk(models.Model):
     model_name = fields.Char("Model ID")
     record_id = fields.Integer("Record ID")
     reference = fields.Reference(
-        selection=[], string="Reference", compute=_compute_reference
+        selection=[], string="Reference", compute=_compute_reference, store=True
     )
-    company_id = fields.Many2one("res.company", compute=_compute_reference)
+    company_id = fields.Many2one("res.company", compute=_compute_reference, store=True)
 
     @api.model_create_multi
     def create(self, vals):
@@ -65,7 +65,8 @@ class QueueJobChunk(models.Model):
                 result = processor.run()
             except Exception as e:
                 self.state = "fail"
-                self.state_info = str(e)
+                self.state_info = type(e).__name__ + str(e.args)
                 return False
+            self.state_info = ""
             self.state = "done"
             return result
