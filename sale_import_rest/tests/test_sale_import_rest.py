@@ -12,13 +12,13 @@ class TestSaleOrderImport(SaleImportCase):
     @property
     def payload_multi_sale(self):
         result = [self.chunk_vals["data_str"], self.chunk_vals["data_str"]]
-        result[1]["payment"]["reference"] = "PMT-002"
+        result[1]["payment"]["reference"] = "PMT-EXAMPLE-002"
         return result
 
     def setUp(self):
         super().setUp()
         self.api_key = "ASecureKeyEbay"
-        collection = _PseudoCollection("sale.import.endpoints", self.env)
+        collection = _PseudoCollection("sale.import.rest.services", self.env)
         self.sale_import_service_env = WorkContext(
             model_name="sale.order", collection=collection
         )
