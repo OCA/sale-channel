@@ -27,6 +27,8 @@ class ImporterSaleChannel(Component):
             raise ValidationError(e)
         data = so_datamodel_load.dump()
         so_vals = self._prepare_sale_vals(data)
+        # REVIEW: in case an error occurs before the end, a SO will already
+        # have been created
         sale_order = self.env["sale.order"].create(so_vals)
         so_line_vals = self._prepare_sale_line_vals(data, sale_order)
         self.env["sale.order.line"].create(so_line_vals)
@@ -128,7 +130,7 @@ class ImporterSaleChannel(Component):
             "product_id": product_id,
             "product_uom_qty": line_data["qty"],
             "price_unit": line_data["price_unit"],
-            "discount": line_data["discount"],
+            "discount": line_data.get("discount"),
             "order_id": sale_order.id,
         }
         if line_data.get("description"):
