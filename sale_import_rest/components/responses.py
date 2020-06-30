@@ -9,6 +9,8 @@ from odoo.exceptions import ValidationError
 from odoo.addons.base_rest.restapi import RestMethodParam
 
 
+# REVIEW: is this appropriate or should be simpler
+# TODO responses for partial
 class IntegerList(RestMethodParam):
     def to_response(self, service, result):
         if not result:
