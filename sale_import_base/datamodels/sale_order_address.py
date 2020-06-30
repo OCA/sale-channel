@@ -11,22 +11,6 @@ from odoo.addons.datamodel.core import Datamodel
 class SaleOrderAddressDatamodel(Datamodel):
     _name = "sale.order.address"
 
-    @validates("state_code")
-    def _validate_state_code(self, code):
-        if not code:
-            return
-        state = self._env["res.country.state"].search([("code", "=", code)])
-        if len(state.ids) != 1:
-            raise ValidationError(_("Could not determine one state from state code"))
-
-    @validates("country_code")
-    def _validate_country_code(self, code):
-        country = self._env["res.country"].search([("code", "=", code)])
-        if len(country.ids) != 1:
-            raise ValidationError(
-                _("Could not determine one country from country code")
-            )
-
     name = fields.Str(required=True)
     street = fields.Str(required=True)
     street2 = fields.Str()

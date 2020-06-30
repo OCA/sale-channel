@@ -25,17 +25,22 @@ class ImporterSaleChannel(Component):
             )
         except MarshmallowValidationError as e:
             raise ValidationError(e)
+        errors = so_datamodel_load.run_custom_validators()
+        if errors:
+            raise ValidationError(errors)
         data = so_datamodel_load.dump()
         so_vals = self._prepare_sale_vals(data)
         # REVIEW: in case an error occurs before the end, a SO will already
         # have been created
         sale_order = self.env["sale.order"].create(so_vals)
+        # TODO reproduire le bug
         so_line_vals = self._prepare_sale_line_vals(data, sale_order)
         self.env["sale.order.line"].create(so_line_vals)
         self._finalize(sale_order, data)
         return sale_order
 
     def _prepare_sale_vals(self, data):
+        # TODO use invoice data
         partner = self._process_partner(data["address_customer"])
         address_invoice = self._process_address(
             partner, data["address_invoicing"], "invoice"

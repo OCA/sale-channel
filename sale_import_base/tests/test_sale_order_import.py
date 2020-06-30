@@ -87,7 +87,6 @@ class TestSaleOrderImport(SaleImportCase):
             "product_code"
         ] = "doesn't exist"
         chunk = self._helper_create_chunk(chunk_vals_wrong_product_code)
-        # REVIEW: we check only its state, is that ok ? Seems superficial
         self.assertEqual(chunk.state, "fail")
 
     def test_product_search(self):
