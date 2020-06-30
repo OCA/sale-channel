@@ -61,8 +61,9 @@ class QueueJobChunk(models.Model):
         apply_on = self.apply_on_model
         with self.work_on(apply_on) as work:
             try:
-                processor = work.component(usage=usage)
-                result = processor.run()
+                with self.env.cr.savepoint():
+                    processor = work.component(usage=usage)
+                    result = processor.run()
             except Exception as e:
                 self.state = "fail"
                 self.state_info = type(e).__name__ + str(e.args)
