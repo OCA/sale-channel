@@ -8,8 +8,6 @@ from odoo.addons.base_rest import restapi
 from odoo.addons.base_rest.http import JSONEncoder as JSONEncoder
 from odoo.addons.component.core import Component
 
-from .responses import IntegerList
-
 
 class SaleImportService(Component):
     _inherit = "base.rest.service"
@@ -27,7 +25,7 @@ class SaleImportService(Component):
     @restapi.method(
         [(["/import/", "/import/create"], "POST")],
         input_param=restapi.Datamodel("sale.import.input"),
-        output_param=IntegerList(),
+        output_param=restapi.Datamodel("sale.import.output"),
         auth="api_key",
     )
     # pylint: disable=W8106
@@ -52,7 +50,10 @@ class SaleImportService(Component):
             for sale_order in sale_import_input.dump()["sale_orders"]
         ]
         chunks = self.env["queue.job.chunk"].create(vals)
-        return chunks.ids
+        output = self.env.datamodels["sale.import.output"].load(
+            {"chunk_ids": chunks.ids}
+        )
+        return output
 
     def _get_openapi_default_parameters(self):
         defaults = super()._get_openapi_default_parameters()

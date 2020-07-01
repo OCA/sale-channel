@@ -14,4 +14,4 @@ class SaleImportInput(Datamodel):
 class SaleImportOutput(Datamodel):
     _name = "sale.import.output"
 
-    chunk_id = fields.Integer()
+    chunk_ids = fields.List(fields.Integer())
