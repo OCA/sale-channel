@@ -14,6 +14,12 @@ class TestSaleOrderImport(SaleImportCase):
 
     # REVIEW: setup all chunk data here or in tests individually ?
 
+    def test_basic(self):
+        """ Base scenario: create a sale order"""
+        chunk = self._helper_create_chunk(self.chunk_vals)
+        self.assertTrue(self.get_created_sales().ids)
+        self.assertEqual(chunk.state, "done")
+
     def test_invalid_json(self):
         """ An invalid input will stop the job """
         chunk_vals = self.chunk_vals
@@ -135,15 +141,22 @@ class TestSaleOrderImport(SaleImportCase):
         expected_desc_2 = "[PROD_DEL] Switch, 24 ports"
         self.assertEqual(new_sale.order_line[1].name, expected_desc_2)
 
-    def test_currency_code(self):
-        data = self.chunk_vals["data_str"]
-        errors = self.env.datamodels["sale.order"].validate(data)
-        self.assertFalse(errors)
-        data["currency_code"] = "EUR"
-        errors = self.env.datamodels["sale.order"].validate(data)
-        self.assertTrue(errors)
-
     def test_payment_create(self):
         self._helper_create_chunk(self.chunk_vals)
         new_payment = self.get_created_sales().transaction_ids
         self.assertEqual(new_payment.reference, "PMT-EXAMPLE-001")
+
+    def test_validators(self):
+        wrong_data = list()
+        for itr in range(4):
+            data = self.chunk_vals
+            data["data_str"]["payment"]["reference"] = "PMT-EXAMPLE-00%s" % str(itr)
+            wrong_data.append(data)
+        wrong_data[0]["data_str"]["address_customer"]["state_code"] = "somethingWrong"
+        wrong_data[1]["data_str"]["address_customer"]["country_code"] = "somethingWrong"
+        wrong_data[2]["data_str"]["lines"][0]["product_code"] = "somethingWrong"
+        wrong_data[3]["data_str"]["payment"]["currency_code"] = "somethingWrong"
+        for data in wrong_data:
+            chunk = self._helper_create_chunk(data)
+            self.assertEqual(chunk.state, "fail")
+            self.assertIn("ValidationError", chunk.state_info)

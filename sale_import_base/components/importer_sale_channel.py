@@ -3,6 +3,7 @@
 
 from marshmallow_objects import ValidationError as MarshmallowValidationError
 
+from odoo import _
 from odoo.exceptions import ValidationError
 
 from odoo.addons.component.core import Component
@@ -25,10 +26,12 @@ class ImporterSaleChannel(Component):
             )
         except MarshmallowValidationError as e:
             raise ValidationError(e)
-        errors = so_datamodel_load.run_custom_validators()
-        if errors:
-            raise ValidationError(errors)
         data = so_datamodel_load.dump()
+        errors = self.run_validators(data)
+        if any([val for field, val in errors.items()]):
+            raise ValidationError(
+                _("Validation error on one or mode fields: %s") % str(errors)
+            )
         so_vals = self._prepare_sale_vals(data)
         # REVIEW: in case an error occurs before the end, a SO will already
         # have been created
@@ -38,6 +41,73 @@ class ImporterSaleChannel(Component):
         self.env["sale.order.line"].create(so_line_vals)
         self._finalize(sale_order, data)
         return sale_order
+
+    def run_validators(self, data):
+        """ Runs all the validations against in-db data """
+        errors = {}
+        for addr in ("address_customer", "address_shipping", "address_invoicing"):
+            self._validate_address(data[addr], errors)
+        for line in data["lines"]:
+            self._validate_line(line, errors)
+        if data.get("payment"):
+            self._validate_payment(data["payment"], errors)
+        self._validate_misc(data, errors)
+        return errors
+
+    def _validate_address(self, address, all_errors):
+        if not all_errors.get("address"):
+            all_errors["address"] = list()
+        errors = []
+        if address.get("state_code"):
+            state = self.env["res.country.state"].search(
+                [("code", "=", address["state_code"])]
+            )
+            if len(state.ids) != 1:
+                errors += [_("Could not determine one state from state code")]
+        country = self.env["res.country"].search(
+            [("code", "=", address["country_code"])]
+        )
+        if len(country.ids) != 1:
+            errors += [_("Could not determine one country from country code")]
+        all_errors["address"] += errors
+
+    def _validate_line(self, line, all_errors):
+        if not all_errors.get("lines"):
+            all_errors["lines"] = list()
+        product = self.env["product.product"].search(
+            [("default_code", "=", line["product_code"])]
+        )
+        if len(product.ids) != 1:
+            all_errors["lines"] += [
+                _("Could not find one product with supplied product code")
+            ]
+
+    def _validate_payment(self, payment, all_errors):
+        errors = []
+        acquirer = self.env["payment.acquirer"].search([("name", "=", payment["mode"])])
+        if not acquirer:
+            errors += [_("No payment type found for given mode")]
+
+        if payment.get("currency_code"):
+            currency_id = self.env["res.currency"].search(
+                [("name", "=", payment["currency_code"])]
+            )
+            if not currency_id:
+                errors += [_("No currency type found for given code")]
+        all_errors["payment"] = errors
+
+    def _validate_misc(self, data, all_errors):
+        errors = []
+        currency_id = self.env["res.currency"].search(
+            [("name", "=", data["currency_code"])]
+        )
+        pricelist_id = self.env["product.pricelist"].browse(data["pricelist_id"])
+        if currency_id != pricelist_id.currency_id:
+            errors += [_("Currency code and pricelist currency do not match")]
+        if not data["address_customer"].get("external_id"):
+            # this is here because other two addresses don't need external id
+            errors += [_("Missing external ID for customer address")]
+        all_errors["sale_order"] = errors
 
     def _prepare_sale_vals(self, data):
         # TODO use invoice data
