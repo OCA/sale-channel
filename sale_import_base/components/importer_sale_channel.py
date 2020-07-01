@@ -110,7 +110,6 @@ class ImporterSaleChannel(Component):
         all_errors["sale_order"] = errors
 
     def _prepare_sale_vals(self, data):
-        # TODO use invoice data
         partner = self._process_partner(data["address_customer"])
         address_invoice = self._process_address(
             partner, data["address_invoicing"], "invoice"
@@ -125,6 +124,9 @@ class ImporterSaleChannel(Component):
             "si_amount_total": data["amount"]["amount_total"],
             "si_amount_untaxed": data["amount"]["amount_untaxed"],
             "si_amount_tax": data["amount"]["amount_tax"],
+            "si_force_invoice_date": data.get("invoice") and data["invoice"]["date"],
+            "si_force_invoice_number": data.get("invoice")
+            and data["invoice"]["number"],
             "sale_channel_id": self.collection.record_id,
         }
         onchange_fields = [
