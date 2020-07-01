@@ -16,10 +16,6 @@ class ImporterSaleChannel(Component):
     _usage = "json_import"
 
     def run(self):
-        """
-        :param raw_data: json-like string
-        :return: generated sale order
-        """
         try:
             so_datamodel_load = self.env.datamodels["sale.order"].load_json(
                 self.collection.data_str
@@ -33,10 +29,7 @@ class ImporterSaleChannel(Component):
                 _("Validation error on one or mode fields: %s") % str(errors)
             )
         so_vals = self._prepare_sale_vals(data)
-        # REVIEW: in case an error occurs before the end, a SO will already
-        # have been created
         sale_order = self.env["sale.order"].create(so_vals)
-        # TODO reproduire le bug
         so_line_vals = self._prepare_sale_line_vals(data, sale_order)
         self.env["sale.order.line"].create(so_line_vals)
         self._finalize(sale_order, data)
@@ -110,7 +103,6 @@ class ImporterSaleChannel(Component):
         all_errors["sale_order"] = errors
 
     def _prepare_sale_vals(self, data):
-        # TODO use invoice data
         partner = self._process_partner(data["address_customer"])
         address_invoice = self._process_address(
             partner, data["address_invoicing"], "invoice"
@@ -125,6 +117,9 @@ class ImporterSaleChannel(Component):
             "si_amount_total": data["amount"]["amount_total"],
             "si_amount_untaxed": data["amount"]["amount_untaxed"],
             "si_amount_tax": data["amount"]["amount_tax"],
+            "si_force_invoice_date": data.get("invoice") and data["invoice"]["date"],
+            "si_force_invoice_number": data.get("invoice")
+            and data["invoice"]["number"],
             "sale_channel_id": self.collection.record_id,
         }
         onchange_fields = [
@@ -232,6 +227,7 @@ class ImporterSaleChannel(Component):
             "acquirer_reference": pmt_data["reference"],
             "sale_order_ids": [(4, sale_order.id, 0)],
             "currency_id": sale_order.currency_id.id,
+            "si_transaction_identifier": pmt_data["transaction_id"],
         }
         self.env["payment.transaction"].create(payment_vals)
 

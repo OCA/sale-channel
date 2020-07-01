@@ -9,7 +9,7 @@ class SaleOrderPaymentDatamodel(Datamodel):
     _name = "sale.order.payment"
 
     mode = fields.Str(required=True)
-    amount = fields.Decimal()
-    reference = fields.Str()
-    currency_code = fields.Str()
-    transaction_id = fields.Integer()
+    amount = fields.Decimal(required=True)
+    reference = fields.Str(required=True)
+    currency_code = fields.Str(required=True)
+    transaction_id = fields.Integer(required=True)

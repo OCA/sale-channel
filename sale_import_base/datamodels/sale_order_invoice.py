@@ -7,5 +7,5 @@ from odoo.addons.datamodel.core import Datamodel
 class SaleOrderInvoiceDatamodel(Datamodel):
     _name = "sale.order.invoice"
 
-    date = fields.Date()
-    number = fields.Str()
+    date = fields.Date(required=True)
+    number = fields.Str(required=True)

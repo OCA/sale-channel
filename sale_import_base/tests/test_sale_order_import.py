@@ -12,8 +12,6 @@ class TestSaleOrderImport(SaleImportCase):
             context=dict(self.env.context, test_queue_job_no_delay=True)
         )
 
-    # REVIEW: setup all chunk data here or in tests individually ?
-
     def test_basic(self):
         """ Base scenario: create a sale order"""
         chunk = self._helper_create_chunk(self.chunk_vals)
@@ -145,6 +143,12 @@ class TestSaleOrderImport(SaleImportCase):
         self._helper_create_chunk(self.chunk_vals)
         new_payment = self.get_created_sales().transaction_ids
         self.assertEqual(new_payment.reference, "PMT-EXAMPLE-001")
+
+    def test_invoice_values(self):
+        self._helper_create_chunk(self.chunk_vals)
+        invoice = self.get_created_sales()
+        self.assertEqual(str(invoice.si_force_invoice_date), "1900-12-30")
+        self.assertEqual(invoice.si_force_invoice_number, "IN-123")
 
     def test_validators(self):
         wrong_data = list()
