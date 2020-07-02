@@ -224,6 +224,7 @@ class ImporterSaleChannel(Component):
         pmt_data = data["payment"]
         acquirer_name = pmt_data["mode"]
         acquirer = self.env["payment.acquirer"].search([("name", "=", acquirer_name)])
+        # TODO REVIEW: le type est présumé
         payment_vals = {
             "acquirer_id": acquirer.id,
             "type": "server2server",
@@ -234,6 +235,7 @@ class ImporterSaleChannel(Component):
             "acquirer_reference": pmt_data["reference"],
             "sale_order_ids": [(4, sale_order.id, 0)],
             "currency_id": sale_order.currency_id.id,
+            "si_transaction_identifier": pmt_data["transaction_id"],
         }
         self.env["payment.transaction"].create(payment_vals)
 
