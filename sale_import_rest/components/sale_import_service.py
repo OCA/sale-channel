@@ -30,8 +30,7 @@ class SaleImportService(Component):
     )
     # pylint: disable=W8106
     def create(self, sale_import_input):
-        headers = request.httprequest.environ
-        key = headers.get("HTTP_API_KEY")
+        key = self._get_api_key()
         api_key_id = self.env["auth.api.key"]._retrieve_api_key(key)
         sale_channel = self.env["sale.channel"].search(
             [("api_key", "=", api_key_id.id)]
@@ -68,3 +67,7 @@ class SaleImportService(Component):
             }
         )
         return defaults
+
+    def _get_api_key(self):
+        headers = request.httprequest.environ
+        return headers.get("HTTP_API_KEY")
