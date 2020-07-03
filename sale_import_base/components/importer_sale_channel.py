@@ -16,10 +16,6 @@ class ImporterSaleChannel(Component):
     _usage = "json_import"
 
     def run(self):
-        """
-        :param raw_data: json-like string
-        :return: generated sale order
-        """
         try:
             so_datamodel_load = self.env.datamodels["sale.order"].load_json(
                 self.collection.data_str
