@@ -23,7 +23,7 @@ class SaleImportService(Component):
     """
 
     @restapi.method(
-        [(["/import/", "/import/create"], "POST")],
+        [(["/", "/create"], "POST")],
         input_param=restapi.Datamodel("sale.import.input"),
         output_param=restapi.Datamodel("sale.import.output"),
         auth="api_key",
