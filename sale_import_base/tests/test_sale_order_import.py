@@ -12,8 +12,6 @@ class TestSaleOrderImport(SaleImportCase):
             context=dict(self.env.context, test_queue_job_no_delay=True)
         )
 
-    # REVIEW: setup all chunk data here or in tests individually ?
-
     def test_basic(self):
         """ Base scenario: create a sale order"""
         chunk = self._helper_create_chunk(self.chunk_vals)

@@ -29,10 +29,8 @@ class ImporterSaleChannel(Component):
                 _("Validation error on one or mode fields: %s") % str(errors)
             )
         so_vals = self._prepare_sale_vals(data)
-        # REVIEW: in case an error occurs before the end, a SO will already
-        # have been created
         sale_order = self.env["sale.order"].create(so_vals)
-        # TODO reproduire le bug
+        # TODO essayer de reproduire le bug
         so_line_vals = self._prepare_sale_line_vals(data, sale_order)
         self.env["sale.order.line"].create(so_line_vals)
         self._finalize(sale_order, data)
@@ -220,7 +218,6 @@ class ImporterSaleChannel(Component):
         pmt_data = data["payment"]
         acquirer_name = pmt_data["mode"]
         acquirer = self.env["payment.acquirer"].search([("name", "=", acquirer_name)])
-        # TODO REVIEW: le type est présumé
         payment_vals = {
             "acquirer_id": acquirer.id,
             "type": "server2server",
