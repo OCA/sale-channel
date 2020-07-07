@@ -30,7 +30,6 @@ class ImporterSaleChannel(Component):
             )
         so_vals = self._prepare_sale_vals(data)
         sale_order = self.env["sale.order"].create(so_vals)
-        # TODO essayer de reproduire le bug
         so_line_vals = self._prepare_sale_line_vals(data, sale_order)
         self.env["sale.order.line"].create(so_line_vals)
         self._finalize(sale_order, data)
