@@ -12,4 +12,4 @@ class SaleOrderPaymentDatamodel(Datamodel):
     amount = fields.Decimal(required=True)
     reference = fields.Str(required=True)
     currency_code = fields.Str(required=True)
-    acquirer_reference = fields.Str(required=True)
+    acquirer_reference = fields.Str()
