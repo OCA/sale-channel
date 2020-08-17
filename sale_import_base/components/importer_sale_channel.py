@@ -44,7 +44,6 @@ class ImporterSaleChannel(Component):
             self._validate_line(line, errors)
         if data.get("payment"):
             self._validate_payment(data["payment"], errors)
-        self._validate_misc(data, errors)
         return errors
 
     def _validate_address(self, address, all_errors):
@@ -72,7 +71,9 @@ class ImporterSaleChannel(Component):
         )
         if len(product.ids) != 1:
             all_errors["lines"] += [
-                _("Could not find one product with supplied product code")
+                _("Could not find one product with the product code: {}").format(
+                    line["product_code"]
+                )
             ]
 
     def _validate_payment(self, payment, all_errors):
@@ -88,19 +89,6 @@ class ImporterSaleChannel(Component):
             if not currency_id:
                 errors += [_("No currency type found for given code")]
         all_errors["payment"] = errors
-
-    def _validate_misc(self, data, all_errors):
-        errors = []
-        currency_id = self.env["res.currency"].search(
-            [("name", "=", data["currency_code"])]
-        )
-        pricelist_id = self.env["product.pricelist"].browse(data["pricelist_id"])
-        if currency_id != pricelist_id.currency_id:
-            errors += [_("Currency code and pricelist currency do not match")]
-        if not data["address_customer"].get("external_id"):
-            # this is here because other two addresses don't need external id
-            errors += [_("Missing external ID for customer address")]
-        all_errors["sale_order"] = errors
 
     def _prepare_sale_vals(self, data):
         partner = self._process_partner(data["address_customer"])
@@ -166,10 +154,10 @@ class ImporterSaleChannel(Component):
     def _prepare_partner(self, data):
         result = {
             "name": data["name"],
-            "street": data["street"],
+            "street": data.get("street"),
             "street2": data.get("street2"),
-            "zip": data["zip"],
-            "city": data["city"],
+            "zip": data.get("zip"),
+            "city": data.get("city"),
             "email": data.get("email"),
         }
         if data.get("state_code"):
@@ -177,8 +165,11 @@ class ImporterSaleChannel(Component):
                 [("code", "=", data["state_code"])]
             )
             result["state_id"] = state.id
-        country = self.env["res.country"].search([("code", "=", data["country_code"])])
-        result["country_id"] = country.id
+        if data.get("country_code"):
+            country = self.env["res.country"].search(
+                [("code", "=", data["country_code"])]
+            )
+            result["country_id"] = country.id
         return result
 
     def _process_address(self, partner, address, address_type):

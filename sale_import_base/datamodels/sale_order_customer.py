@@ -5,14 +5,15 @@ from odoo.addons.datamodel import fields
 from odoo.addons.datamodel.core import Datamodel
 
 
-class SaleOrderAddressDatamodel(Datamodel):
-    _name = "sale.order.address"
+class SaleOrderCustomerDatamodel(Datamodel):
+    _name = "sale.order.customer"
 
     name = fields.Str(required=True)
-    street = fields.Str(required=True)
+    street = fields.Str()
     street2 = fields.Str()
-    zip = fields.Integer(required=True)
-    city = fields.Str(required=True)
-    email = fields.Email()
+    zip = fields.Integer()
+    city = fields.Str()
+    email = fields.Email(required=True)
     state_code = fields.Str()
-    country_code = fields.Str(required=True)
+    country_code = fields.Str()
+    external_id = fields.Str(required=True)
