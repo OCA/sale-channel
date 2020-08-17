@@ -143,6 +143,9 @@ class TestSaleOrderImport(SaleImportCase):
         self._helper_create_chunk(self.chunk_vals)
         new_payment = self.get_created_sales().transaction_ids
         self.assertEqual(new_payment.reference, "PMT-EXAMPLE-001")
+        self.assertEqual(new_payment.acquirer_reference, "T123")
+        self.assertEqual(new_payment.amount, 640),
+        self.assertEqual(new_payment.currency_id.name, "USD")
 
     def test_invoice_values(self):
         self._helper_create_chunk(self.chunk_vals)
