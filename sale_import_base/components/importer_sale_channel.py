@@ -99,6 +99,7 @@ class ImporterSaleChannel(Component):
             partner, data["address_shipping"], "delivery"
         )
         so_vals = {
+            "name": data["name"],
             "partner_id": partner.id,
             "partner_invoice_id": address_invoice.id,
             "partner_shipping_id": address_shipping.id,

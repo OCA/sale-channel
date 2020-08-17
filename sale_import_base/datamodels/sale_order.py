@@ -7,6 +7,7 @@ from odoo.addons.datamodel.core import Datamodel
 class SaleOrderDatamodel(Datamodel):
     _name = "sale.order"
 
+    name = fields.Str(required=True)
     address_customer = fields.NestedModel("sale.order.customer", required=True)
     address_shipping = fields.NestedModel("sale.order.address", required=True)
     address_invoicing = fields.NestedModel("sale.order.address", required=True)
