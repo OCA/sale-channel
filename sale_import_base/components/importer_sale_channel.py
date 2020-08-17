@@ -215,7 +215,7 @@ class ImporterSaleChannel(Component):
             "amount": pmt_data["amount"],
             "fees": 0.00,
             "reference": pmt_data["reference"],
-            "acquirer_reference": pmt_data["acquirer_reference"],
+            "acquirer_reference": pmt_data.get("acquirer_reference"),
             "sale_order_ids": [(4, sale_order.id, 0)],
             "currency_id": sale_order.currency_id.id,
         }
