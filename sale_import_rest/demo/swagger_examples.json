@@ -39,7 +39,6 @@
         "amount_untaxed": 2950.00,
         "amount_total": 2950.00
       },
-      "currency_code": "USD",
       "pricelist_id": 1
     },
     {
@@ -81,7 +80,6 @@
       "amount_untaxed": 2950.00,
       "amount_total": 2950.00
     },
-    "currency_code": "USD",
     "pricelist_id": 1
   }
   ]
