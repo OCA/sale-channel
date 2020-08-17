@@ -56,6 +56,6 @@ data = {
         "amount": 640.00,
         "reference": "PMT-EXAMPLE-001",
         "currency_code": "USD",
-        "transaction_id": 123,
+        "acquirer_reference": "T123",
     },
 }
