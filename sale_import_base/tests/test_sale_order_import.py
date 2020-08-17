@@ -21,7 +21,7 @@ class TestSaleOrderImport(SaleImportCase):
     def test_invalid_json(self):
         """ An invalid input will stop the job """
         chunk_vals = self.chunk_vals
-        del chunk_vals["data_str"]["address_customer"]["street"]
+        del chunk_vals["data_str"]["address_customer"]["name"]
         chunk = self._helper_create_chunk(chunk_vals)
         self.assertEqual(chunk.state, "fail")
 
