@@ -6,14 +6,18 @@
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="base.view_partner_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//page[@name='sales_purchases']//group[@name='sale']" position="inside">
-                    <field name="sale_channel_partner_ids">
-                        <tree>
-                            <field name="sale_channel_id"/>
-                            <field name="external_id"/>
-                        </tree>
-                    </field>
-                </xpath>
+                <notebook position="inside">
+                    <page name="partner_channel" string="Channel">
+                        <group name="binding">
+                            <field name="sale_channel_partner_ids" nolabel="1">
+                                <tree editable="bottom">
+                                    <field name="sale_channel_id"/>
+                                    <field name="external_id"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </page>
+                </notebook>
             </field>
         </record>
     </data>
