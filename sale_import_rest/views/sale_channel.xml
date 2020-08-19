@@ -7,7 +7,7 @@
             <field name="inherit_id" ref="sale_channel.sale_channel_view_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='name']" position="after">
-                    <field name="api_key"/>
+                    <field name="api_key_id"/>
                 </xpath>
             </field>
         </record>

@@ -11,9 +11,9 @@
         <field name="user_id" eval="ref('base.user_admin')"/>
     </record>
     <record id="sale_channel.sale_channel_amazon" model="sale.channel">
-        <field name="api_key" eval="ref('sale_import_rest.api_key_amazon')"/>
+        <field name="api_key_id" eval="ref('sale_import_rest.api_key_amazon')"/>
     </record>
     <record id="sale_channel.sale_channel_ebay" model="sale.channel">
-        <field name="api_key" eval="ref('sale_import_rest.api_key_ebay')"/>
+        <field name="api_key_id" eval="ref('sale_import_rest.api_key_ebay')"/>
     </record>
 </odoo>
