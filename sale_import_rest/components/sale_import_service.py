@@ -1,7 +1,7 @@
 #  Copyright (c) Akretion 2020
 #  License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
 from odoo import _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import MissingError, ValidationError
 from odoo.http import request
 
 from odoo.addons.base_rest import restapi
@@ -12,7 +12,7 @@ from odoo.addons.component.core import Component
 class SaleImportService(Component):
     _inherit = "base.rest.service"
     _name = "sale.import.service"
-    _usage = "import"
+    _usage = "sale"
     _collection = "sale.import.rest.services"
     _description = """
         Sale Import services
@@ -22,6 +22,12 @@ class SaleImportService(Component):
         editable chunk IDs
     """
 
+    @property
+    def channel(self):
+        key = self._get_api_key()
+        api_key = self.env["auth.api.key"]._retrieve_api_key(key)
+        return self.env["sale.channel"].search([("api_key_id", "=", api_key.id)])
+
     @restapi.method(
         [(["/", "/create"], "POST")],
         input_param=restapi.Datamodel("sale.import.input"),
@@ -30,13 +36,9 @@ class SaleImportService(Component):
     )
     # pylint: disable=W8106
     def create(self, sale_import_input):
-        key = self._get_api_key()
-        api_key_id = self.env["auth.api.key"]._retrieve_api_key(key)
-        sale_channel = self.env["sale.channel"].search(
-            [("api_key", "=", api_key_id.id)]
-        )
+        channel = self.channel
         json_encoder = JSONEncoder()
-        if not sale_channel:
+        if not channel:
             raise ValidationError(_("API key does not map to any sale channel"))
         vals = [
             {
@@ -44,7 +46,7 @@ class SaleImportService(Component):
                 "apply_on_model": "sale.order",
                 "data_str": json_encoder.encode(sale_order),
                 "model_name": "sale.channel",
-                "record_id": sale_channel.id,
+                "record_id": channel.id,
             }
             for sale_order in sale_import_input.dump()["sale_orders"]
         ]
@@ -71,3 +73,21 @@ class SaleImportService(Component):
     def _get_api_key(self):
         headers = request.httprequest.environ
         return headers.get("HTTP_API_KEY")
+
+    @restapi.method(
+        [(["/cancel"], "POST")],
+        input_param=restapi.Datamodel("sale.cancel.input"),
+        output_param=restapi.Datamodel("sale.cancel.output"),
+        auth="api_key",
+    )
+    def cancel(self, sale_cancel_input):
+        channel = self.channel
+        name = sale_cancel_input["name"]
+        sale = self.env["sale.order"].search(
+            [("name", "=", name), ("sale_channel_id", "=", channel.id)]
+        )
+        if sale:
+            sale.action_cancel()
+            return {"success": True}
+        else:
+            raise MissingError(_("Sale order {} do not exist").format(name))

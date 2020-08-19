@@ -3,7 +3,7 @@
 
 from unittest.mock import patch
 
-from odoo.exceptions import ValidationError
+from odoo.exceptions import MissingError, ValidationError
 
 from odoo.addons.base_rest.controllers.main import _PseudoCollection
 from odoo.addons.component.core import WorkContext
@@ -27,36 +27,54 @@ class TestSaleOrderImport(SaleImportCase):
         self.sale_import_service_env = WorkContext(
             model_name="sale.order", collection=collection
         )
+        self.service = self.sale_import_service_env.component(usage="sale")
+        self.api_key = "ASecureKeyEbay"
 
-    def test_chunks_created(self):
-        chunk_count_initial = self.env["queue.job.chunk"].search_count([])
-        import_service = self.sale_import_service_env.component(usage="import")
+    def _service_create(self, vals):
         with patch(
             "odoo.addons.sale_import_rest.components.sale_import_service."
             "SaleImportService._get_api_key",
-            return_value="ASecureKeyEbay",
+            return_value=self.api_key,
         ):
-            import_service.create(self.payload_multi_sale)
+            return self.service.create(self.payload_multi_sale)
+
+    def _service_cancel(self, name):
+        with patch(
+            "odoo.addons.sale_import_rest.components.sale_import_service."
+            "SaleImportService._get_api_key",
+            return_value=self.api_key,
+        ):
+            return self.service.cancel(name)
+
+    def test_chunks_created(self):
+        chunk_count_initial = self.env["queue.job.chunk"].search_count([])
+        self._service_create(self.payload_multi_sale)
         chunk_count_after = self.env["queue.job.chunk"].search_count([])
         self.assertEqual(chunk_count_initial + 2, chunk_count_after)
 
     def test_wrong_key(self):
-        import_service = self.sale_import_service_env.component(usage="import")
-        with self.assertRaises(ValidationError), patch(
-            "odoo.addons.sale_import_rest.components.sale_import_service."
-            "SaleImportService._get_api_key",
-            return_value="WrongKey",
-        ):
-            import_service.create(self.payload_multi_sale)
+        self.api_key = "WrongKey"
+        with self.assertRaises(ValidationError):
+            return self._service_create(self.payload_multi_sale)
 
     def test_key_not_mapped_to_channel(self):
         self.env["auth.api.key"].create(
             {"name": "aName", "key": "ASecureKey", "user_id": 1}
         )
-        import_service = self.sale_import_service_env.component(usage="import")
-        with self.assertRaises(ValidationError), patch(
-            "odoo.addons.sale_import_rest.components.sale_import_service."
-            "SaleImportService._get_api_key",
-            return_value="ASecureKey",
-        ):
-            import_service.create(self.payload_multi_sale)
+        self.api_key = "ASecureKey"
+        with self.assertRaises(ValidationError):
+            return self._service_create(self.payload_multi_sale)
+
+    def test_cancel_sale(self):
+        channel = self.env.ref("sale_channel.sale_channel_ebay")
+        sale = self.env.ref("sale.sale_order_1")
+        sale.sale_channel_id = channel
+        res = self._service_cancel({"name": sale.name})
+        self.assertEqual(sale.state, "cancel")
+        self.assertEqual(res, {"success": True})
+
+    def test_cancel_sale_missing(self):
+        sale = self.env.ref("sale.sale_order_1")
+        with self.assertRaises(MissingError):
+            self._service_cancel({"name": sale.name})
+        self.assertEqual(sale.state, "draft")

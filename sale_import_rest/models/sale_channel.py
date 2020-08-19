@@ -7,6 +7,6 @@ from odoo import fields, models
 class SaleChannel(models.Model):
     _inherit = "sale.channel"
 
-    api_key = fields.Many2one(
+    api_key_id = fields.Many2one(
         "auth.api.key", string="REST Api Key", ondelete="set null"
     )

@@ -15,3 +15,15 @@ class SaleImportOutput(Datamodel):
     _name = "sale.import.output"
 
     chunk_ids = fields.List(fields.Integer())
+
+
+class SaleCancelImput(Datamodel):
+    _name = "sale.cancel.input"
+
+    sale_name = fields.Str()
+
+
+class SaleCancelOutput(Datamodel):
+    _name = "sale.cancel.output"
+
+    success = fields.Boolean()
