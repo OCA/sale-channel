@@ -12,7 +12,7 @@ class SaleOrderDatamodel(Datamodel):
     address_shipping = fields.NestedModel("sale.order.address", required=True)
     address_invoicing = fields.NestedModel("sale.order.address", required=True)
     lines = fields.NestedModel("sale.order.line", many=True, required=True)
-    amount = fields.NestedModel("sale.order.amount", required=True)
+    amount = fields.NestedModel("sale.order.amount")
     invoice = fields.NestedModel("sale.order.invoice")
     payment = fields.NestedModel("sale.order.payment")
     pricelist_id = fields.Integer(required=True)

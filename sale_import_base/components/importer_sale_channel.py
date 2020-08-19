@@ -103,9 +103,9 @@ class ImporterSaleChannel(Component):
             "partner_id": partner.id,
             "partner_invoice_id": address_invoice.id,
             "partner_shipping_id": address_shipping.id,
-            "si_amount_total": data["amount"]["amount_total"],
-            "si_amount_untaxed": data["amount"]["amount_untaxed"],
-            "si_amount_tax": data["amount"]["amount_tax"],
+            "si_amount_total": data.get("amount", {}).get("amount_total", 0),
+            "si_amount_untaxed": data.get("amount", {}).get("amount_untaxed", 0),
+            "si_amount_tax": data.get("amount", {}).get("amount_tax", 0),
             "si_force_invoice_date": data.get("invoice") and data["invoice"]["date"],
             "si_force_invoice_number": data.get("invoice")
             and data["invoice"]["number"],
