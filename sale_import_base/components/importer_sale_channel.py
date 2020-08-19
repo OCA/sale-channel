@@ -98,6 +98,7 @@ class ImporterSaleChannel(Component):
         address_shipping = self._process_address(
             partner, data["address_shipping"], "delivery"
         )
+        channel = self.env["sale.channel"].browse(self.collection.record_id)
         so_vals = {
             "name": data["name"],
             "partner_id": partner.id,
@@ -109,7 +110,8 @@ class ImporterSaleChannel(Component):
             "si_force_invoice_date": data.get("invoice") and data["invoice"]["date"],
             "si_force_invoice_number": data.get("invoice")
             and data["invoice"]["number"],
-            "sale_channel_id": self.collection.record_id,
+            "sale_channel_id": channel.id,
+            "pricelist_id": data.get("pricelist_id") or channel.pricelist_id.id,
         }
         onchange_fields = [
             "payment_mode_id",

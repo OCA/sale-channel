@@ -14,3 +14,4 @@ class SaleChannel(models.Model):
     sale_orders_check_amounts_total = fields.Boolean(
         "(technical) Check total amounts against imported values"
     )
+    pricelist_id = fields.Many2one("product.pricelist", string="Pricelist")
