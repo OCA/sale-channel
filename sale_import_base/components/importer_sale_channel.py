@@ -160,6 +160,8 @@ class ImporterSaleChannel(Component):
             "zip": data.get("zip"),
             "city": data.get("city"),
             "email": data.get("email"),
+            "phone": data.get("phone"),
+            "mobile": data.get("mobile"),
         }
         if data.get("state_code"):
             state = self.env["res.country.state"].search(
