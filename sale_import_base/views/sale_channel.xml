@@ -7,6 +7,7 @@
             <field name="inherit_id" ref="sale_channel.sale_channel_view_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//group" position="inside">
+                    <field name="pricelist_id"/>
                     <field name="allow_match_on_email"/>
                     <field name="sale_orders_check_amounts_untaxed"/>
                     <field name="sale_orders_check_amounts_total"/>

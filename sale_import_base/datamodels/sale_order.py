@@ -15,4 +15,4 @@ class SaleOrderDatamodel(Datamodel):
     amount = fields.NestedModel("sale.order.amount")
     invoice = fields.NestedModel("sale.order.invoice")
     payment = fields.NestedModel("sale.order.payment")
-    pricelist_id = fields.Integer(required=True)
+    pricelist_id = fields.Integer()

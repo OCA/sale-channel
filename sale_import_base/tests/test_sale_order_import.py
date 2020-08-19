@@ -11,6 +11,7 @@ class TestSaleOrderImport(SaleImportCase):
         self.env = self.env(
             context=dict(self.env.context, test_queue_job_no_delay=True)
         )
+        self.pricelist = self.env["product.pricelist"].create({"name": "Test"})
 
     def test_basic(self):
         """ Base scenario: create a sale order"""
@@ -167,3 +168,26 @@ class TestSaleOrderImport(SaleImportCase):
             chunk = self._helper_create_chunk(data)
             self.assertEqual(chunk.state, "fail")
             self.assertIn("ValidationError", chunk.state_info)
+
+    def test_pricelist_from_channel(self):
+        self.sale_channel_ebay.pricelist_id = self.pricelist
+        vals = self.chunk_vals
+        vals["data_str"].pop("pricelist_id")
+        chunk = self._helper_create_chunk(vals)
+        self.assertEqual(chunk.state, "done")
+        sale = self.get_created_sales()
+        self.assertEqual(sale.pricelist_id, self.pricelist)
+
+    def test_pricelist_from_params(self):
+        vals = self.chunk_vals
+        vals["data_str"]["pricelist_id"] = self.pricelist.id
+        chunk = self._helper_create_chunk(vals)
+        self.assertEqual(chunk.state, "done")
+        sale = self.get_created_sales()
+        self.assertEqual(sale.pricelist_id, self.pricelist)
+
+    def test_pricelist_from_default(self):
+        chunk = self._helper_create_chunk(self.chunk_vals)
+        self.assertEqual(chunk.state, "done")
+        sale = self.get_created_sales()
+        self.assertEqual(sale.pricelist_id, self.env.ref("product.list0"))
