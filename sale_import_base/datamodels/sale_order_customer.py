@@ -17,3 +17,5 @@ class SaleOrderCustomerDatamodel(Datamodel):
     state_code = fields.Str()
     country_code = fields.Str()
     external_id = fields.Str(required=True)
+    phone = fields.Str()
+    mobile = fields.Str()

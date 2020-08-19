@@ -16,3 +16,5 @@ class SaleOrderAddressDatamodel(Datamodel):
     email = fields.Email()
     state_code = fields.Str()
     country_code = fields.Str(required=True)
+    phone = fields.Str()
+    mobile = fields.Str()
