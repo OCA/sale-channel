@@ -1,6 +1,7 @@
 {
   "sale_orders": [
     {
+      "name": "XX-00001",
       "address_customer": {
         "name": "Thomas Jean",
         "street": "1 rue de Jean",
@@ -42,6 +43,7 @@
       "pricelist_id": 1
     },
     {
+    "name": "XX-00002",
     "address_customer": {
       "name": "Thomas Jean",
       "street": "1 rue de Jean",
