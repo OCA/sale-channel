@@ -22,8 +22,7 @@ class SaleImportService(Component):
         editable chunk IDs
     """
 
-    @property
-    def channel(self):
+    def _get_channel(self):
         key = self._get_api_key()
         api_key = self.env["auth.api.key"]._retrieve_api_key(key)
         return self.env["sale.channel"].search([("api_key_id", "=", api_key.id)])
@@ -36,7 +35,7 @@ class SaleImportService(Component):
     )
     # pylint: disable=W8106
     def create(self, sale_import_input):
-        channel = self.channel
+        channel = self._get_channel()
         json_encoder = JSONEncoder()
         if not channel:
             raise ValidationError(_("API key does not map to any sale channel"))
@@ -81,7 +80,7 @@ class SaleImportService(Component):
         auth="api_key",
     )
     def cancel(self, sale_cancel_input):
-        channel = self.channel
+        channel = self._get_channel()
         name = sale_cancel_input["name"]
         sale = self.env["sale.order"].search(
             [("name", "=", name), ("sale_channel_id", "=", channel.id)]
