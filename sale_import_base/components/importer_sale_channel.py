@@ -214,6 +214,7 @@ class ImporterSaleChannel(Component):
         acquirer_name = pmt_data["mode"]
         acquirer = self.env["payment.acquirer"].search([("name", "=", acquirer_name)])
         payment_vals = {
+            "partner_id": sale_order.partner_id.id,
             "acquirer_id": acquirer.id,
             "type": "server2server",
             "state": "done",
