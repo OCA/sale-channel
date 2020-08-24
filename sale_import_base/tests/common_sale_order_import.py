@@ -7,7 +7,7 @@ from odoo.addons.component.tests.common import SavepointComponentCase
 from odoo.addons.datamodel.tests.common import SavepointDatamodelCase
 from odoo.addons.sale.tests.test_sale_common import TestCommonSaleNoChart
 
-from .data import data
+from .data import full, minimum, mixed
 
 
 class SaleImportCase(
@@ -21,8 +21,12 @@ class SaleImportCase(
         cls.setUpFpos()
         cls.setUpPaymentAcquirer()
         cls.setUpMisc()
-        cls.sale_order_example_vals = data
-        cls.sale_order_example_vals["pricelist_id"] = cls.env.ref("product.list0").id
+        cls.sale_order_example_vals_all = full
+        cls.sale_order_example_vals_all["pricelist_id"] = cls.env.ref(
+            "product.list0"
+        ).id
+        cls.sale_order_example_vals_minimum = minimum
+        cls.sale_order_example_vals_mixed = mixed
         cls.last_sale_id = cls.env["sale.order"].search([], order="id desc", limit=1).id
 
     @classmethod
@@ -90,14 +94,18 @@ class SaleImportCase(
     def setUpMisc(cls):
         cls.env = cls.env(context=dict(cls.env.context, test_queue_job_no_delay=True))
 
-    @property
-    def chunk_vals(self):
+    @classmethod
+    def get_chunk_vals(cls, which_data):
+        """
+        :param which_data: all | mixed | minimum
+        see data.py
+        """
         return {
             "apply_on_model": "sale.order",
-            "data_str": deepcopy(self.sale_order_example_vals),
+            "data_str": deepcopy(getattr(cls, "sale_order_example_vals_" + which_data)),
             "usage": "json_import",
             "model_name": "sale.channel",
-            "record_id": self.env.ref("sale_channel.sale_channel_ebay").id,
+            "record_id": cls.env.ref("sale_channel.sale_channel_ebay").id,
         }
 
     @classmethod

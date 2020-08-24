@@ -50,17 +50,21 @@ class ImporterSaleChannel(Component):
         if not all_errors.get("address"):
             all_errors["address"] = list()
         errors = []
+        if address.get("country_code"):
+            country = self.env["res.country"].search(
+                [("code", "=", address["country_code"])]
+            )
+            if len(country.ids) != 1:
+                errors += [_("Could not determine one country from country code")]
         if address.get("state_code"):
             state = self.env["res.country.state"].search(
-                [("code", "=", address["state_code"])]
+                [
+                    ("code", "=", address["state_code"]),
+                    ("country_id", "in", country and country.ids),
+                ]
             )
             if len(state.ids) != 1:
                 errors += [_("Could not determine one state from state code")]
-        country = self.env["res.country"].search(
-            [("code", "=", address["country_code"])]
-        )
-        if len(country.ids) != 1:
-            errors += [_("Could not determine one country from country code")]
         all_errors["address"] += errors
 
     def _validate_line(self, line, all_errors):
@@ -165,16 +169,19 @@ class ImporterSaleChannel(Component):
             "phone": data.get("phone"),
             "mobile": data.get("mobile"),
         }
-        if data.get("state_code"):
-            state = self.env["res.country.state"].search(
-                [("code", "=", data["state_code"])]
-            )
-            result["state_id"] = state.id
         if data.get("country_code"):
             country = self.env["res.country"].search(
                 [("code", "=", data["country_code"])]
             )
             result["country_id"] = country.id
+        if data.get("state_code"):
+            state = self.env["res.country.state"].search(
+                [
+                    ("code", "=", data["state_code"]),
+                    ("country_id", "in", [data.get("country_id")]),
+                ]
+            )
+            result["state_id"] = state.id
         return result
 
     def _process_address(self, partner, address, address_type):
