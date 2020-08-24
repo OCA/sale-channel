@@ -16,3 +16,4 @@ class SaleOrderDatamodel(Datamodel):
     invoice = fields.NestedModel("sale.order.invoice")
     payment = fields.NestedModel("sale.order.payment")
     pricelist_id = fields.Integer()
+    date_order = fields.Date()

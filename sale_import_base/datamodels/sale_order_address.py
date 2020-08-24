@@ -10,7 +10,7 @@ class SaleOrderAddressDatamodel(Datamodel):
 
     name = fields.Str(required=True)
     street = fields.Str(required=True)
-    street2 = fields.Str()
+    street2 = fields.Str(allow_none=True)
     zip = fields.Integer(required=True)
     city = fields.Str(required=True)
     email = fields.Email()
