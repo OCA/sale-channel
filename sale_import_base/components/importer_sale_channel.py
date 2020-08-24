@@ -117,6 +117,8 @@ class ImporterSaleChannel(Component):
             "sale_channel_id": channel.id,
             "pricelist_id": data.get("pricelist_id") or channel.pricelist_id.id,
         }
+        if data.get("date_order"):
+            so_vals["date_order"] = data["date_order"]
         onchange_fields = [
             "payment_mode_id",
             "workflow_process_id",

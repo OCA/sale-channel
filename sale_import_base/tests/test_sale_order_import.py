@@ -1,6 +1,8 @@
 #  Copyright (c) Akretion 2020
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl)
 
+import datetime
+
 from .common_sale_order_import import SaleImportCase
 
 
@@ -202,3 +204,8 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertEqual(chunk.state, "done")
         sale = self.get_created_sales()
         self.assertEqual(sale.pricelist_id, self.env.ref("product.list0"))
+
+    def test_date_correct(self):
+        self._helper_create_chunk(self.get_chunk_vals("all"))
+        expected_date = datetime.datetime.strptime("2020-01-02", "%Y-%m-%d")
+        self.assertEqual(self.get_created_sales().date_order, expected_date)

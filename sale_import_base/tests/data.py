@@ -72,6 +72,7 @@ full = {
         "acquirer_reference": "T123",
     },
     "pricelist_id": 1,
+    "date_order": "2020-01-02",
 }
 
 # Minimum data on fields of sale.order
