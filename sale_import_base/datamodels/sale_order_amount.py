@@ -7,6 +7,6 @@ from odoo.addons.datamodel.core import Datamodel
 class SaleOrderAmountDatamodel(Datamodel):
     _name = "sale.order.amount"
 
-    amount_tax = fields.Decimal()
-    amount_untaxed = fields.Decimal()
-    amount_total = fields.Decimal()
+    amount_tax = fields.Decimal(required=True)
+    amount_untaxed = fields.Decimal(required=True)
+    amount_total = fields.Decimal(required=True)
