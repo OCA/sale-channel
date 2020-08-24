@@ -50,6 +50,7 @@ class ImporterSaleChannel(Component):
         if not all_errors.get("address"):
             all_errors["address"] = list()
         errors = []
+        country = self.env["res.country"]
         if address.get("country_code"):
             country = self.env["res.country"].search(
                 [("code", "=", address["country_code"])]
@@ -57,12 +58,10 @@ class ImporterSaleChannel(Component):
             if len(country.ids) != 1:
                 errors += [_("Could not determine one country from country code")]
         if address.get("state_code"):
-            state = self.env["res.country.state"].search(
-                [
-                    ("code", "=", address["state_code"]),
-                    ("country_id", "in", country and country.ids),
-                ]
-            )
+            domain = [("code", "=", address["state_code"])]
+            if address.get("country_code"):
+                domain += [("country_id", "in", country.ids)]
+            state = self.env["res.country.state"].search(domain)
             if len(state.ids) != 1:
                 errors += [_("Could not determine one state from state code")]
         all_errors["address"] += errors
