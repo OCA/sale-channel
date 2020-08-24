@@ -13,7 +13,10 @@ from odoo.addons.sale_import_base.tests.common_sale_order_import import SaleImpo
 class TestSaleOrderImport(SaleImportCase):
     @property
     def payload_multi_sale(self):
-        chunks_data = [self.chunk_vals["data_str"], self.chunk_vals["data_str"]]
+        chunks_data = [
+            self.get_chunk_vals("all")["data_str"],
+            self.get_chunk_vals("all")["data_str"],
+        ]
         chunks_data[1]["payment"]["reference"] = "PMT-EXAMPLE-002"
         result = self.env.datamodels["sale.import.input"].load(
             {"sale_orders": chunks_data}
