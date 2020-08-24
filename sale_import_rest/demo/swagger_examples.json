@@ -40,7 +40,8 @@
         "amount_untaxed": 2950.00,
         "amount_total": 2950.00
       },
-      "pricelist_id": 1
+      "pricelist_id": 1,
+      "date_order": "2020-01-02"
     },
     {
     "name": "XX-00002",
