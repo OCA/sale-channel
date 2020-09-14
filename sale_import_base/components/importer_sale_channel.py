@@ -116,18 +116,15 @@ class ImporterSaleChannel(Component):
                     _("Could not determine one country from country code")
                 )
             result["country_id"] = country.id
-        if data.get("state_code"):
-            state = self.env["res.country.state"].search(
-                [
-                    ("code", "=", data["state_code"]),
-                    ("country_id", "in", [result.get("country_id")]),
-                ]
-            )
-            if len(state.ids) != 1:
-                raise ValidationError(
-                    _("Could not determine one state from state and country code")
+            if data.get("state_code"):
+                state = self.env["res.country.state"].search(
+                    [("code", "=", data["state_code"]), ("country_id", "=", country.id)]
                 )
-            result["state_id"] = state.id
+                if len(state.ids) != 1:
+                    raise ValidationError(
+                        _("Could not determine one state from state and country code")
+                    )
+                result["state_id"] = state.id
         return result
 
     def _process_address(self, partner, address, address_type):
