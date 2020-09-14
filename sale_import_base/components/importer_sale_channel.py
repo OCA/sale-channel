@@ -23,75 +23,12 @@ class ImporterSaleChannel(Component):
         except MarshmallowValidationError as e:
             raise ValidationError(e)
         data = so_datamodel_load.dump()
-        errors = self.run_validators(data)
-        if any([val for field, val in errors.items()]):
-            raise ValidationError(
-                _("Validation error on one or mode fields: %s") % str(errors)
-            )
         so_vals = self._prepare_sale_vals(data)
         sale_order = self.env["sale.order"].create(so_vals)
         so_line_vals = self._prepare_sale_line_vals(data, sale_order)
         self.env["sale.order.line"].create(so_line_vals)
         self._finalize(sale_order, data)
         return sale_order
-
-    def run_validators(self, data):
-        """ Runs all the validations against in-db data """
-        errors = {}
-        for addr in ("address_customer", "address_shipping", "address_invoicing"):
-            self._validate_address(data[addr], errors)
-        for line in data["lines"]:
-            self._validate_line(line, errors)
-        if data.get("payment"):
-            self._validate_payment(data["payment"], errors)
-        return errors
-
-    def _validate_address(self, address, all_errors):
-        if not all_errors.get("address"):
-            all_errors["address"] = list()
-        errors = []
-        country = self.env["res.country"]
-        if address.get("country_code"):
-            country = self.env["res.country"].search(
-                [("code", "=", address["country_code"])]
-            )
-            if len(country.ids) != 1:
-                errors += [_("Could not determine one country from country code")]
-        if address.get("state_code"):
-            domain = [("code", "=", address["state_code"])]
-            if address.get("country_code"):
-                domain += [("country_id", "in", country.ids)]
-            state = self.env["res.country.state"].search(domain)
-            if len(state.ids) != 1:
-                errors += [_("Could not determine one state from state code")]
-        all_errors["address"] += errors
-
-    def _validate_line(self, line, all_errors):
-        if not all_errors.get("lines"):
-            all_errors["lines"] = list()
-        product = self.env["product.product"].search(
-            [("default_code", "=", line["product_code"])]
-        )
-        if len(product.ids) != 1:
-            all_errors["lines"] += [
-                _("Could not find one product with the product code: {}").format(
-                    line["product_code"]
-                )
-            ]
-
-    def _validate_payment(self, payment, all_errors):
-        errors = []
-        acquirer = self.env["payment.acquirer"].search([("name", "=", payment["mode"])])
-        if not acquirer:
-            errors += [_("No payment type found for given mode")]
-
-        if payment.get("currency_code"):
-            currency_id = self.env["res.currency"].search(
-                [("name", "=", payment["currency_code"])]
-            )
-            if not currency_id:
-                errors += [_("No currency type found for given code")]
-        all_errors["payment"] = errors
 
     def _prepare_sale_vals(self, data):
         partner = self._process_partner(data["address_customer"])
@@ -174,15 +111,20 @@ class ImporterSaleChannel(Component):
             country = self.env["res.country"].search(
                 [("code", "=", data["country_code"])]
             )
+            if len(country.ids) != 1:
+                raise ValidationError(
+                    _("Could not determine one country from country code")
+                )
             result["country_id"] = country.id
-        if data.get("state_code"):
-            state = self.env["res.country.state"].search(
-                [
-                    ("code", "=", data["state_code"]),
-                    ("country_id", "in", [data.get("country_id")]),
-                ]
-            )
-            result["state_id"] = state.id
+            if data.get("state_code"):
+                state = self.env["res.country.state"].search(
+                    [("code", "=", data["state_code"]), ("country_id", "=", country.id)]
+                )
+                if len(state.ids) != 1:
+                    raise ValidationError(
+                        _("Could not determine one state from state and country code")
+                    )
+                result["state_id"] = state.id
         return result
 
     def _process_address(self, partner, address, address_type):
@@ -195,13 +137,15 @@ class ImporterSaleChannel(Component):
         return [self._prepare_sale_line(line, sale_order) for line in data["lines"]]
 
     def _prepare_sale_line(self, line_data, sale_order):
-        product_id = (
-            self.env["product.product"]
-            .search([("default_code", "=", line_data["product_code"])])
-            .id
+        product = self.env["product.product"].search(
+            [("default_code", "=", line_data["product_code"])]
         )
+        if len(product.ids) != 1:
+            raise ValidationError(
+                _("Could not determine one product from product code")
+            )
         vals = {
-            "product_id": product_id,
+            "product_id": product.id,
             "product_uom_qty": line_data["qty"],
             "price_unit": line_data["price_unit"],
             "discount": line_data.get("discount"),
@@ -221,6 +165,22 @@ class ImporterSaleChannel(Component):
         pmt_data = data["payment"]
         acquirer_name = pmt_data["mode"]
         acquirer = self.env["payment.acquirer"].search([("name", "=", acquirer_name)])
+        if len(acquirer.ids) != 1:
+            raise ValidationError(
+                _("Could not determine one payment acquirer from acquirer name")
+            )
+        if pmt_data.get("currency_code"):
+            currency = self.env["res.currency"].search(
+                [("name", "=", pmt_data["currency_code"])]
+            )
+            if len(currency.ids) != 1:
+                raise ValidationError(
+                    _("Could not determine one currency from currency code")
+                )
+            if currency != sale_order.currency_id:
+                raise ValidationError(
+                    _("Payment currency should match Sale Order pricelist currency")
+                )
         payment_vals = {
             "partner_id": sale_order.partner_id.id,
             "acquirer_id": acquirer.id,
