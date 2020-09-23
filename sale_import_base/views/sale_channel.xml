@@ -6,11 +6,15 @@
             <field name="model">sale.channel</field>
             <field name="inherit_id" ref="sale_channel.sale_channel_view_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//group" position="inside">
-                    <field name="pricelist_id"/>
-                    <field name="allow_match_on_email"/>
-                    <field name="sale_orders_check_amounts_untaxed"/>
-                    <field name="sale_orders_check_amounts_total"/>
+                <xpath expr="//group[@name='general_info']" position="after">
+                    <group name="sale_import_base" string="Sale Import Parameters">
+                        <field name="pricelist_id"/>
+                        <field name="allow_match_on_email"/>
+                    </group>
+                    <group name="check_amounts" string="Check imported values">
+                        <field name="sale_orders_check_amounts_untaxed" string="Untaxed amounts"/>
+                        <field name="sale_orders_check_amounts_total" string="Total amounts"/>
+                    </group>
                 </xpath>
             </field>
         </record>
