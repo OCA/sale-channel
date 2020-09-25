@@ -81,12 +81,12 @@ class SaleImportService(Component):
     )
     def cancel(self, sale_cancel_input):
         channel = self._get_channel()
-        name = sale_cancel_input["name"]
+        name = sale_cancel_input.name
         sale = self.env["sale.order"].search(
             [("name", "=", name), ("sale_channel_id", "=", channel.id)]
         )
         if sale:
             sale.action_cancel()
-            return {"success": True}
+            return self.env.datamodels["sale.cancel.output"].load({"success": True})
         else:
-            raise MissingError(_("Sale order {} do not exist").format(name))
+            raise MissingError(_("Sale order {} does not exist").format(name))

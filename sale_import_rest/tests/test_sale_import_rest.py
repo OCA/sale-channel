@@ -18,10 +18,7 @@ class TestSaleOrderImport(SaleImportCase):
             self.get_chunk_vals("all")["data_str"],
         ]
         chunks_data[1]["payment"]["reference"] = "PMT-EXAMPLE-002"
-        result = self.env.datamodels["sale.import.input"].load(
-            {"sale_orders": chunks_data}
-        )
-        return result
+        return {"sale_orders": chunks_data}
 
     def setUp(self):
         super().setUp()
@@ -39,7 +36,7 @@ class TestSaleOrderImport(SaleImportCase):
             "SaleImportService._get_api_key",
             return_value=self.api_key,
         ):
-            return self.service.create(self.payload_multi_sale)
+            return self.service.dispatch("create", params=vals)
 
     def _service_cancel(self, name):
         with patch(
@@ -47,7 +44,7 @@ class TestSaleOrderImport(SaleImportCase):
             "SaleImportService._get_api_key",
             return_value=self.api_key,
         ):
-            return self.service.cancel(name)
+            return self.service.dispatch("cancel", params=name)
 
     def test_chunks_created(self):
         chunk_count_initial = self.env["queue.job.chunk"].search_count([])
