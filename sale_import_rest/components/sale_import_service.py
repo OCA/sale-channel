@@ -81,7 +81,7 @@ class SaleImportService(Component):
     )
     def cancel(self, sale_cancel_input):
         channel = self._get_channel()
-        name = sale_cancel_input.name
+        name = sale_cancel_input.sale_name
         sale = self.env["sale.order"].search(
             [("name", "=", name), ("sale_channel_id", "=", channel.id)]
         )
