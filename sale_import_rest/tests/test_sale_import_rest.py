@@ -38,13 +38,13 @@ class TestSaleOrderImport(SaleImportCase):
         ):
             return self.service.dispatch("create", params=vals)
 
-    def _service_cancel(self, name):
+    def _service_cancel(self, params):
         with patch(
             "odoo.addons.sale_import_rest.components.sale_import_service."
             "SaleImportService._get_api_key",
             return_value=self.api_key,
         ):
-            return self.service.dispatch("cancel", params=name)
+            return self.service.dispatch("cancel", params=params)
 
     def test_chunks_created(self):
         chunk_count_initial = self.env["queue.job.chunk"].search_count([])
@@ -69,12 +69,12 @@ class TestSaleOrderImport(SaleImportCase):
         channel = self.env.ref("sale_channel.sale_channel_ebay")
         sale = self.env.ref("sale.sale_order_1")
         sale.sale_channel_id = channel
-        res = self._service_cancel({"name": sale.name})
+        res = self._service_cancel({"sale_name": sale.name})
         self.assertEqual(sale.state, "cancel")
         self.assertEqual(res, {"success": True})
 
     def test_cancel_sale_missing(self):
         sale = self.env.ref("sale.sale_order_1")
         with self.assertRaises(MissingError):
-            self._service_cancel({"name": sale.name})
+            self._service_cancel({"sale_name": sale.name})
         self.assertEqual(sale.state, "draft")

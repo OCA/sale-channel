@@ -20,7 +20,7 @@ class SaleImportOutput(Datamodel):
 class SaleCancelInput(Datamodel):
     _name = "sale.cancel.input"
 
-    name = fields.Str()
+    sale_name = fields.Str()
 
 
 class SaleCancelOutput(Datamodel):
