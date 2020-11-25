@@ -3,8 +3,8 @@
 
 {
     "name": "Job Queue Chunk",
-    "version": "12.0.1.0.1",
-    "author": "Akretion",
+    "version": "14.0.1.0.1",
+    "author": "Akretion, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/queue",
     "license": "AGPL-3",
     "category": "Generic Modules",
@@ -14,5 +14,5 @@
         "security/security.xml",
         "security/ir.model.access.csv",
     ],
-    "installable": False,
+    "installable": True,
 }
