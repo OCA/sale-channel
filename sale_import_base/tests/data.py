@@ -42,7 +42,7 @@ full = {
     },
     "lines": [
         {
-            "product_code": "PROD_ORDER",
+            "product_code": "SKU_A",
             "qty": 5,
             "price_unit": 100,
             "description": "Initial Line 1 import description",
@@ -50,18 +50,18 @@ full = {
             # total discounted = 450
         },
         {
-            "product_code": "PROD_DEL",
+            "product_code": "SKU_B",
             "qty": 2,
             "price_unit": 300,
             "description": "Initial Line 2 import description",
             "discount": 5.0,
-            # total = 570
+            # total discounted = 570
         },
     ],
     "amount": {
-        "amount_tax": 40.5,  # 450 * 0.09 = 40.5
+        "amount_tax": 153,  # 1020 * 0.15 = 153
         "amount_untaxed": 1020,  # 450 + 570 = 1020
-        "amount_total": 1060.5,  # 1020 + 40.5 = 1090.5
+        "amount_total": 1173,  # 1020 + 153 = 1173
     },
     "invoice": {"date": "1900-12-30", "number": "IN-123"},
     "payment": {
@@ -84,6 +84,10 @@ minimum = {
         "name": "Thomas Jean",
         "email": "thomasjean@example.com",
         "external_id": "ThomasJeanEbay",
+        "street": "1 rue de partner",
+        "zip": "69100",
+        "city": "Lyon",
+        "country_code": "FR",
     },
     "address_shipping": {
         "name": "shipping contact name",
@@ -99,7 +103,7 @@ minimum = {
         "city": "Lyon",
         "country_code": "FR",
     },
-    "lines": [{"product_code": "PROD_ORDER", "qty": 5, "price_unit": 100}],
+    "lines": [{"product_code": "FURN_7777", "qty": 5, "price_unit": 100}],
 }
 
 # Minimum data on sale.order
@@ -111,6 +115,10 @@ mixed = {
         "name": "Thomas Jean",
         "email": "thomasjean@example.com",
         "external_id": "ThomasJeanEbay",
+        "street": "1 rue de partner",
+        "zip": "69100",
+        "city": "Lyon",
+        "country_code": "FR",
     },
     "address_shipping": {
         "name": "shipping contact name",
@@ -126,7 +134,8 @@ mixed = {
         "city": "Lyon",
         "country_code": "FR",
     },
-    "lines": [{"product_code": "PROD_ORDER", "qty": 5, "price_unit": 100}],
+    "lines": [{"product_code": "FURN_7777", "qty": 5, "price_unit": 100}],
+    # "lines": [{"product_code": "PROD_ORDER", "qty": 5, "price_unit": 100}],
     "amount": {
         "amount_tax": 45,  # 500 * 0.09 = 45
         "amount_untaxed": 500,

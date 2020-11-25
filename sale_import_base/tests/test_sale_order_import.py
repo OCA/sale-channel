@@ -112,10 +112,10 @@ class TestSaleOrderImport(SaleImportCase):
         """ Check we get the right product match on product code"""
         self._helper_create_chunk(self.get_chunk_vals("all"))
         self.assertEqual(
-            self.get_created_sales().order_line[0].product_id, self.product_order
+            self.get_created_sales().order_line[0].product_id, self.product_a
         )
         self.assertEqual(
-            self.get_created_sales().order_line[1].product_id, self.product_deliver
+            self.get_created_sales().order_line[1].product_id, self.product_b
         )
 
     def test_wrong_total_amount(self):
@@ -137,20 +137,28 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertFalse(self.get_created_sales().detect_exceptions())
 
     def test_deliver_country_with_tax(self):
-        """ Test fiscal position is applied correctly """
+        """
+        Test fiscal position is applied correctly
+        - change source tax to 5%
+        - don't change destination tax (should be 15%)
+        Check in the end we correctly get 15% tax
+        """
+        self.tax_sale_a.amount = 5
+        self.fiscal_pos_a.country_id = self.env.ref("base.ch")
         chunk_vals_other_country = self.get_chunk_vals("all")
         chunk_vals_other_country["data_str"]["address_shipping"]["country_code"] = "CH"
         del chunk_vals_other_country["data_str"]["address_shipping"]["state_code"]
         self._helper_create_chunk(chunk_vals_other_country)
-        self.assertEqual(self.get_created_sales().fiscal_position_id, self.fpos_swiss)
-        self.assertEqual(self.get_created_sales().order_line[0].tax_id, self.tax_swiss)
+        self.assertEqual(self.get_created_sales().fiscal_position_id, self.fiscal_pos_a)
+        self.assertEqual(self.get_created_sales().order_line[0].tax_id, self.tax_sale_b)
 
     def test_order_line_description(self):
         """Test that a description is taken into account, or
         default description is generated if none is provided"""
         self._helper_create_chunk(self.get_chunk_vals("mixed"))
         new_sale = self.get_created_sales()
-        expected_desc = "[PROD_ORDER] Zed+ Antivirus"
+        expected_desc = "[FURN_7777] Office Chair"
+        # expected_desc = "[PROD_ORDER] Office Chair"
         self.assertEqual(new_sale.order_line[0].name, expected_desc)
 
     def test_payment_create(self):

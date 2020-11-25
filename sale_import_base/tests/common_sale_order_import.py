@@ -3,31 +3,94 @@
 import json
 from copy import deepcopy
 
+from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.addons.component.tests.common import SavepointComponentCase
 from odoo.addons.datamodel.tests.common import SavepointDatamodelCase
-from odoo.addons.sale.tests.test_sale_common import TestCommonSaleNoChart
 
 from .data import full, minimum, mixed
 
 
+class TestSaleCommonNoDuplicates(AccountTestInvoicingCommon):
+    """
+    TestSaleCommon has duplicate products, thus we must create a new class
+    This one is similar to Odoo's base with some parts cut out
+    TODO delete this class or clean it up
+    """
+
+    @classmethod
+    def setup_sale_configuration_for_company(cls, company):
+        cls.env["res.users"].with_context(no_reset_password=True)
+
+        company_data = {
+            # Sales Team
+            "default_sale_team": cls.env["crm.team"]
+            .with_context(tracking_disable=True)
+            .create(
+                {
+                    "name": "Test Channel",
+                    "company_id": company.id,
+                }
+            ),
+            # Pricelist
+            "default_pricelist": cls.env["product.pricelist"]
+            .with_company(company)
+            .create(
+                {
+                    "name": "default_pricelist",
+                    "currency_id": company.currency_id.id,
+                }
+            ),
+            # Product category
+            "product_category": cls.env["product.category"]
+            .with_company(company)
+            .create(
+                {
+                    "name": "Test category",
+                }
+            ),
+        }
+        return company_data
+
+    @classmethod
+    def setup_company_data(cls, company_name, chart_template=None, **kwargs):
+        company_data = super().setup_company_data(
+            company_name, chart_template=chart_template, **kwargs
+        )
+        company_data.update(
+            cls.setup_sale_configuration_for_company(company_data["company"])
+        )
+        company_data["product_category"].write(
+            {
+                "property_account_income_categ_id": company_data[
+                    "default_account_revenue"
+                ].id,
+                "property_account_expense_categ_id": company_data[
+                    "default_account_expense"
+                ].id,
+            }
+        )
+        return company_data
+
+
 class SaleImportCase(
-    SavepointDatamodelCase, TestCommonSaleNoChart, SavepointComponentCase
+    TestSaleCommonNoDuplicates, SavepointDatamodelCase, SavepointComponentCase
 ):
     @classmethod
     def setUpClass(cls):
         super(SaleImportCase, cls).setUpClass()
-        cls.setUpClassicProducts()
-        cls.setUpTaxes()
-        cls.setUpFpos()
         cls.setUpPaymentAcquirer()
         cls.setUpMisc()
+        cls.setUpProducts()
+        cls.fiscal_pos_a.auto_apply = True
         cls.sale_order_example_vals_all = full
         cls.sale_order_example_vals_all["pricelist_id"] = cls.env.ref(
             "product.list0"
         ).id
         cls.sale_order_example_vals_minimum = minimum
         cls.sale_order_example_vals_mixed = mixed
-        cls.last_sale_id = cls.env["sale.order"].search([], order="id desc", limit=1).id
+        cls.last_sale_id = (
+            cls.env["sale.order"].search([], order="id desc", limit=1).id or 0
+        )
 
     @classmethod
     def get_created_sales(cls):
@@ -36,45 +99,9 @@ class SaleImportCase(
         )
 
     @classmethod
-    def setUpTaxes(cls):
-        tax_obj = cls.env["account.tax"]
-        tax_vals = {
-            "name": "Fictional tax 9%",
-            "amount": "9.00",
-            "type_tax_use": "sale",
-            "company_id": cls.env.ref("base.main_company").id,
-        }
-        cls.tax = tax_obj.create(tax_vals)
-        cls.product_order.taxes_id = cls.tax
-
-    @classmethod
-    def setUpFpos(cls):
-        tax_obj = cls.env["account.tax"]
-        fiscal_pos_obj = cls.env["account.fiscal.position"]
-        fiscal_pos_line_obj = cls.env["account.fiscal.position.tax"]
-
-        # CH
-        fpos_vals_swiss = {
-            "name": "Swiss Fiscal Position",
-            "country_id": cls.env.ref("base.ch").id,
-            "zip_from": 0,
-            "zip_to": 0,
-            "auto_apply": True,
-        }
-        cls.fpos_swiss = fiscal_pos_obj.create(fpos_vals_swiss)
-        tax_vals_swiss = {
-            "name": "Swiss Export",
-            "amount": "0.00",
-            "type_tax_use": "sale",
-            "company_id": cls.env.ref("base.main_company").id,
-        }
-        cls.tax_swiss = tax_obj.create(tax_vals_swiss)
-        fpos_line_vals = {
-            "position_id": cls.fpos_swiss.id,
-            "tax_src_id": cls.tax.id,
-            "tax_dest_id": cls.tax_swiss.id,
-        }
-        fiscal_pos_line_obj.create(fpos_line_vals)
+    def setUpProducts(cls):  # TODO clear this out with TestSaleCommonNoDuplicates
+        cls.product_a.default_code = "SKU_A"
+        cls.product_b.default_code = "SKU_B"
 
     @classmethod
     def setUpPaymentAcquirer(cls):
@@ -85,7 +112,6 @@ class SaleImportCase(
             "name": "credit_card",
             "provider": "manual",
             "company_id": cls.env.ref("base.main_company").id,
-            "environment": "test",
             "payment_flow": "s2s",
         }
         PaymentAcquirer.create(acquirer_vals)
