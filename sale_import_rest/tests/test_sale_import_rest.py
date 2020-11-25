@@ -3,6 +3,7 @@
 
 from unittest.mock import patch
 
+from odoo import SUPERUSER_ID
 from odoo.exceptions import MissingError, ValidationError
 
 from odoo.addons.base_rest.controllers.main import _PseudoCollection
@@ -22,6 +23,11 @@ class TestSaleOrderImport(SaleImportCase):
 
     def setUp(self):
         super().setUp()
+        # As the env.user is superuser anyways for our controllers,
+        # for now we neglect it for tests
+        superuser = self.env["res.users"].browse([SUPERUSER_ID])
+        self.env = self.env(user=superuser)
+        self.cr = self.env.cr
         self.api_key = "ASecureKeyEbay"
         collection = _PseudoCollection("sale.import.rest.services", self.env)
         self.sale_import_service_env = WorkContext(
