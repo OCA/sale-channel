@@ -3,7 +3,8 @@
 
 from odoo import api, fields, models
 
-from odoo.addons.queue_job.job import job
+# Use to bypass chunks entirely for easier debugging
+DEBUG_MODE = False
 
 
 class QueueJobChunk(models.Model):
@@ -11,17 +12,22 @@ class QueueJobChunk(models.Model):
     _description = "Queue Job Chunk"
     _inherit = "collection.base"
 
+    @api.model
+    def _selection_target_model(self):
+        models = self.env["ir.model"].search([])
+        return [(model.model, model.name) for model in models]
+
     @api.depends("model_name", "record_id")
     def _compute_reference(self):
         for rec in self:
             rec.company_id = self.env.user.company_id
             if rec.model_name and rec.record_id:
-                rec.reference = "{},{}".format(rec.model_name, rec.record_id)
+                rec.reference = "{},{}".format(rec.model_name, rec.record_id or 0)
                 record = self.env[rec.model_name].browse(rec.record_id)
                 if "company_id" in record._fields:
                     rec.company_id = record.company_id
             else:
-                rec.reference = None
+                rec.reference = False
 
     # component fields
     usage = fields.Char("Usage")
@@ -37,7 +43,10 @@ class QueueJobChunk(models.Model):
     model_name = fields.Char("Model ID")
     record_id = fields.Integer("Record ID")
     reference = fields.Reference(
-        selection=[], string="Reference", compute=_compute_reference, store=True
+        string="Reference",
+        selection="_selection_target_model",
+        compute=_compute_reference,
+        store=True,
     )
     company_id = fields.Many2one("res.company", compute=_compute_reference, store=True)
 
@@ -52,22 +61,32 @@ class QueueJobChunk(models.Model):
         self.enqueue_job()
 
     def enqueue_job(self):
-        return self.with_delay().process_chunk()
+        if DEBUG_MODE:
+            return self.process_chunk()
+        else:
+            return self.with_delay().process_chunk()
 
-    @job
     def process_chunk(self):
         self.ensure_one()
         usage = self.usage
         apply_on = self.apply_on_model
         with self.work_on(apply_on) as work:
-            try:
+            if DEBUG_MODE:
                 with self.env.cr.savepoint():
                     processor = work.component(usage=usage)
                     result = processor.run()
-            except Exception as e:
-                self.state = "fail"
-                self.state_info = type(e).__name__ + str(e.args)
-                return False
-            self.state_info = ""
-            self.state = "done"
-            return result
+                    self.state_info = ""
+                    self.state = "done"
+                    return result
+            else:
+                try:
+                    with self.env.cr.savepoint():
+                        processor = work.component(usage=usage)
+                        result = processor.run()
+                except Exception as e:
+                    self.state = "fail"
+                    self.state_info = type(e).__name__ + str(e.args)
+                    return False
+                self.state_info = ""
+                self.state = "done"
+                return result
