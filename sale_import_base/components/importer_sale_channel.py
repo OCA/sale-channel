@@ -129,9 +129,9 @@ class ImporterSaleChannel(Component):
 
     def _process_address(self, partner, address, address_type):
         vals = self._prepare_partner(address)
-        vals.update({"partner_id": partner.id, "type": address_type})
+        vals.update({"parent_id": partner.id, "type": address_type})
         addr_virtual = self.env["res.partner"].new(vals)
-        return addr_virtual.get_address_version()
+        return addr_virtual._version_create()
 
     def _prepare_sale_line_vals(self, data, sale_order):
         return [self._prepare_sale_line(line, sale_order) for line in data["lines"]]
@@ -181,6 +181,10 @@ class ImporterSaleChannel(Component):
                 raise ValidationError(
                     _("Payment currency should match Sale Order pricelist currency")
                 )
+        country = (
+            sale_order.partner_invoice_id.country_id.id
+            or sale_order.partner_id.country_id.id
+        )
         payment_vals = {
             "partner_id": sale_order.partner_id.id,
             "acquirer_id": acquirer.id,
@@ -192,6 +196,7 @@ class ImporterSaleChannel(Component):
             "acquirer_reference": pmt_data.get("acquirer_reference"),
             "sale_order_ids": [(4, sale_order.id, 0)],
             "currency_id": sale_order.currency_id.id,
+            "partner_country_id": country,
         }
         self.env["payment.transaction"].create(payment_vals)
 
