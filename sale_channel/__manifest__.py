@@ -3,9 +3,9 @@
 {
     "name": "Sale Channel",
     "summary": "Adds the notion of sale channels",
-    "version": "12.0.1.0.0",
+    "version": "14.0.1.0.0",
     "category": "Generic Modules/Sale",
-    "author": "Akretion",
+    "author": "Akretion, Odoo Community Association (OCA)",
     "website": "https://github.com/akretion/sale-import",
     "depends": ["sale_management"],
     "license": "AGPL-3",
@@ -16,4 +16,5 @@
         "views/sale_channel.xml",
     ],
     "demo": ["demo/demo.xml"],
+    "installable": True,
 }
