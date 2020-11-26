@@ -16,4 +16,5 @@
         "views/sale_channel_partner.xml",
     ],
     "demo": ["demo/demo.xml"],
+    "installable": False,
 }
