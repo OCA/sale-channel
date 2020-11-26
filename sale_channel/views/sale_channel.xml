@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!-- Copyright (c) Akretion 2020 -->
 <!-- License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
 <odoo>
@@ -9,7 +9,7 @@
                 <form string="Sale Channel">
                     <sheet>
                         <h1 class="mt0">
-                            <field name="name"/>
+                            <field name="name" />
                         </h1>
                         <group name="general_info" string="General information">
                         </group>
@@ -21,7 +21,7 @@
             <field name="model">sale.channel</field>
             <field name="arch" type="xml">
                 <tree string="Sale Channel">
-                    <field name="name"/>
+                    <field name="name" />
                 </tree>
             </field>
         </record>
@@ -31,6 +31,11 @@
             <field name="res_model">sale.channel</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <menuitem id="menuitem_sale_channels" name="Sale Channels" parent="sale.menu_sale_config" action="sale_channel_action"/>
+        <menuitem
+            id="menuitem_sale_channels"
+            name="Sale Channels"
+            parent="sale.menu_sale_config"
+            action="sale_channel_action"
+        />
     </data>
 </odoo>
