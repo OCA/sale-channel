@@ -64,8 +64,8 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertEqual(binding_count, 1)
 
     def test_import_existing_partner_match_external_id(self):
-        """ During import, if a partner is matched on external_id/channel
-        combination, his address is updated """
+        """During import, if a partner is matched on external_id/channel
+        combination, his address is updated"""
         partner = self.env.ref("base.res_partner_1")
         self.env["sale.channel.partner"].create(
             {
@@ -78,8 +78,8 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertEqual(partner.street, "1 rue de Jean")
 
     def test_import_existing_partner_match_email(self):
-        """ During import, if a partner is matched on email,
-        its address is updated """
+        """During import, if a partner is matched on email,
+        its address is updated"""
         partner = self.env.ref("base.res_partner_3")
         partner.write({"email": "thomasjean@example.com"})
         self._helper_create_chunk(self.get_chunk_vals("all"))
@@ -146,8 +146,8 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertEqual(self.get_created_sales().order_line[0].tax_id, self.tax_swiss)
 
     def test_order_line_description(self):
-        """ Test that a description is taken into account, or
-        default description is generated if none is provided """
+        """Test that a description is taken into account, or
+        default description is generated if none is provided"""
         self._helper_create_chunk(self.get_chunk_vals("mixed"))
         new_sale = self.get_created_sales()
         expected_desc = "[PROD_ORDER] Zed+ Antivirus"
