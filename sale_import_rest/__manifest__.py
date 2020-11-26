@@ -11,5 +11,5 @@
     "license": "AGPL-3",
     "data": ["views/sale_channel.xml"],
     "demo": ["demo/demo.xml"],
-    "installable": True,
+    "installable": False,
 }
