@@ -4,8 +4,8 @@
 from odoo import fields, models
 
 
-class AccountInvoice(models.Model):
-    _inherit = "account.invoice"
+class AccountMove(models.Model):
+    _inherit = "account.move"
 
     sale_channel_id = fields.Many2one(
         "sale.channel", string="Sale Channel", ondelete="restrict"
