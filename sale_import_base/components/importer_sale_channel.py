@@ -157,6 +157,11 @@ class ImporterSaleChannel(Component):
 
     def _finalize(self, new_sale_order, raw_import_data):
         """ Extend to add final operations """
+        channel = new_sale_order.sale_channel_id
+        if channel.confirm_order:
+            new_sale_order.action_confirm()
+        if channel.invoice_order:
+            new_sale_order._create_invoices()
         self._create_payment(new_sale_order, raw_import_data)
 
     def _create_payment(self, sale_order, data):
@@ -197,8 +202,9 @@ class ImporterSaleChannel(Component):
             "sale_order_ids": [(4, sale_order.id, 0)],
             "currency_id": sale_order.currency_id.id,
             "partner_country_id": country,
+            "invoice_ids": [(6, 0, sale_order.invoice_ids.ids)],
         }
-        self.env["payment.transaction"].create(payment_vals)
+        return self.env["payment.transaction"].create(payment_vals)
 
     def _binding_partner(self, partner, external_id):
         self.env["sale.channel.partner"].create(

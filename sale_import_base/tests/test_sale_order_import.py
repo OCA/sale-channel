@@ -166,7 +166,7 @@ class TestSaleOrderImport(SaleImportCase):
         new_payment = self.get_created_sales().transaction_ids
         self.assertEqual(new_payment.reference, "PMT-EXAMPLE-001")
         self.assertEqual(new_payment.acquirer_reference, "T123")
-        self.assertEqual(new_payment.amount, 640),
+        self.assertEqual(new_payment.amount, 1173),
         self.assertEqual(new_payment.currency_id.name, "USD")
 
     def test_invoice_values(self):
@@ -217,3 +217,18 @@ class TestSaleOrderImport(SaleImportCase):
         self._helper_create_chunk(self.get_chunk_vals("all"))
         expected_date = datetime.datetime.strptime("2020-01-02", "%Y-%m-%d")
         self.assertEqual(self.get_created_sales().date_order, expected_date)
+
+    def test_invoicing(self):
+        self.env["product.template"].search([]).write({"invoice_policy": "order"})
+        self.sale_channel_ebay.write({"invoice_order": True, "confirm_order": True})
+        self._helper_create_chunk(self.get_chunk_vals("all"))
+        sale = self.get_created_sales()
+        self.assertEqual(sale.state, "sale")
+        self.assertEqual(len(sale.invoice_ids), 1)
+        invoice = sale.invoice_ids
+        self.assertEqual(invoice.state, "draft")
+
+        # Process transaction (normally done by a cron)
+        sale.transaction_ids._post_process_after_done()
+        self.assertEqual(invoice.state, "posted")
+        self.assertEqual(invoice.payment_state, "paid")
