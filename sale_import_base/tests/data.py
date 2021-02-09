@@ -66,7 +66,7 @@ full = {
     "invoice": {"date": "1900-12-30", "number": "IN-123"},
     "payment": {
         "mode": "credit_card",
-        "amount": 640.00,
+        "amount": 1173.00,
         "reference": "PMT-EXAMPLE-001",
         "currency_code": "USD",
         "acquirer_reference": "T123",
@@ -144,7 +144,7 @@ mixed = {
     "invoice": {"date": "1900-12-30", "number": "IN-123"},
     "payment": {
         "mode": "credit_card",
-        "amount": 640.00,
+        "amount": 455.00,
         "reference": "PMT-EXAMPLE-001",
         "currency_code": "USD",
     },

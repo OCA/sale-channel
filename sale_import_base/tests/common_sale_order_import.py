@@ -113,6 +113,7 @@ class SaleImportCase(
             "provider": "manual",
             "company_id": cls.env.ref("base.main_company").id,
             "payment_flow": "s2s",
+            "journal_id": cls.company_data["default_journal_bank"].id,
         }
         PaymentAcquirer.create(acquirer_vals)
 
