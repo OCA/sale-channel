@@ -15,11 +15,9 @@ class ImporterSaleChannel(Component):
     _apply_on = ["sale.order"]
     _usage = "json_import"
 
-    def run(self):
+    def _run(self, data):
         try:
-            so_datamodel_load = self.env.datamodels["sale.order"].load_json(
-                self.collection.data_str
-            )
+            so_datamodel_load = self.env.datamodels["sale.order"].load_json(data)
         except MarshmallowValidationError as e:
             raise ValidationError(e)
         data = so_datamodel_load.dump()
@@ -29,6 +27,9 @@ class ImporterSaleChannel(Component):
         self.env["sale.order.line"].create(so_line_vals)
         self._finalize(sale_order, data)
         return sale_order
+
+    def run(self):
+        return self._run(self.collection.data_str)
 
     def _prepare_sale_vals(self, data):
         partner = self._process_partner(data["address_customer"])
