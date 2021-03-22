@@ -94,7 +94,7 @@ class ImporterSaleChannel(Component):
                 self._binding_partner(partner, customer_data["external_id"])
                 return partner
 
-    def _prepare_partner(self, data, parent_id=None):
+    def _prepare_partner(self, data, parent_id=None, archived=None):
         result = {
             "name": data["name"],
             "street": data.get("street"),
@@ -107,6 +107,8 @@ class ImporterSaleChannel(Component):
         }
         if parent_id:
             result["parent_id"] = parent_id
+        if archived:
+            result["active"] = False
         if data.get("country_code"):
             country = self.env["res.country"].search(
                 [("code", "=", data["country_code"])]
@@ -128,8 +130,8 @@ class ImporterSaleChannel(Component):
         return result
 
     def _process_addresses(self, parent, address_invoice, address_shipping):
-        vals_addr_invoice = self._prepare_partner(address_invoice, parent.id)
-        vals_addr_shipping = self._prepare_partner(address_shipping, parent.id)
+        vals_addr_invoice = self._prepare_partner(address_invoice, parent.id, True)
+        vals_addr_shipping = self._prepare_partner(address_shipping, parent.id, True)
         if vals_addr_invoice == vals_addr_shipping:
             # not technically correct for the shipping addr, but this shouldn't matter
             vals_addr_invoice["type"] = "invoice"
