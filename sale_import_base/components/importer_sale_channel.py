@@ -33,11 +33,8 @@ class ImporterSaleChannel(Component):
 
     def _prepare_sale_vals(self, data):
         partner = self._process_partner(data["address_customer"])
-        address_invoice = self._process_address(
-            partner, data["address_invoicing"], "invoice"
-        )
-        address_shipping = self._process_address(
-            partner, data["address_shipping"], "delivery"
+        address_invoice, address_shipping = self._process_addresses(
+            partner, data["address_invoicing"], data["address_shipping"]
         )
         channel = self.env["sale.channel"].browse(self.collection.record_id)
         so_vals = {
@@ -97,7 +94,7 @@ class ImporterSaleChannel(Component):
                 self._binding_partner(partner, customer_data["external_id"])
                 return partner
 
-    def _prepare_partner(self, data):
+    def _prepare_partner(self, data, parent_id=None):
         result = {
             "name": data["name"],
             "street": data.get("street"),
@@ -108,6 +105,8 @@ class ImporterSaleChannel(Component):
             "phone": data.get("phone"),
             "mobile": data.get("mobile"),
         }
+        if parent_id:
+            result["parent_id"] = parent_id
         if data.get("country_code"):
             country = self.env["res.country"].search(
                 [("code", "=", data["country_code"])]
@@ -128,11 +127,17 @@ class ImporterSaleChannel(Component):
                 result["state_id"] = state.id
         return result
 
-    def _process_address(self, partner, address, address_type):
-        vals = self._prepare_partner(address)
-        vals.update({"parent_id": partner.id, "type": address_type})
-        addr_virtual = self.env["res.partner"].new(vals)
-        return addr_virtual._version_create()
+    def _process_addresses(self, parent, address_invoice, address_shipping):
+        vals_addr_invoice = self._prepare_partner(address_invoice, parent.id)
+        vals_addr_shipping = self._prepare_partner(address_shipping, parent.id)
+        if vals_addr_invoice == vals_addr_shipping:
+            result = self.env["res.partner"].create(vals_addr_invoice)
+            return (result, result)
+        else:
+            return (
+                self.env["res.partner"].create(vals_addr_invoice),
+                self.env["res.partner"].create(vals_addr_shipping),
+            )
 
     def _prepare_sale_line_vals(self, data, sale_order):
         return [self._prepare_sale_line(line, sale_order) for line in data["lines"]]

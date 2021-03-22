@@ -9,7 +9,6 @@
     "website": "https://github.com/akretion/sale-import",
     "depends": [
         "queue_job_chunk",
-        "sale_partner_version",
         "product_code_unique",
         "datamodel",
         "sale_channel_partner",
