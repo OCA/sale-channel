@@ -131,9 +131,13 @@ class ImporterSaleChannel(Component):
         vals_addr_invoice = self._prepare_partner(address_invoice, parent.id)
         vals_addr_shipping = self._prepare_partner(address_shipping, parent.id)
         if vals_addr_invoice == vals_addr_shipping:
+            # not technically correct for the shipping addr, but this shouldn't matter
+            vals_addr_invoice["type"] = "invoice"
             result = self.env["res.partner"].create(vals_addr_invoice)
             return (result, result)
         else:
+            vals_addr_invoice["type"] = "invoice"
+            vals_addr_shipping["type"] = "delivery"
             return (
                 self.env["res.partner"].create(vals_addr_invoice),
                 self.env["res.partner"].create(vals_addr_shipping),
