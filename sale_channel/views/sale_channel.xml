@@ -19,6 +19,7 @@
                         </h1>
                         <group name="general_info" string="General information">
                             <field name="active" invisible="1" />
+                            <field name="partner_id" />
                         </group>
                     </sheet>
                 </form>
