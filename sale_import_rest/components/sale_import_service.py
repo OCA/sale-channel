@@ -59,7 +59,7 @@ class SaleImportService(Component):
         defaults = super()._get_openapi_default_parameters()
         defaults.append(
             {
-                "name": "API_KEY",
+                "name": "API-KEY",
                 "in": "header",
                 "description": "Auth API key",
                 "required": True,
