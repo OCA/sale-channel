@@ -72,15 +72,13 @@ class TestSaleOrderImport(SaleImportCase):
             return self._service_create(self.payload_multi_sale)
 
     def test_cancel_sale(self):
-        channel = self.env.ref("sale_channel.sale_channel_ebay")
         sale = self.env.ref("sale.sale_order_1")
-        sale.sale_channel_id = channel
-        res = self._service_cancel({"sale_name": sale.name})
+        sale.sale_channel_id = self.sale_channel_ebay
+        sale.client_order_ref = "CLIENTREF"
+        res = self._service_cancel({"sale_name": "CLIENTREF"})
         self.assertEqual(sale.state, "cancel")
         self.assertEqual(res, {"success": True})
 
     def test_cancel_sale_missing(self):
-        sale = self.env.ref("sale.sale_order_1")
         with self.assertRaises(MissingError):
-            self._service_cancel({"sale_name": sale.name})
-        self.assertEqual(sale.state, "draft")
+            self._service_cancel({"sale_name": "does not exist"})
