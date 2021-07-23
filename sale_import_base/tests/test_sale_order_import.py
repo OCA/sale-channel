@@ -9,7 +9,6 @@ from .common_sale_order_import import SaleImportCase
 class TestSaleOrderImport(SaleImportCase):
     def setUp(self):
         super().setUp()
-        self.sale_channel_ebay = self.env.ref("sale_channel.sale_channel_ebay")
         self.env = self.env(
             context=dict(self.env.context, test_queue_job_no_delay=True)
         )
@@ -39,6 +38,18 @@ class TestSaleOrderImport(SaleImportCase):
         del chunk_vals["data_str"]["address_customer"]["name"]
         chunk = self._helper_create_chunk(chunk_vals)
         self.assertEqual(chunk.state, "fail")
+
+    def test_name_clientref(self):
+        self._helper_create_chunk(self.get_chunk_vals("minimum"))
+        self.assertEqual(self.get_created_sales().name, "XX-0001")
+
+    def test_name_native(self):
+        self.sale_channel_ebay.internal_naming_method = "name"
+        self._helper_create_chunk(self.get_chunk_vals("minimum"))
+        self.assertEqual(
+            self.get_created_sales().name[0], "S"
+        )  # native name is S + padding length 5
+        self.assertEqual(len(self.get_created_sales().name), 6)
 
     def test_create_partner(self):
         """

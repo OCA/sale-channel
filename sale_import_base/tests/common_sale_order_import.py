@@ -91,6 +91,7 @@ class SaleImportCase(
         cls.last_sale_id = (
             cls.env["sale.order"].search([], order="id desc", limit=1).id or 0
         )
+        cls.sale_channel_ebay = cls.env.ref("sale_channel.sale_channel_ebay")
 
     @classmethod
     def get_created_sales(cls):

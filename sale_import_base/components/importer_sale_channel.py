@@ -38,7 +38,6 @@ class ImporterSaleChannel(Component):
         )
         channel = self.env["sale.channel"].browse(self.collection.record_id)
         so_vals = {
-            "name": data["name"],
             "partner_id": partner.id,
             "partner_invoice_id": address_invoice.id,
             "partner_shipping_id": address_shipping.id,
@@ -48,9 +47,12 @@ class ImporterSaleChannel(Component):
             "si_force_invoice_date": data.get("invoice") and data["invoice"]["date"],
             "si_force_invoice_number": data.get("invoice")
             and data["invoice"]["number"],
+            "client_order_ref": data["name"],
             "sale_channel_id": channel.id,
             "pricelist_id": data.get("pricelist_id") or channel.pricelist_id.id,
         }
+        if channel.internal_naming_method == "client_order_ref":
+            so_vals["name"] = data["name"]
         if data.get("date_order"):
             so_vals["date_order"] = data["date_order"]
         onchange_fields = [

@@ -3,6 +3,11 @@
 
 from odoo import fields, models
 
+SELECTION_INTERNAL_NAMING_METHOD = [
+    ("name", "Native"),
+    ("client_order_ref", "External identifier"),
+]
+
 
 class SaleChannel(models.Model):
     _inherit = "sale.channel"
@@ -17,3 +22,9 @@ class SaleChannel(models.Model):
     pricelist_id = fields.Many2one("product.pricelist", string="Pricelist")
     confirm_order = fields.Boolean(help="Confirm order after import")
     invoice_order = fields.Boolean(help="Generate invoice after import")
+    internal_naming_method = fields.Selection(
+        SELECTION_INTERNAL_NAMING_METHOD,
+        default="client_order_ref",
+        help="Sale Orders can use either Odoo native sequenced numbering, "
+        "or the external identifier",
+    )
