@@ -115,18 +115,20 @@ class ImporterSaleChannel(Component):
             country = self.env["res.country"].search(
                 [("code", "=", data["country_code"])]
             )
-            if len(country.ids) != 1:
+            if not country:
                 raise ValidationError(
-                    _("Could not determine one country from country code")
+                    _("Missing country {}").format(data["country_code"])
                 )
             result["country_id"] = country.id
             if data.get("state_code"):
                 state = self.env["res.country.state"].search(
                     [("code", "=", data["state_code"]), ("country_id", "=", country.id)]
                 )
-                if len(state.ids) != 1:
+                if not state:
                     raise ValidationError(
-                        _("Could not determine one state from state and country code")
+                        _("Missing State {} for country {}").format(
+                            data["state_code"], country.name
+                        )
                     )
                 result["state_id"] = state.id
         return result
@@ -154,9 +156,15 @@ class ImporterSaleChannel(Component):
         product = self.env["product.product"].search(
             [("default_code", "=", line_data["product_code"])]
         )
-        if len(product.ids) != 1:
+        if not product:
             raise ValidationError(
-                _("Could not determine one product from product code")
+                _("Missing product {}").format(line_data["product_code"])
+            )
+        elif len(product) > 1:
+            raise ValidationError(
+                _("{} products found for the code {}").format(
+                    len(product), line_data["product_code"]
+                )
             )
         vals = {
             "product_id": product.id,
@@ -182,23 +190,27 @@ class ImporterSaleChannel(Component):
         if not data.get("payment"):
             return
         pmt_data = data["payment"]
-        acquirer_name = pmt_data["mode"]
-        acquirer = self.env["payment.acquirer"].search([("name", "=", acquirer_name)])
-        if len(acquirer.ids) != 1:
+        acquirer = self.env["payment.acquirer"].search(
+            [("code", "=", pmt_data["mode"])]
+        )
+        if not acquirer:
             raise ValidationError(
-                _("Could not determine one payment acquirer from acquirer name")
+                _("Missing Acquirer with code {}").format(pmt_data["mode"])
             )
         if pmt_data.get("currency_code"):
             currency = self.env["res.currency"].search(
                 [("name", "=", pmt_data["currency_code"])]
             )
-            if len(currency.ids) != 1:
+            if not currency:
                 raise ValidationError(
-                    _("Could not determine one currency from currency code")
+                    _("Missing currency {}").format(pmt_data["currency_code"])
                 )
             if currency != sale_order.currency_id:
                 raise ValidationError(
-                    _("Payment currency should match Sale Order pricelist currency")
+                    _(
+                        "Payment currency {} differs from the "
+                        "Sale Order pricelist currency {}"
+                    ).format(currency.name, sale_order.currency_id.name)
                 )
         country = (
             sale_order.partner_invoice_id.country_id.id
