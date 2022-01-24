@@ -1,5 +1,7 @@
 #  Copyright (c) Akretion 2020
 #  License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
+import json
+
 from odoo import _
 from odoo.exceptions import MissingError, ValidationError
 from odoo.http import request
@@ -36,14 +38,15 @@ class SaleImportService(Component):
     # pylint: disable=W8106
     def create(self, sale_import_input):
         channel = self._get_channel()
-        json_encoder = JSONEncoder()
         if not channel:
             raise ValidationError(_("API key does not map to any sale channel"))
         vals = [
             {
                 "usage": "json_import",
                 "apply_on_model": "sale.order",
-                "data_str": json_encoder.encode(sale_order),
+                "data_str": json.dumps(
+                    sale_order, cls=JSONEncoder, sort_keys=True, indent=4
+                ),
                 "model_name": "sale.channel",
                 "record_id": channel.id,
             }
