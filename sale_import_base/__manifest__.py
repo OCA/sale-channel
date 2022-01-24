@@ -16,7 +16,11 @@
         "onchange_helper",
     ],
     "license": "AGPL-3",
-    "data": ["data/sale_exception.xml", "views/sale_channel.xml"],
+    "data": [
+        "data/sale_exception.xml",
+        "views/sale_channel.xml",
+        "views/payment_acquirer_view.xml",
+    ],
     "demo": ["demo/demo.xml"],
     "installable": True,
     "external_dependencies": {"python": ["marshmallow_objects"]},

@@ -110,7 +110,8 @@ class SaleImportCase(
 
         # Acquirer and mode of payment
         acquirer_vals = {
-            "name": "credit_card",
+            "name": "Credit Card",
+            "code": "credit_card",
             "provider": "manual",
             "company_id": cls.env.ref("base.main_company").id,
             "payment_flow": "s2s",
