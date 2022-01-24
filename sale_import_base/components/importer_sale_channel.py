@@ -1,6 +1,8 @@
 #  Copyright (c) Akretion 2020
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl)
 
+from datetime import datetime
+
 from marshmallow_objects import ValidationError as MarshmallowValidationError
 
 from odoo import _
@@ -221,6 +223,7 @@ class ImporterSaleChannel(Component):
             "acquirer_id": acquirer.id,
             "type": "server2server",
             "state": "done",
+            "date": datetime.now(),
             "amount": pmt_data["amount"],
             "fees": 0.00,
             "reference": pmt_data["reference"],
