@@ -17,12 +17,24 @@ class ImporterSaleChannel(Component):
     _apply_on = ["sale.order"]
     _usage = "json_import"
 
+    def _get_existing_so(self, data):
+        ref = data["name"]
+        channel_id = self.collection.record_id
+        return self.env["sale.order"].search(
+            [("client_order_ref", "=", ref), ("sale_channel_id", "=", channel_id)]
+        )
+
     def _run(self, data):
         try:
             so_datamodel_load = self.env.datamodels["sale.order"].load_json(data)
         except MarshmallowValidationError as e:
             raise ValidationError(e)
         data = so_datamodel_load.dump()
+        existing_so = self._get_existing_so(data)
+        if existing_so:
+            raise ValidationError(
+                _("Sale Order {} has already been created").format(data["name"])
+            )
         so_vals = self._prepare_sale_vals(data)
         sale_order = self.env["sale.order"].create(so_vals)
         so_line_vals = self._prepare_sale_line_vals(data, sale_order)
