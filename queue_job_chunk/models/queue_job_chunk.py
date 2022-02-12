@@ -1,7 +1,10 @@
 #  Copyright (c) Akretion 2020
 #  License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
 
+from psycopg2 import OperationalError
+
 from odoo import api, fields, models
+from odoo.service.model import PG_CONCURRENCY_ERRORS_TO_RETRY
 
 # Use to bypass chunks entirely for easier debugging
 DEBUG_MODE = False
@@ -84,6 +87,16 @@ class QueueJobChunk(models.Model):
                         processor = work.component(usage=usage)
                         result = processor.run()
                 except Exception as e:
+                    # TODO maybe it will be simplier to have a kind of inherits
+                    #  on queue.job to avoid a double error management
+                    # so a failling chunk will have a failling job
+                    if (
+                        isinstance(e, OperationalError)
+                        and e.pgcode in PG_CONCURRENCY_ERRORS_TO_RETRY
+                    ):
+                        # In that case we raise an error so queue_job
+                        # will do a RetryableJobError
+                        raise
                     self.state = "fail"
                     self.state_info = type(e).__name__ + str(e.args)
                     return False
