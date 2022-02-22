@@ -101,7 +101,10 @@ class TestSaleOrderImport(SaleImportCase):
             self.env["res.partner"].with_context(active_test=False).search_count([])
         )
         self._helper_create_chunk(self.get_chunk_vals("minimum"))
-        self._helper_create_chunk(self.get_chunk_vals("minimum"))
+        # change name else second chunk won't generate any order
+        chunk_vals2 = self.get_chunk_vals("minimum")
+        chunk_vals2["data_str"]["name"] = "XX-0002"
+        self._helper_create_chunk(chunk_vals2)
         new_partner_count = (
             self.env["res.partner"].with_context(active_test=False).search_count([])
         )
@@ -290,3 +293,10 @@ class TestSaleOrderImport(SaleImportCase):
         sale.transaction_ids._post_process_after_done()
         self.assertEqual(invoice.state, "posted")
         self.assertEqual(invoice.payment_state, "paid")
+
+    def test_create_duplicate_order(self):
+        chunk1 = self._helper_create_chunk(self.get_chunk_vals("minimum"))
+        chunk2 = self._helper_create_chunk(self.get_chunk_vals("minimum"))
+        self.assertEqual(chunk1.state, "done")
+        self.assertEqual(chunk2.state, "fail")
+        self.assertIn("Sale Order XX-0001 has already been created", chunk2.state_info)
