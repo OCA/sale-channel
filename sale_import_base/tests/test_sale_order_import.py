@@ -187,6 +187,8 @@ class TestSaleOrderImport(SaleImportCase):
         exception_wrong_total_amount = self.env.ref(
             "sale_import_base.exc_wrong_total_amount"
         )
+        # rule is unactive by default
+        exception_wrong_total_amount.sudo().write({"active": True})
         self.assertEqual(
             self.get_created_sales().detect_exceptions(),
             [exception_wrong_total_amount.id],

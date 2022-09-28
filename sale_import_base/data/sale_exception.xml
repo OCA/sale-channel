@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<odoo>
+<odoo noupdate="1">
     <record id="exc_wrong_total_amount" model="exception.rule">
         <field name="name">Inconsistent total amounts</field>
         <field
@@ -7,6 +7,7 @@
         >The amount computed in Odoo doesn't match with the imported total amount.
 There is an error related to tax calculations.</field>
         <field name="sequence">50</field>
+        <field name="active" eval="False" />
         <field name="model">sale.order</field>
         <field
             name="code"
@@ -20,6 +21,7 @@ There is an error related to tax calculations.</field>
 There is an error related to the amount calculation.</field>
         <field name="sequence">50</field>
         <field name="model">sale.order</field>
+        <field name="active" eval="False" />
         <field
             name="code"
         >failed = obj.sale_channel_id.sale_orders_check_amounts_untaxed and abs(obj.amount_untaxed - obj.si_amount_untaxed) &gt;= 0.01</field>
