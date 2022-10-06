@@ -3,6 +3,8 @@
 import json
 from copy import deepcopy
 
+from odoo.tests import tagged
+
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 from odoo.addons.component.tests.common import SavepointComponentCase
 from odoo.addons.datamodel.tests.common import SavepointDatamodelCase
@@ -10,6 +12,7 @@ from odoo.addons.datamodel.tests.common import SavepointDatamodelCase
 from .data import full, minimum, mixed
 
 
+@tagged("post_install", "-at_install")
 class TestSaleCommonNoDuplicates(AccountTestInvoicingCommon):
     """
     TestSaleCommon has duplicate products, thus we must create a new class
@@ -72,6 +75,7 @@ class TestSaleCommonNoDuplicates(AccountTestInvoicingCommon):
         return company_data
 
 
+@tagged("post_install", "-at_install")
 class SaleImportCase(
     TestSaleCommonNoDuplicates, SavepointDatamodelCase, SavepointComponentCase
 ):
@@ -139,6 +143,6 @@ class SaleImportCase(
 
     @classmethod
     def _helper_create_chunk(cls, vals_dict):
-        """ Converts data_str content to appropriate JSON format """
+        """Converts data_str content to appropriate JSON format"""
         vals_dict["data_str"] = json.dumps(vals_dict["data_str"])
         return cls.env["queue.job.chunk"].create(vals_dict)

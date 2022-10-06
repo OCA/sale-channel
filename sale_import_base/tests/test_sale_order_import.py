@@ -3,9 +3,12 @@
 
 import datetime
 
+from odoo.tests import tagged
+
 from .common_sale_order_import import SaleImportCase
 
 
+@tagged("-at_install", "post_install")
 class TestSaleOrderImport(SaleImportCase):
     def setUp(self):
         super().setUp()
@@ -15,25 +18,25 @@ class TestSaleOrderImport(SaleImportCase):
         self.pricelist = self.env["product.pricelist"].create({"name": "Test"})
 
     def test_basic_all(self):
-        """ Base scenario: create a sale order"""
+        """Base scenario: create a sale order"""
         chunk = self._helper_create_chunk(self.get_chunk_vals("all"))
         self.assertTrue(self.get_created_sales().ids)
         self.assertEqual(chunk.state, "done")
 
     def test_basic_mixed(self):
-        """ Base scenario: create a sale order"""
+        """Base scenario: create a sale order"""
         chunk = self._helper_create_chunk(self.get_chunk_vals("mixed"))
         self.assertTrue(self.get_created_sales().ids)
         self.assertEqual(chunk.state, "done")
 
     def test_basic_minimum(self):
-        """ Base scenario: create a sale order"""
+        """Base scenario: create a sale order"""
         chunk = self._helper_create_chunk(self.get_chunk_vals("minimum"))
         self.assertTrue(self.get_created_sales().ids)
         self.assertEqual(chunk.state, "done")
 
     def test_invalid_json(self):
-        """ An invalid input will stop the job """
+        """An invalid input will stop the job"""
         chunk_vals = self.get_chunk_vals("all")
         del chunk_vals["data_str"]["address_customer"]["name"]
         chunk = self._helper_create_chunk(chunk_vals)
@@ -107,7 +110,7 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertEqual(new_partner_count, partner_count + 5)
 
     def test_binding_created(self):
-        """ When we create a partner, a binding is created """
+        """When we create a partner, a binding is created"""
         self._helper_create_chunk(self.get_chunk_vals("all"))
         binding_count = self.env["sale.channel.partner"].search_count(
             [
@@ -141,7 +144,7 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertEqual(partner.street, "1 rue de Jean")
 
     def test_import_existing_partner_match_email_disallowed(self):
-        """ Test that if email match is disallowed, we just create a partner """
+        """Test that if email match is disallowed, we just create a partner"""
         partner_count = (
             self.env["res.partner"].with_context(active_test=False).search_count([])
         )
@@ -155,7 +158,7 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertEqual(new_partner_count, partner_count + 3)
 
     def test_product_missing(self):
-        """ Test product code validation effectively blocks the job """
+        """Test product code validation effectively blocks the job"""
         chunk_vals_wrong_product_code = self.get_chunk_vals("all")
         chunk_vals_wrong_product_code["data_str"]["lines"][0][
             "product_code"
@@ -164,7 +167,7 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertEqual(chunk.state, "fail")
 
     def test_product_search(self):
-        """ Check we get the right product match on product code"""
+        """Check we get the right product match on product code"""
         self._helper_create_chunk(self.get_chunk_vals("all"))
         self.assertEqual(
             self.get_created_sales().order_line[0].product_id, self.product_a
@@ -174,7 +177,7 @@ class TestSaleOrderImport(SaleImportCase):
         )
 
     def test_wrong_total_amount(self):
-        """ Test the sale.exception works as intended """
+        """Test the sale.exception works as intended"""
         chunk_vals_wrong_amount = self.get_chunk_vals("all")
         chunk_vals_wrong_amount["data_str"]["amount"]["amount_total"] += 500.0
         self._helper_create_chunk(chunk_vals_wrong_amount)
@@ -187,7 +190,7 @@ class TestSaleOrderImport(SaleImportCase):
         )
 
     def test_correct_amounts(self):
-        """ Test the sale.exception works as intended """
+        """Test the sale.exception works as intended"""
         self._helper_create_chunk(self.get_chunk_vals("all"))
         self.assertFalse(self.get_created_sales().detect_exceptions())
 
