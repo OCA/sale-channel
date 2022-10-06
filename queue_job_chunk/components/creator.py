@@ -7,7 +7,7 @@ from odoo.addons.component.core import Component
 
 
 class Creator(Component):
-    """ Just creates a record with given vals """
+    """Just creates a record with given vals"""
 
     _inherit = "processor"
     _name = "basic.creator"
