@@ -180,7 +180,7 @@ class ImporterSaleChannel(Component):
         return self.env["sale.order.line"].play_onchanges(vals, ["product_id"])
 
     def _finalize(self, new_sale_order, raw_import_data):
-        """ Extend to add final operations """
+        """Extend to add final operations"""
         channel = new_sale_order.sale_channel_id
         if channel.confirm_order:
             new_sale_order.action_confirm()

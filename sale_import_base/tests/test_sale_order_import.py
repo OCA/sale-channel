@@ -3,9 +3,12 @@
 
 import datetime
 
+from odoo.tests import tagged
+
 from .common_sale_order_import import SaleImportCase
 
 
+@tagged("-at_install", "post_install")
 class TestSaleOrderImport(SaleImportCase):
     def setUp(self):
         super().setUp()
