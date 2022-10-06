@@ -5,12 +5,14 @@ from unittest.mock import patch
 
 from odoo import SUPERUSER_ID
 from odoo.exceptions import MissingError, ValidationError
+from odoo.tests import tagged
 
 from odoo.addons.base_rest.controllers.main import _PseudoCollection
 from odoo.addons.component.core import WorkContext
 from odoo.addons.sale_import_base.tests.common_sale_order_import import SaleImportCase
 
 
+@tagged("-at_install", "post_install")
 class TestSaleOrderImport(SaleImportCase):
     @property
     def payload_multi_sale(self):
