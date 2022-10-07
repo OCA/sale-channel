@@ -3,10 +3,10 @@
 {
     "name": "Sale Import Base",
     "summary": "Base for importing Sale Orders through a JSON file format",
-    "version": "14.0.1.0.0",
+    "version": "14.0.1.1.0",
     "category": "Generic Modules/Sale",
     "author": "Akretion, Odoo Community Association (OCA)",
-    "website": "https://github.com/akretion/sale-import",
+    "website": "https://github.com/OCA/sale-channel",
     "depends": [
         "queue_job_chunk",
         "product_code_unique",
@@ -22,6 +22,6 @@
         "views/payment_acquirer_view.xml",
     ],
     "demo": ["demo/demo.xml"],
-    "installable": True,
+    "installable": False,
     "external_dependencies": {"python": ["marshmallow_objects"]},
 }
