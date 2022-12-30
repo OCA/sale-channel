@@ -8,6 +8,6 @@ class SaleChannel(models.Model):
     _name = "sale.channel"
     _description = "Sale Channel"
 
-    name = fields.Char("Name", required=True)
+    name = fields.Char(required=True)
     active = fields.Boolean(default=True)
     partner_id = fields.Many2one("res.partner")
