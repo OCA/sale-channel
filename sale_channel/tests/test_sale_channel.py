@@ -1,10 +1,10 @@
 #  Copyright (c) Akretion 2020
 #  License AGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
 
-from odoo.tests.common import SavepointCase
+from odoo.tests.common import TransactionCase
 
 
-class TestSaleChannel(SavepointCase):
+class TestSaleChannel(TransactionCase):
     def setUp(self):
         super().setUp()
         self.sale_channel = self.env.ref("sale_channel.sale_channel_amazon")
@@ -16,8 +16,8 @@ class TestSaleChannel(SavepointCase):
         self.sale_order.order_line.mapped("product_id").write(
             {"invoice_policy": "order"}
         )
-        # refresh quantities: onchange trigger is on SO state,
-        # not on invoice_policy
-        self.sale_order.order_line._get_to_invoice_qty()
+        # Force to recompute qty_to_invoice as we have change the product
+        # invoice policy
+        self.sale_order.order_line._compute_qty_to_invoice()
         self.sale_order._create_invoices()
         self.assertEqual(self.sale_order.invoice_ids.sale_channel_id, self.sale_channel)
