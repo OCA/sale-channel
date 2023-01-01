@@ -69,7 +69,7 @@ full = {
         "amount": 1173.00,
         "reference": "PMT-EXAMPLE-001",
         "currency_code": "USD",
-        "acquirer_reference": "T123",
+        "provider_reference": "T123",
     },
     "pricelist_id": 1,
     "date_order": "2020-01-02",

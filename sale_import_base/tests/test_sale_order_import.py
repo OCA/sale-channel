@@ -3,6 +3,8 @@
 
 import datetime
 
+import mock
+
 from odoo.tests import tagged
 
 from .common_sale_order_import import SaleImportCase
@@ -16,22 +18,30 @@ class TestSaleOrderImport(SaleImportCase):
             context=dict(self.env.context, test_queue_job_no_delay=True)
         )
         self.pricelist = self.env["product.pricelist"].create({"name": "Test"})
+        self.env.cr.commit = mock.Mock()
 
     def test_basic_all(self):
         """Base scenario: create a sale order"""
         chunk = self._helper_create_chunk(self.get_chunk_vals("all"))
+        self.assertEqual(
+            chunk.state, "done", f"{chunk.state_info}\n{chunk.stack_trace}"
+        )
         self.assertTrue(self.get_created_sales().ids)
-        self.assertEqual(chunk.state, "done")
 
     def test_basic_mixed(self):
         """Base scenario: create a sale order"""
         chunk = self._helper_create_chunk(self.get_chunk_vals("mixed"))
+        self.assertEqual(
+            chunk.state, "done", f"{chunk.state_info}\n{chunk.stack_trace}"
+        )
         self.assertTrue(self.get_created_sales().ids)
-        self.assertEqual(chunk.state, "done")
 
     def test_basic_minimum(self):
         """Base scenario: create a sale order"""
         chunk = self._helper_create_chunk(self.get_chunk_vals("minimum"))
+        self.assertEqual(
+            chunk.state, "done", f"{chunk.state_info}\n{chunk.stack_trace}"
+        )
         self.assertTrue(self.get_created_sales().ids)
         self.assertEqual(chunk.state, "done")
 
@@ -229,7 +239,7 @@ class TestSaleOrderImport(SaleImportCase):
         sale = self.get_created_sales()
         new_payment = sale.transaction_ids
         self.assertEqual(new_payment.reference, "PMT-EXAMPLE-001")
-        self.assertEqual(new_payment.acquirer_reference, "T123")
+        self.assertEqual(new_payment.provider_reference, "T123")
         self.assertEqual(new_payment.amount, 1173),
         self.assertEqual(new_payment.currency_id.name, "USD")
         self.assertEqual(new_payment.partner_id, sale.partner_id)
@@ -294,7 +304,7 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertEqual(invoice.state, "draft")
 
         # Process transaction (normally done by a cron)
-        sale.transaction_ids._post_process_after_done()
+        sale.transaction_ids._cron_finalize_post_processing()
         self.assertEqual(invoice.state, "posted")
         self.assertEqual(invoice.payment_state, "paid")
 

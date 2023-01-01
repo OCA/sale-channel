@@ -6,8 +6,6 @@ from copy import deepcopy
 from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
-from odoo.addons.component.tests.common import SavepointComponentCase
-from odoo.addons.datamodel.tests.common import SavepointDatamodelCase
 
 from .data import full, minimum, mixed
 
@@ -76,13 +74,11 @@ class TestSaleCommonNoDuplicates(AccountTestInvoicingCommon):
 
 
 @tagged("post_install", "-at_install")
-class SaleImportCase(
-    TestSaleCommonNoDuplicates, SavepointDatamodelCase, SavepointComponentCase
-):
+class SaleImportCase(TestSaleCommonNoDuplicates):
     @classmethod
     def setUpClass(cls):
         super(SaleImportCase, cls).setUpClass()
-        cls.setUpPaymentAcquirer()
+        cls.setUpPaymentProvider()
         cls.setUpMisc()
         cls.setUpProducts()
         cls.fiscal_pos_a.auto_apply = True
@@ -109,19 +105,19 @@ class SaleImportCase(
         cls.product_b.default_code = "SKU_B"
 
     @classmethod
-    def setUpPaymentAcquirer(cls):
-        PaymentAcquirer = cls.env["payment.acquirer"]
-
-        # Acquirer and mode of payment
-        acquirer_vals = {
-            "name": "Credit Card",
-            "code": "credit_card",
-            "provider": "manual",
-            "company_id": cls.env.ref("base.main_company").id,
-            "payment_flow": "s2s",
-            "journal_id": cls.company_data["default_journal_bank"].id,
-        }
-        PaymentAcquirer.create(acquirer_vals)
+    def setUpPaymentProvider(cls):
+        # Create manual provider
+        cls.env["payment.provider"]._fields["code"].selection.append(
+            ("manual", "Manual")
+        )
+        cls.env["payment.provider"].create(
+            {
+                "name": "Credit Card",
+                "ref": "credit_card",
+                "code": "manual",
+                "company_id": cls.company_data["company"].id,
+            }
+        )
 
     @classmethod
     def setUpMisc(cls):
@@ -134,9 +130,8 @@ class SaleImportCase(
         see data.py
         """
         return {
-            "apply_on_model": "sale.order",
             "data_str": deepcopy(getattr(cls, "sale_order_example_vals_" + which_data)),
-            "usage": "json_import",
+            "processor": "sale_channel_importer",
             "model_name": "sale.channel",
             "record_id": cls.env.ref("sale_channel.sale_channel_ebay").id,
         }
