@@ -6,10 +6,8 @@ from copy import deepcopy
 from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
-from odoo.addons.component.tests.common import SavepointComponentCase
-from odoo.addons.datamodel.tests.common import SavepointDatamodelCase
 
-from .data import full, minimum, mixed
+from .data import full, invalid, minimum, mixed
 
 
 @tagged("post_install", "-at_install")
@@ -76,13 +74,11 @@ class TestSaleCommonNoDuplicates(AccountTestInvoicingCommon):
 
 
 @tagged("post_install", "-at_install")
-class SaleImportCase(
-    TestSaleCommonNoDuplicates, SavepointDatamodelCase, SavepointComponentCase
-):
+class SaleImportCase(TestSaleCommonNoDuplicates):
     @classmethod
     def setUpClass(cls):
         super(SaleImportCase, cls).setUpClass()
-        cls.setUpPaymentAcquirer()
+        cls.setUpPaymentProvider()
         cls.setUpMisc()
         cls.setUpProducts()
         cls.fiscal_pos_a.auto_apply = True
@@ -92,6 +88,7 @@ class SaleImportCase(
         ).id
         cls.sale_order_example_vals_minimum = minimum
         cls.sale_order_example_vals_mixed = mixed
+        cls.sale_order_example_vals_invalid = invalid
         cls.last_sale_id = (
             cls.env["sale.order"].search([], order="id desc", limit=1).id or 0
         )
@@ -109,19 +106,35 @@ class SaleImportCase(
         cls.product_b.default_code = "SKU_B"
 
     @classmethod
-    def setUpPaymentAcquirer(cls):
-        PaymentAcquirer = cls.env["payment.acquirer"]
-
-        # Acquirer and mode of payment
-        acquirer_vals = {
-            "name": "Credit Card",
-            "code": "credit_card",
-            "provider": "manual",
-            "company_id": cls.env.ref("base.main_company").id,
-            "payment_flow": "s2s",
-            "journal_id": cls.company_data["default_journal_bank"].id,
-        }
-        PaymentAcquirer.create(acquirer_vals)
+    def setUpPaymentProvider(cls):
+        # Create manual provider
+        cls.env["payment.provider"]._fields["code"].selection.append(
+            ("credit_card", "Credit Card")
+        )
+        cls.env["payment.provider"].create(
+            {
+                "name": "Credit Card",
+                "ref": "credit_card",
+                "code": "credit_card",
+                "company_id": cls.company_data["company"].id,
+            }
+        )
+        method = cls.env["account.payment.method"].create(
+            {
+                "code": "credit_card",
+                "name": "Credit Card",
+                "payment_type": "inbound",
+            }
+        )
+        cls.env["account.payment.method.line"].create(
+            [
+                {
+                    "name": method.code,
+                    "payment_method_id": method.id,
+                    "journal_id": cls.company_data["default_journal_bank"].id,
+                }
+            ]
+        )
 
     @classmethod
     def setUpMisc(cls):
@@ -134,9 +147,8 @@ class SaleImportCase(
         see data.py
         """
         return {
-            "apply_on_model": "sale.order",
             "data_str": deepcopy(getattr(cls, "sale_order_example_vals_" + which_data)),
-            "usage": "json_import",
+            "processor": "sale_channel_importer",
             "model_name": "sale.channel",
             "record_id": cls.env.ref("sale_channel.sale_channel_ebay").id,
         }

@@ -5,9 +5,9 @@
 from odoo import fields, models
 
 
-class PaymentAcquirer(models.Model):
-    _inherit = "payment.acquirer"
+class PaymentProvider(models.Model):
+    _inherit = "payment.provider"
 
-    code = fields.Char()
+    ref = fields.Char()
 
-    _sql_constraints = [("uniq_code", "uniq(code)", "The Acquirer code must be uniq")]
+    _sql_constraints = [("uniq_ref", "uniq(ref)", "The Provider ref must be uniq")]
