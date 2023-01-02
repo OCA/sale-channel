@@ -314,3 +314,8 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertEqual(chunk1.state, "done")
         self.assertEqual(chunk2.state, "fail")
         self.assertIn("Sale Order XX-0001 has already been created", chunk2.state_info)
+
+    def test_invalid_chunk(self):
+        chunk = self._helper_create_chunk(self.get_chunk_vals("invalid"))
+        self.assertEqual(chunk.state, "fail")
+        self.assertIn("ValidationError", chunk.state_info)

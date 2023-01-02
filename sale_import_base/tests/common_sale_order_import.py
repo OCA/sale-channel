@@ -7,7 +7,7 @@ from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
-from .data import full, minimum, mixed
+from .data import full, invalid, minimum, mixed
 
 
 @tagged("post_install", "-at_install")
@@ -88,6 +88,7 @@ class SaleImportCase(TestSaleCommonNoDuplicates):
         ).id
         cls.sale_order_example_vals_minimum = minimum
         cls.sale_order_example_vals_mixed = mixed
+        cls.sale_order_example_vals_invalid = invalid
         cls.last_sale_id = (
             cls.env["sale.order"].search([], order="id desc", limit=1).id or 0
         )

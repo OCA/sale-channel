@@ -4,6 +4,8 @@
 from odoo import _, fields, models
 from odoo.exceptions import ValidationError
 
+from .schemas import SaleOrder
+
 
 class SaleChannelImporter(models.TransientModel):
     _name = "sale.channel.importer"
@@ -21,7 +23,8 @@ class SaleChannelImporter(models.TransientModel):
         )
 
     def run(self):
-        data = self.chunk_id._get_data()
+        # Get validated sale order
+        data = SaleOrder(**self.chunk_id._get_data()).dict()
         existing_so = self._get_existing_so(data)
         if existing_so:
             raise ValidationError(
@@ -44,15 +47,27 @@ class SaleChannelImporter(models.TransientModel):
             "partner_id": partner.id,
             "partner_invoice_id": address_invoice.id,
             "partner_shipping_id": address_shipping.id,
-            "si_amount_total": data.get("amount", {}).get("amount_total", 0),
-            "si_amount_untaxed": data.get("amount", {}).get("amount_untaxed", 0),
-            "si_amount_tax": data.get("amount", {}).get("amount_tax", 0),
-            "si_force_invoice_date": data.get("invoice", {}).get("date"),
-            "si_force_invoice_number": data.get("invoice", {}).get("number"),
             "client_order_ref": data["name"],
             "sale_channel_id": channel.id,
             "pricelist_id": data.get("pricelist_id") or channel.pricelist_id.id,
         }
+        amount = data.get("amount")
+        if amount:
+            so_vals.update(
+                {
+                    "si_amount_total": amount.get("amount_total", 0),
+                    "si_amount_untaxed": amount.get("amount_untaxed", 0),
+                    "si_amount_tax": amount.get("amount_tax", 0),
+                }
+            )
+        invoice = data.get("invoice")
+        if invoice:
+            so_vals.update(
+                {
+                    "si_force_invoice_date": invoice.get("date"),
+                    "si_force_invoice_number": invoice.get("number"),
+                }
+            )
         if channel.internal_naming_method == "client_order_ref":
             so_vals["name"] = data["name"]
         if data.get("date_order"):

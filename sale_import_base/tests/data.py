@@ -149,3 +149,7 @@ mixed = {
         "currency_code": "USD",
     },
 }
+
+invalid = {
+    "name": "XX-0001",
+}
