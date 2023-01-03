@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record model="res.groups" id="group_sale_import_rest_api">
+        <field name="name">Technical Group for sale import rest api</field>
+    </record>
+</odoo>

@@ -3,18 +3,24 @@
 {
     "name": "Sale Import REST",
     "summary": "REST API for importig Sale Orders",
-    "version": "14.0.1.0.1",
+    "version": "16.0.0.0.0",
     "category": "Generic Modules/Sale",
     "author": "Akretion, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/sale-channel",
     "depends": [
         "sale_import_base",
+        # to avoid extra-glue module we have the dependency on auth_api_key
+        # if needed (real use case) we can remove this dependency
         "auth_api_key",
-        "base_rest",
-        "base_rest_datamodel",
+        "fastapi",
     ],
     "license": "AGPL-3",
-    "data": ["views/sale_channel.xml"],
-    "demo": ["demo/demo.xml"],
-    "installable": False,
+    "data": ["views/fastapi_endpoint_view.xml"],
+    "demo": [
+        "security/res_groups.xml",
+        "demo/demo.xml",
+        "demo/fastapi_endpoint_demo.xml",
+    ],
+    "installable": True,
+    "external_dependencies": {"python": ["fastapi", "pydantic"]},
 }
