@@ -22,21 +22,24 @@ class QueueJobChunk(models.Model):
     state = fields.Selection(
         [("pending", "Pending"), ("done", "Done"), ("fail", "Failed")],
         default="pending",
+        readonly=True,
     )
-    state_info = fields.Text("Additional state information")
-    model_name = fields.Char()
-    record_id = fields.Integer()
+    state_info = fields.Text("Additional state information", readonly=True)
+    model_name = fields.Char(readonly=True)
+    record_id = fields.Integer(readonly=True)
     reference = fields.Reference(
         selection="_selection_target_model",
         compute="_compute_reference",
         store=True,
+        readonly=True,
     )
     company_id = fields.Many2one(
         "res.company",
         compute="_compute_reference",
         store=True,
+        readonly=True,
     )
-    stack_trace = fields.Text()
+    stack_trace = fields.Text(readonly=True)
 
     @api.model
     def _selection_target_model(self):
