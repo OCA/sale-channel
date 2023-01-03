@@ -1,14 +1,13 @@
 #  Copyright (c) Akretion 2020
 #  License AGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
 
-from unittest.mock import patch
+import mock
+from fastapi.testclient import TestClient
 
 from odoo import SUPERUSER_ID
-from odoo.exceptions import MissingError, ValidationError
 from odoo.tests import tagged
 
-from odoo.addons.base_rest.controllers.main import _PseudoCollection
-from odoo.addons.component.core import WorkContext
+from odoo.addons.fastapi.context import odoo_env_ctx
 from odoo.addons.sale_import_base.tests.common_sale_order_import import SaleImportCase
 
 
@@ -23,36 +22,43 @@ class TestSaleOrderImport(SaleImportCase):
         chunks_data[1]["payment"]["reference"] = "PMT-EXAMPLE-002"
         return {"sale_orders": chunks_data}
 
-    def setUp(self):
-        super().setUp()
-        # As the env.user is superuser anyways for our controllers,
-        # for now we neglect it for tests
-        superuser = self.env["res.users"].browse([SUPERUSER_ID])
-        self.env = self.env(user=superuser)
-        self.cr = self.env.cr
-        self.api_key = "ASecureKeyEbay"
-        collection = _PseudoCollection("sale.import.rest.services", self.env)
-        self.sale_import_service_env = WorkContext(
-            model_name="sale.order", collection=collection
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.env.cr.commit = mock.Mock()
+        # Switch to Superuser, so we can check api result and configure everything
+        cls.env = cls.env(user=SUPERUSER_ID)
+        cls.api_key = "ASecureKeyApiRest"
+        cls.fastapi_sale_import_app = cls.env.ref(
+            "sale_import_rest.fastapi_endpoint_sale_import_demo"
         )
-        self.service = self.sale_import_service_env.component(usage="sale")
-        self.api_key = "ASecureKeyEbay"
+        cls.app = cls.fastapi_sale_import_app._get_app()
+        cls.client = TestClient(cls.app, raise_server_exceptions=True)
+        cls._ctx_token = odoo_env_ctx.set(cls.env)
 
-    def _service_create(self, vals):
-        with patch(
-            "odoo.addons.sale_import_rest.components.sale_import_service."
-            "SaleImportService._get_api_key",
-            return_value=self.api_key,
-        ):
-            return self.service.dispatch("create", params=vals)
+    @classmethod
+    def tearDownClass(cls) -> None:
+        odoo_env_ctx.reset(cls._ctx_token)
+        cls.fastapi_sale_import_app._reset_app()
+        super().tearDownClass()
 
-    def _service_cancel(self, params):
-        with patch(
-            "odoo.addons.sale_import_rest.components.sale_import_service."
-            "SaleImportService._get_api_key",
-            return_value=self.api_key,
-        ):
-            return self.service.dispatch("cancel", params=params)
+    def _get_path(self, path):
+        return self.fastapi_sale_import_app.root_path + path
+
+    def _call_path(self, path, vals, allow_error=False):
+        with mock.patch.object(self.env.cr.__class__, "rollback"):
+            res = self.client.post(
+                self._get_path(path), json=vals, headers={"API-KEY": self.api_key}
+            )
+            if not allow_error:
+                self.assertEqual(res.status_code, 200, res.text)
+            return res
+
+    def _service_create(self, vals, allow_error=False):
+        return self._call_path("/sale/create", vals, allow_error=allow_error)
+
+    def _service_cancel(self, vals, allow_error=False):
+        return self._call_path("/sale/cancel", vals, allow_error=allow_error)
 
     def test_chunks_created(self):
         chunk_count_initial = self.env["queue.job.chunk"].search_count([])
@@ -62,25 +68,36 @@ class TestSaleOrderImport(SaleImportCase):
 
     def test_wrong_key(self):
         self.api_key = "WrongKey"
-        with self.assertRaises(ValidationError):
-            return self._service_create(self.payload_multi_sale)
+        res = self._service_create(self.payload_multi_sale, allow_error=True)
+        # TODO we should raise a 401 here
+        # but the method "_retrieve_api_key" raise an error
+        # see code in models/fastapi_endpoint.py
+        self.assertEqual(res.status_code, 400, res.text)
+        self.assertEqual(res.json(), {"detail": "The key WrongKey is not allowed"})
 
-    def test_key_not_mapped_to_channel(self):
+    def test_key_not_mapped_to_endpoint(self):
         self.env["auth.api.key"].create(
             {"name": "aName", "key": "ASecureKey", "user_id": 1}
         )
         self.api_key = "ASecureKey"
-        with self.assertRaises(ValidationError):
-            return self._service_create(self.payload_multi_sale)
+        res = self._service_create(self.payload_multi_sale, allow_error=True)
+        self.assertEqual(res.status_code, 401, res.text)
+        self.assertEqual(res.json(), {"detail": "Incorrect API Key"})
 
     def test_cancel_sale(self):
         sale = self.env.ref("sale.sale_order_1")
-        sale.sale_channel_id = self.sale_channel_ebay
-        sale.client_order_ref = "CLIENTREF"
+        sale.write(
+            {
+                "sale_channel_id": self.fastapi_sale_import_app.channel_id.id,
+                "company_id": self.company_data["company"].id,
+                "client_order_ref": "CLIENTREF",
+            }
+        )
         res = self._service_cancel({"sale_name": "CLIENTREF"})
         self.assertEqual(sale.state, "cancel")
-        self.assertEqual(res, {"success": True})
+        self.assertEqual(res.json(), {"success": True})
 
     def test_cancel_sale_missing(self):
-        with self.assertRaises(MissingError):
-            self._service_cancel({"sale_name": "does not exist"})
+        res = self._service_cancel({"sale_name": "does not exist"}, allow_error=True)
+        self.assertEqual(res.status_code, 404, res.text)
+        self.assertEqual(res.json(), {"detail": "MissingError"})

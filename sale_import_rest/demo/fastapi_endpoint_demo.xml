@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record model="fastapi.endpoint" id="fastapi_endpoint_sale_import_demo">
+        <field name="name">Sale Import Demo</field>
+        <field name="app">sale_import</field>
+        <field name="root_path">/sale-channel-import</field>
+        <field name="sale_import_auth_method">api_key</field>
+        <field name="user_id" eval="ref('user_import_demo')" />
+        <field name="channel_id" eval="ref('sale_channel_api_rest')" />
+    </record>
+</odoo>

@@ -1,1 +1,1 @@
-from . import sale_channel
+from . import fastapi_endpoint
