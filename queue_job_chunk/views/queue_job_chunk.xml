@@ -13,22 +13,16 @@
                         attrs="{'invisible': [('state', '=', 'done')]}"
                         class="btn-primary"
                     />
+                    <field name="state" widget="statusbar" />
                 </header>
                 <sheet>
                     <group>
                         <group>
                             <field name="processor" />
+                            <field name="reference" />
+                            <field name="state_info" />
+                            <field name="stack_trace" groups="base.group_system" />
                             <field name="data_str" />
-                            <field name="model_name" />
-                            <field name="record_id" />
-                            <field name="reference" attrs="{'readonly': 1}" />
-                            <field name="state" attrs="{'readonly': 1}" />
-                            <field name="state_info" attrs="{'readonly': 1}" />
-                            <field
-                                name="stack_trace"
-                                groups="base.group_system"
-                                attrs="{'readonly': 1}"
-                            />
                         </group>
                     </group>
                 </sheet>
@@ -40,10 +34,9 @@
         <field name="model">queue.job.chunk</field>
         <field name="arch" type="xml">
             <tree>
-                <field name="id" />
+                <field name="processor" />
+                <field name="reference" />
                 <field name="state" />
-                <field name="model_name" />
-                <field name="record_id" />
             </tree>
         </field>
     </record>
