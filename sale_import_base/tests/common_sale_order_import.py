@@ -109,15 +109,31 @@ class SaleImportCase(TestSaleCommonNoDuplicates):
     def setUpPaymentProvider(cls):
         # Create manual provider
         cls.env["payment.provider"]._fields["code"].selection.append(
-            ("manual", "Manual")
+            ("credit_card", "Credit Card")
         )
         cls.env["payment.provider"].create(
             {
                 "name": "Credit Card",
                 "ref": "credit_card",
-                "code": "manual",
+                "code": "credit_card",
                 "company_id": cls.company_data["company"].id,
             }
+        )
+        method = cls.env["account.payment.method"].create(
+            {
+                "code": "credit_card",
+                "name": "Credit Card",
+                "payment_type": "inbound",
+            }
+        )
+        cls.env["account.payment.method.line"].create(
+            [
+                {
+                    "name": method.code,
+                    "payment_method_id": method.id,
+                    "journal_id": cls.company_data["default_journal_bank"].id,
+                }
+            ]
         )
 
     @classmethod
