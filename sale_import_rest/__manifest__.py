@@ -22,5 +22,5 @@
         "demo/fastapi_endpoint_demo.xml",
     ],
     "installable": True,
-    "external_dependencies": {"python": ["fastapi", "pydantic"]},
+    "external_dependencies": {"python": ["fastapi", "extendable_pydantic"]},
 }
