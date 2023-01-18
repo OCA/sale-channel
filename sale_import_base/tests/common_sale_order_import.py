@@ -6,6 +6,7 @@ from copy import deepcopy
 from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
+from odoo.addons.extendable.tests.common import ExtendableMixin
 
 from .data import full, invalid, minimum, mixed
 
@@ -74,10 +75,11 @@ class TestSaleCommonNoDuplicates(AccountTestInvoicingCommon):
 
 
 @tagged("post_install", "-at_install")
-class SaleImportCase(TestSaleCommonNoDuplicates):
+class SaleImportCase(TestSaleCommonNoDuplicates, ExtendableMixin):
     @classmethod
     def setUpClass(cls):
         super(SaleImportCase, cls).setUpClass()
+        cls.setUpExtendable()
         cls.setUpPaymentProvider()
         cls.setUpMisc()
         cls.setUpProducts()
@@ -139,6 +141,10 @@ class SaleImportCase(TestSaleCommonNoDuplicates):
     @classmethod
     def setUpMisc(cls):
         cls.env = cls.env(context=dict(cls.env.context, test_queue_job_no_delay=True))
+
+    def setUp(self):
+        super().setUp()
+        ExtendableMixin.setUp(self)
 
     @classmethod
     def get_chunk_vals(cls, which_data):

@@ -12,6 +12,7 @@
         "product_code_unique",
         "sale_channel_partner",
         "sale_exception",
+        "extendable",
     ],
     "license": "AGPL-3",
     "data": [
@@ -22,6 +23,6 @@
     "demo": ["demo/demo.xml"],
     "installable": True,
     "external_dependencies": {
-        "python": ["pydantic"],
+        "python": ["extendable_pydantic"],
     },
 }

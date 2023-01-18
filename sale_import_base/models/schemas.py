@@ -4,12 +4,11 @@
 from datetime import date
 from typing import List, Optional
 
-from pydantic import BaseModel
+from extendable_pydantic import ExtendableModelMeta
+from pydantic import BaseModel  # pylint: disable=missing-manifest-dependency
 
-# TODO use extendable when ready
 
-
-class Address(BaseModel):
+class Address(BaseModel, metaclass=ExtendableModelMeta):
     name: str
     street: str
     street2: Optional[str] = None
@@ -26,7 +25,7 @@ class Customer(Address):
     external_id: str
 
 
-class SaleOrderLine(BaseModel):
+class SaleOrderLine(BaseModel, metaclass=ExtendableModelMeta):
     product_code: str
     qty: float
     price_unit: float
@@ -34,18 +33,18 @@ class SaleOrderLine(BaseModel):
     discount: Optional[float]
 
 
-class Amount(BaseModel):
+class Amount(BaseModel, metaclass=ExtendableModelMeta):
     amount_tax: Optional[float] = None
     amount_untaxed: Optional[float] = None
     amount_total: Optional[float] = None
 
 
-class Invoice(BaseModel):
+class Invoice(BaseModel, metaclass=ExtendableModelMeta):
     date: date
     number: str
 
 
-class Payment(BaseModel):
+class Payment(BaseModel, metaclass=ExtendableModelMeta):
     mode: str
     amount: float
     reference: str
@@ -53,7 +52,7 @@ class Payment(BaseModel):
     provider_reference: Optional[str]
 
 
-class SaleOrder(BaseModel):
+class SaleOrder(BaseModel, metaclass=ExtendableModelMeta):
     name: str
     address_customer: Customer
     address_shipping: Address
