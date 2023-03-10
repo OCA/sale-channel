@@ -34,10 +34,32 @@
         <field name="model">queue.job.chunk</field>
         <field name="arch" type="xml">
             <tree>
+                <field name="create_date" />
                 <field name="processor" />
                 <field name="reference" />
                 <field name="state" />
+                <field name="data_str" optional="hide" />
             </tree>
+        </field>
+    </record>
+
+    <record id="view_queue_job_search" model="ir.ui.view">
+        <field name="model">queue.job.chunk</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="data_str" />
+                <field name="stack_trace" />
+                <filter
+                    string="Pending"
+                    name="pending"
+                    domain="[('state', '=', 'pending')]"
+                />
+                <filter
+                    string="Failed"
+                    name="failed"
+                    domain="[('state', '=', 'fail')]"
+                />
+            </search>
         </field>
     </record>
 

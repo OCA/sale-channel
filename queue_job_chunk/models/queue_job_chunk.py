@@ -16,6 +16,7 @@ DEBUG_MODE = False
 class QueueJobChunk(models.Model):
     _name = "queue.job.chunk"
     _description = "Queue Job Chunk"
+    _order = "id desc"
 
     processor = fields.Selection([])
     data_str = fields.Text(string="Editable data")
