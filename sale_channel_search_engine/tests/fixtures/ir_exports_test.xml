@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="ir_exp_product_test" model="ir.exports">
+        <field name="name">Test Product Export</field>
+        <field name="resource">product.product</field>
+    </record>
+    <record id="ir_exp_product_line_test0" model="ir.exports.line">
+        <field name="export_id" ref="ir_exp_product_test" />
+        <field name="name">id</field>
+    </record>
+    <record id="ir_exp_product_line_test1" model="ir.exports.line">
+        <field name="export_id" ref="ir_exp_product_test" />
+        <field name="name">name</field>
+    </record>
+    <record id="ir_exp_product_line_test2" model="ir.exports.line">
+        <field name="export_id" ref="ir_exp_product_test" />
+        <field name="name">active</field>
+    </record>
+</odoo>

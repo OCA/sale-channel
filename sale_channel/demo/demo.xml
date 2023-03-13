@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright (c) Akretion 2020 -->
+<!-- License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="sale_channel_amazon" model="sale.channel">
+        <field name="name">Amazon</field>
+    </record>
+    <record id="sale_channel_ebay" model="sale.channel">
+        <field name="name">Ebay</field>
+    </record>
+</odoo>

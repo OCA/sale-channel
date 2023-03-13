@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright (c) Akretion 2020 -->
+<!-- License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="view_mode_form" model="ir.ui.view">
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form" />
+        <field name="arch" type="xml">
+            <xpath
+                expr="//group[@id='other_tab_group']//field[@name='invoice_origin']"
+                position="after"
+            >
+                <field name="sale_channel_id" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_out_invoice_tree" model="ir.ui.view">
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_out_invoice_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_date_due']" position="after">
+                <field name="sale_channel_id" />
+            </xpath>
+        </field>
+    </record>
+</odoo>
