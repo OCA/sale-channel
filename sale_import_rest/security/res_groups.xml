@@ -2,5 +2,9 @@
 <odoo>
     <record model="res.groups" id="group_sale_import_rest_api">
         <field name="name">Technical Group for sale import rest api</field>
+        <field
+            name="implied_ids"
+            eval="[(4, ref('fastapi.group_fastapi_endpoint_runner'))]"
+        />
     </record>
 </odoo>
