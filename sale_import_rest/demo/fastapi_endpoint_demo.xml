@@ -5,7 +5,7 @@
         <field name="app">sale_import</field>
         <field name="root_path">/sale-channel-import</field>
         <field name="sale_import_auth_method">api_key</field>
-        <field name="user_id" eval="ref('user_import_demo')" />
+        <field name="user_id" eval="ref('user_import')" />
         <field name="channel_id" eval="ref('sale_channel_api_rest')" />
     </record>
 </odoo>

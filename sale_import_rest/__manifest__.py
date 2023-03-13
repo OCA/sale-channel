@@ -15,9 +15,12 @@
         "fastapi",
     ],
     "license": "AGPL-3",
-    "data": ["views/fastapi_endpoint_view.xml"],
-    "demo": [
+    "data": [
+        "views/fastapi_endpoint_view.xml",
         "security/res_groups.xml",
+        "data/res_users.xml",
+    ],
+    "demo": [
         "demo/demo.xml",
         "demo/fastapi_endpoint_demo.xml",
     ],
