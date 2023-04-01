@@ -51,7 +51,7 @@ class IndexProduct(ProductAttributesCommon, TestBindingIndexBase):
                             .search([("model", "=", "product.product")], limit=1)
                             .id,
                             "lang_id": cls.env.ref("base.lang_en").id,
-                            "exporter_id": cls.exporter.id,
+                            "serializer": "fake",
                         }
                     )
                 ],
@@ -67,18 +67,29 @@ class IndexProduct(ProductAttributesCommon, TestBindingIndexBase):
 
     def test_create_with_channel(self):
         product_template = self._create_product_template(self.channels)
-        bindings = product_template.product_variant_ids.index_bind_ids
+        bindings = product_template.product_variant_ids._get_bindings()
         self.assertEqual(len(bindings), 3)
         self.assertEqual(bindings.index_id, self.product_index)
 
     def test_add_channel(self):
-        pass
+        product_template = self._create_product_template()
+        self.assertFalse(product_template.product_variant_ids._get_bindings())
+        product_template.channel_ids = self.channels
+        bindings = product_template.product_variant_ids._get_bindings()
+        self.assertEqual(len(bindings), 3)
+        self.assertEqual(bindings.index_id, self.product_index)
 
     def test_remove_channel(self):
-        pass
+        product_template = self._create_product_template(self.channels)
+        product_template.channel_ids = None
+        bindings = product_template.product_variant_ids._get_bindings()
+        self.assertEqual({"to_delete"}, set(bindings.mapped("state")))
 
-    def test_inactive(self):
-        pass
+    def test_inactive_and_active(self):
+        product_template = self._create_product_template(self.channels)
+        bindings = product_template.product_variant_ids._get_bindings()
+        product_template.active = False
+        self.assertEqual({"to_delete"}, set(bindings.mapped("state")))
 
-    def test_active(self):
-        pass
+        product_template.active = True
+        self.assertEqual({"to_recompute"}, set(bindings.mapped("state")))

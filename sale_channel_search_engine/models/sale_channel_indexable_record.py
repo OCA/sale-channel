@@ -11,11 +11,16 @@ class SaleChannelIndexableRecord(models.AbstractModel):
     _description = "Sale Channel Indexable Record"
 
     def _synchronize_channel_index(self):
+        existing_bindings = self._get_bindings()
         bindings = self.env["se.binding"]
-        for channel in self.channel_ids:
+        if "active" in self._fields:
+            records = self.filtered("active")
+        else:
+            records = self
+        for channel in records.channel_ids:
             index = channel.search_engine_id.index_ids.filtered(
                 lambda s: s.model_id.model == self._name
             )
             if index:
-                bindings |= self._add_to_index(index)
-        (self.index_bind_ids - bindings).write({"state": "to_delete"})
+                bindings |= records._add_to_index(index)
+        (existing_bindings - bindings).write({"state": "to_delete"})
