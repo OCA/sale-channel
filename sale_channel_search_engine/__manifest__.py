@@ -19,6 +19,9 @@
         "connector_search_engine",
         "sale_channel_product",
     ],
-    "data": [],
+    "data": [
+        "views/sale_channel_view.xml",
+        "views/product_template_view.xml",
+    ],
     "demo": [],
 }
