@@ -8,7 +8,7 @@
             <notebook position="inside">
                 <page name="partner_channel" string="Channel">
                     <group name="binding">
-                        <field name="sale_channel_partner_ids" nolabel="1">
+                        <field name="sale_channel_partner_ids" nolabel="1" colspan="2">
                             <tree editable="bottom">
                                 <field name="sale_channel_id" />
                                 <field name="external_id" />
