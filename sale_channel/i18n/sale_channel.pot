@@ -1,0 +1,103 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sale_channel
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sale_channel
+#: model:ir.model.fields,field_description:sale_channel.field_sale_channel__active
+msgid "Active"
+msgstr ""
+
+#. module: sale_channel
+#: model_terms:ir.ui.view,arch_db:sale_channel.sale_channel_view_form
+#: model_terms:ir.ui.view,arch_db:sale_channel.sale_channel_view_search
+msgid "Archived"
+msgstr ""
+
+#. module: sale_channel
+#: model:ir.model.fields,field_description:sale_channel.field_sale_channel__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: sale_channel
+#: model:ir.model.fields,field_description:sale_channel.field_sale_channel__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: sale_channel
+#: model:ir.model.fields,field_description:sale_channel.field_sale_channel__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: sale_channel
+#: model_terms:ir.ui.view,arch_db:sale_channel.sale_channel_view_form
+msgid "General information"
+msgstr ""
+
+#. module: sale_channel
+#: model:ir.model.fields,field_description:sale_channel.field_sale_channel__id
+msgid "ID"
+msgstr ""
+
+#. module: sale_channel
+#: model:ir.model,name:sale_channel.model_account_move
+msgid "Journal Entry"
+msgstr ""
+
+#. module: sale_channel
+#: model:ir.model.fields,field_description:sale_channel.field_sale_channel____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: sale_channel
+#: model:ir.model.fields,field_description:sale_channel.field_sale_channel__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: sale_channel
+#: model:ir.model.fields,field_description:sale_channel.field_sale_channel__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: sale_channel
+#: model:ir.model,name:sale_channel.model_sale_channel_owner
+msgid "Mixin to attach record on several channel"
+msgstr ""
+
+#. module: sale_channel
+#: model:ir.model.fields,field_description:sale_channel.field_sale_channel__name
+msgid "Name"
+msgstr ""
+
+#. module: sale_channel
+#: model:ir.model,name:sale_channel.model_sale_channel
+#: model:ir.model.fields,field_description:sale_channel.field_account_bank_statement_line__sale_channel_id
+#: model:ir.model.fields,field_description:sale_channel.field_account_move__sale_channel_id
+#: model:ir.model.fields,field_description:sale_channel.field_account_payment__sale_channel_id
+#: model:ir.model.fields,field_description:sale_channel.field_sale_channel_owner__channel_ids
+#: model:ir.model.fields,field_description:sale_channel.field_sale_order__sale_channel_id
+#: model_terms:ir.ui.view,arch_db:sale_channel.sale_channel_view_form
+msgid "Sale Channel"
+msgstr ""
+
+#. module: sale_channel
+#: model:ir.actions.act_window,name:sale_channel.sale_channel_action
+#: model:ir.ui.menu,name:sale_channel.menuitem_sale_channels
+#: model_terms:ir.ui.view,arch_db:sale_channel.sale_channel_view_search
+msgid "Sale Channels"
+msgstr ""
+
+#. module: sale_channel
+#: model:ir.model,name:sale_channel.model_sale_order
+msgid "Sales Order"
+msgstr ""
