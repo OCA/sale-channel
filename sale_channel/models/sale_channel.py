@@ -10,4 +10,3 @@ class SaleChannel(models.Model):
 
     name = fields.Char(required=True)
     active = fields.Boolean(default=True)
-    partner_id = fields.Many2one("res.partner")
