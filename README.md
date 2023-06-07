@@ -21,7 +21,7 @@ Available addons
 ----------------
 addon | version | maintainers | summary
 --- | --- | --- | ---
-[sale_channel](sale_channel/) | 16.0.0.0.1 |  | Adds the notion of sale channels
+[sale_channel](sale_channel/) | 16.0.0.0.2 |  | Adds the notion of sale channels
 
 [//]: # (end addons)
 
