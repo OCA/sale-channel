@@ -12,6 +12,9 @@ class ProductProduct(models.Model):
     ]
     _name = "product.product"
 
+    # ProductProduct do not inherit of sale.channel.owner
+    # as it's the ProductTemplate that inherit it
+    # so activating or inactivating should trigger an index synchronization
     def write(self, vals):
         res = super().write(vals)
         if "active" in vals:

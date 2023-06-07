@@ -51,7 +51,7 @@ class IndexProduct(ProductAttributesCommon, TestBindingIndexBase):
                             .search([("model", "=", "product.product")], limit=1)
                             .id,
                             "lang_id": cls.env.ref("base.lang_en").id,
-                            "serializer": "fake",
+                            "serializer_type": "fake",
                         }
                     )
                 ],

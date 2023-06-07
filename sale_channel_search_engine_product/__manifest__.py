@@ -3,8 +3,9 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 {
-    "name": "Sale Channel Search Engine",
-    "summary": "Abstract module for configuring a search engine on a sale channel",
+    "name": "Sale Channel Search Engine Product",
+    "summary": "Implement an export of category in search engine based on "
+    "sale channel link",
     "version": "16.0.0.0.0",
     "development_status": "Alpha",
     "category": "Uncategorized",
@@ -17,10 +18,10 @@
     },
     "depends": [
         "connector_search_engine",
-        "sale_channel",
+        "sale_channel_product",
     ],
     "data": [
-        "views/sale_channel_view.xml",
+        "views/product_template_view.xml",
     ],
     "demo": [],
 }

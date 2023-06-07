@@ -11,6 +11,8 @@ class SaleChannelIndexableRecord(models.AbstractModel):
     _description = "Sale Channel Indexable Record"
 
     def _synchronize_channel_index(self):
+        """For a given record depending of the channels linked, the index binding
+        will be created or deleted."""
         existing_bindings = self._get_bindings()
         bindings = self.env["se.binding"]
         if "active" in self._fields:
