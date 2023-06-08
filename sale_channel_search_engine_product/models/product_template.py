@@ -14,10 +14,12 @@ class ProductTemplate(models.Model):
     count_se_binding_error = fields.Integer(compute="_compute_count_binding")
 
     def _compute_count_binding(self):
-        res = self.product_variant_ids._get_count_per_state()
+        res = self.with_context(
+            active_test=False
+        ).product_variant_ids._get_count_per_state()
         for record in self:
             done = pending = error = 0
-            for variant in record.product_variant_ids:
+            for variant in record.with_context(active_test=False).product_variant_ids:
                 done += res[variant.id]["done"]
                 pending += res[variant.id]["pending"]
                 error += res[variant.id]["error"]
@@ -29,4 +31,6 @@ class ProductTemplate(models.Model):
         self.product_variant_ids._synchronize_channel_index()
 
     def open_se_binding(self):
-        return self.product_variant_ids.open_se_binding()
+        return self.with_context(
+            active_test=False
+        ).product_variant_ids.open_se_binding()
