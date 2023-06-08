@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2019 ACSONE SA/NV
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo noupdate="1">
+    <record id="se_backend_sale_channel" model="se.backend">
+        <field name="name">Demo Sale Channel Elastic</field>
+        <field name="tech_name">demo_sale_channel_elasticsearch_backend</field>
+        <field name="es_server_host">http://elastic:9200</field>
+        <field name="backend_type">elasticsearch</field>
+    </record>
+</odoo>

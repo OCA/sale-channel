@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="ir_exp_product_demo" model="ir.exports">
+        <field name="name">Test Product Export</field>
+        <field name="resource">product.product</field>
+    </record>
+    <record id="ir_exp_product_line_demo0" model="ir.exports.line">
+        <field name="export_id" ref="ir_exp_product_demo" />
+        <field name="name">id</field>
+    </record>
+    <record id="ir_exp_product_line_demo1" model="ir.exports.line">
+        <field name="export_id" ref="ir_exp_product_demo" />
+        <field name="name">name</field>
+    </record>
+
+    <record id="ir_exp_category_demo" model="ir.exports">
+        <field name="name">Test Category Export</field>
+        <field name="resource">product.category</field>
+    </record>
+    <record id="ir_exp_category_line_demo0" model="ir.exports.line">
+        <field name="export_id" ref="ir_exp_category_demo" />
+        <field name="name">id</field>
+    </record>
+    <record id="ir_exp_category_line_demo1" model="ir.exports.line">
+        <field name="export_id" ref="ir_exp_category_demo" />
+        <field name="name">name</field>
+    </record>
+</odoo>
