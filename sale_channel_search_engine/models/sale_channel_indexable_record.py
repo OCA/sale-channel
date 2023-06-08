@@ -20,9 +20,9 @@ class SaleChannelIndexableRecord(models.AbstractModel):
         else:
             records = self
         for channel in records.channel_ids:
-            index = channel.search_engine_id.index_ids.filtered(
+            indexes = channel.search_engine_id.index_ids.filtered(
                 lambda s: s.model_id.model == self._name
             )
-            if index:
+            for index in indexes:
                 bindings |= records._add_to_index(index)
         (existing_bindings - bindings).write({"state": "to_delete"})

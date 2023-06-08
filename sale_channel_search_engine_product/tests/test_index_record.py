@@ -93,3 +93,20 @@ class IndexProduct(ProductAttributesCommon, TestBindingIndexBase):
 
         product_template.active = True
         self.assertEqual({"to_recompute"}, set(bindings.mapped("state")))
+
+    def test_muti_lang_index(self):
+        index_fr = self.env["se.index"].create(
+            {
+                "backend_id": self.search_engine.id,
+                "name": "Product Index FR",
+                "model_id": self.env["ir.model"]
+                .search([("model", "=", "product.product")], limit=1)
+                .id,
+                "lang_id": self.env.ref("base.lang_fr").id,
+                "serializer_type": "fake",
+            }
+        )
+        product_template = self._create_product_template(self.channels)
+        bindings = product_template.product_variant_ids._get_bindings()
+        self.assertEqual(len(bindings), 6)
+        self.assertEqual(len(bindings.filtered(lambda s: s.index_id == index_fr)), 3)
