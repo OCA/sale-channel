@@ -11,7 +11,7 @@ from odoo.api import Environment
 from odoo.exceptions import ValidationError
 
 from odoo.addons.base.models.res_partner import Partner
-from odoo.addons.fastapi.depends import (
+from odoo.addons.fastapi.dependencies import (
     authenticated_partner_impl,
     fastapi_endpoint_id,
     odoo_env,
