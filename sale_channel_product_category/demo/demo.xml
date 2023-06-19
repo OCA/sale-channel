@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="product_category_root" model="product.category">
+        <field name="name">AMZ Root</field>
+    </record>
+    <record id="product_category_1" model="product.category">
+        <field
+            name="parent_id"
+            ref="sale_channel_product_category.product_category_root"
+        />
+        <field name="name">Sports</field>
+    </record>
+    <record id="product_category_1a" model="product.category">
+        <field
+            name="parent_id"
+            ref="sale_channel_product_category.product_category_1"
+        />
+        <field name="name">Cycling</field>
+    </record>
+    <record id="product_category_1a1" model="product.category">
+        <field
+            name="parent_id"
+            ref="sale_channel_product_category.product_category_1a"
+        />
+        <field name="name">Bikes</field>
+    </record>
+    <record id="product_category_1a1a" model="product.category">
+        <field
+            name="parent_id"
+            ref="sale_channel_product_category.product_category_1a1"
+        />
+        <field name="name">BMX</field>
+    </record>
+    <record id="product_category_1a1b" model="product.category">
+        <field
+            name="parent_id"
+            ref="sale_channel_product_category.product_category_1a1"
+        />
+        <field name="name">e-bike</field>
+    </record>
+    <record id="product_category_1a1c" model="product.category">
+        <field
+            name="parent_id"
+            ref="sale_channel_product_category.product_category_1a1"
+        />
+        <field name="name">Cargo</field>
+    </record>
+    <record id="product_category_1a2" model="product.category">
+        <field
+            name="parent_id"
+            ref="sale_channel_product_category.product_category_1a1"
+        />
+        <field name="name">Spare Parts</field>
+    </record>
+    <record id="product_douze_v2" model="product.template">
+        <field name="name">Douze V2</field>
+        <field
+            name="categ_id"
+            ref="sale_channel_product_category.product_category_1a1c"
+        />
+    </record>
+</odoo>
