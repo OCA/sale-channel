@@ -1,1 +1,2 @@
 odoo-addon-product_catalog @ git+https://github.com/OCA/product-attribute.git@refs/pull/1364/head#subdirectory=setup/product_catalog
+odoo-addon-sale_channel_search_engine @ git+https://github.com/OCA/sale-channel.git@refs/pull/4/head#subdirectory=setup/sale_channel_search_engine
