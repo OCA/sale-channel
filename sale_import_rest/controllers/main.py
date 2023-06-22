@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends
 
 from odoo.api import Environment
 
-from odoo.addons.fastapi.depends import (
+from odoo.addons.fastapi.dependencies import (
     authenticated_partner,
     fastapi_endpoint_id,
     odoo_env,
