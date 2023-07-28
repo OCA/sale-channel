@@ -79,8 +79,11 @@ class SaleImportCase(TestSaleCommonNoDuplicates, ExtendableMixin):
     @classmethod
     def setUpClass(cls):
         super(SaleImportCase, cls).setUpClass()
-        cls.setUpExtendable()
+        cls.init_extendable_registry()
+        account_user = cls.env.user
+        cls.env = cls.env(user=cls.env.ref("base.user_root"))
         cls.setUpPaymentProvider()
+        cls.env = cls.env(user=account_user)
         cls.setUpMisc()
         cls.setUpProducts()
         cls.fiscal_pos_a.auto_apply = True
@@ -141,10 +144,6 @@ class SaleImportCase(TestSaleCommonNoDuplicates, ExtendableMixin):
     @classmethod
     def setUpMisc(cls):
         cls.env = cls.env(context=dict(cls.env.context, test_queue_job_no_delay=True))
-
-    def setUp(self):
-        super().setUp()
-        ExtendableMixin.setUp(self)
 
     @classmethod
     def get_chunk_vals(cls, which_data):
