@@ -14,11 +14,11 @@ class Address(BaseModel, metaclass=ExtendableModelMeta):
     street2: Optional[str] = None
     zip: str
     city: str
-    email: Optional[str]
-    state_code: Optional[str]
+    email: Optional[str] = None
+    state_code: Optional[str] = None
     country_code: str
-    phone: Optional[str]
-    mobile: Optional[str]
+    phone: Optional[str] = None
+    mobile: Optional[str] = None
 
 
 class Customer(Address):
@@ -29,8 +29,8 @@ class SaleOrderLine(BaseModel, metaclass=ExtendableModelMeta):
     product_code: str
     qty: float
     price_unit: float
-    description: Optional[str]
-    discount: Optional[float]
+    description: Optional[str] = None
+    discount: Optional[float] = None
 
 
 class Amount(BaseModel, metaclass=ExtendableModelMeta):
@@ -49,7 +49,7 @@ class Payment(BaseModel, metaclass=ExtendableModelMeta):
     amount: float
     reference: str
     currency_code: str
-    provider_reference: Optional[str]
+    provider_reference: Optional[str] = None
 
 
 class SaleOrder(BaseModel, metaclass=ExtendableModelMeta):
@@ -58,8 +58,8 @@ class SaleOrder(BaseModel, metaclass=ExtendableModelMeta):
     address_shipping: Address
     address_invoicing: Address
     lines: List[SaleOrderLine]
-    amount: Optional[Amount]
-    invoice: Optional[Invoice]
-    payment: Optional[Payment]
-    pricelist_id: Optional[int]
-    date_order: Optional[date]
+    amount: Optional[Amount] = None
+    invoice: Optional[Invoice] = None
+    payment: Optional[Payment] = None
+    pricelist_id: Optional[int] = None
+    date_order: Optional[date] = None
