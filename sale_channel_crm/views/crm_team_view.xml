@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="crm_team_form_inherit" model="ir.ui.view">
+            <field name="name">crm.team.form.inherit</field>
+            <field name="model">crm.team</field>
+            <field name="inherit_id" ref="sales_team.crm_team_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='left']" position="inside">
+                    <field name="channel_ids" widget="many2many_tags" />
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
