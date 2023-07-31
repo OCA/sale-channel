@@ -24,7 +24,7 @@ class SaleChannelImporter(models.TransientModel):
 
     def run(self):
         # Get validated sale order
-        data = SaleOrder(**self.chunk_id._get_data()).dict()
+        data = SaleOrder(**self.chunk_id._get_data()).model_dump()
         existing_so = self._get_existing_so(data)
         if existing_so:
             raise ValidationError(
