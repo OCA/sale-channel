@@ -41,7 +41,7 @@ async def create(
     chunks = (
         env["sale.import.service.sale"]
         .with_context(channel_id=endpoint.channel_id.id)
-        .create_chunk(params.dict()["sale_orders"])
+        .create_chunk(params.model_dump()["sale_orders"])
     )
     return chunks.ids
 
