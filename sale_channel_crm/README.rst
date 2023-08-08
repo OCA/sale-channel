@@ -1,5 +1,5 @@
 ============
-Sale Channel CRM
+Sale Channel Link CRM to Sale Channel
 ============
 
 .. !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
