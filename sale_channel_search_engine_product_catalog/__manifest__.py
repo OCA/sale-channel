@@ -7,6 +7,7 @@
     "summary": "export product through catalog to se",
     "version": "16.0.1.0.0",
     "category": "Sale Channel",
+    "development_status": "Alpha",
     "website": "https://github.com/OCA/sale-channel",
     "author": "Akretion,Odoo Community Association (OCA)",
     "license": "AGPL-3",
