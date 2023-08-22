@@ -12,6 +12,7 @@
     "license": "AGPL-3",
     "application": False,
     "installable": True,
+    "data": ["views/product_catalog.xml"],
     "depends": [
         "sale_channel_product_catalog",
         "sale_channel_search_engine",

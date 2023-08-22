@@ -6,12 +6,7 @@ from odoo import models
 
 
 class ProductCatalog(models.Model):
-    _inherit = [
-        "product.catalog",
-        "sale.channel.indexable.record",
-    ]
-    _name = "product.catalog"
-    # _inherit = "product.catalog"
+    _inherit = "product.catalog"
 
     def _on_sale_channel_modified(self):
         # ie added on a sale channel
@@ -19,8 +14,10 @@ class ProductCatalog(models.Model):
 
     def _synchronize_channel_index_catalog(self):
         # specific implementation on catalog
-        # only one catalog is linked to channel
-        # but we synchronize all the products
+        # only one catalog is linked to a channel
+        # a catalog can be linked to multiple channels
+        # we synchronize all the effective members of the catalog
+        # = we synchronize products not catalog
         if "active" in self._fields:
             records = self.filtered("active")
         else:
@@ -36,11 +33,41 @@ class ProductCatalog(models.Model):
             for channel in record.channel_ids:
                 lkchannel[channel] |= products
 
+        bindings_to_rm = self.env["se.binding"].browse(0)
+        bindings_to_update = self.env["se.binding"].browse(0)
         for channel, records in lkchannel.items():
+            # remove from all indexes
+            bindings_to_rm |= self.env["se.binding"].search(
+                [
+                    ["channel_id", "=", channel.id],
+                    ["res_model", "=", "product.product"],
+                    ["res_id", "not in", records.ids],
+                    ["state", "!=", "to_delete"],
+                ]
+            )
+
+            bindings_to_update |= self.env["se.binding"].search(
+                [
+                    ["channel_id", "=", channel.id],
+                    ["res_model", "=", "product.product"],
+                    ["res_id", "in", records.ids],
+                ]
+            )
+
             indexes = channel.search_engine_id.index_ids.filtered(
                 lambda s: s.model_id.model == records._name
             )
-            if indexes:
-                records._add_to_index(indexes)
+            for index in indexes:
+                # add_to_index mark existing bindings as "to update"
+                records._add_to_index(index)
+        bindings_to_rm.write({"state": "to_delete"})
+        bindings_to_update.write({"state": "to_recompute"})
 
-        # unlink is managed directly ?
+    def open_se_binding(self):
+        return self.with_context(
+            active_test=False
+        ).pp_effective_member_ids.open_se_binding()
+
+    def synchronize_channel_index_action(self):
+        self._synchronize_channel_index_catalog()
+        return self.open_se_binding()

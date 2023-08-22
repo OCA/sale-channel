@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="product_catalog_view_form" model="ir.ui.view">
+        <field name="model">product.catalog</field>
+        <field name="inherit_id" ref="product_catalog.product_catalog_view_form" />
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button
+                    class="oe_stat_button"
+                    name="open_se_binding"
+                    icon="fa-list-ul"
+                    type="object"
+                ><span>Bindings</span>
+                </button>
+            </div>
+        </field>
+    </record>
+    <record id="action_synchronize_channel_index" model="ir.actions.server">
+        <field name="name">Synchronize</field>
+        <field name="model_id" ref="product_catalog.model_product_catalog" />
+        <field name="binding_model_id" ref="product_catalog.model_product_catalog" />
+        <field name="state">code</field>
+        <field name="code">action = record.synchronize_channel_index_action()</field>
+    </record>
+</odoo>
