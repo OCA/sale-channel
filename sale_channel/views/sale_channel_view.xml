@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
             <form string="Sale Channel">
                 <sheet>
+                    <div class="oe_button_box" name="button_box" />
                     <widget
                         name="web_ribbon"
                         title="Archived"
