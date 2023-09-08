@@ -64,6 +64,8 @@ class ProductCatalog(models.Model):
         bindings_to_update.write({"state": "to_recompute"})
 
     def open_se_binding(self):
+        # TODO: exclude bindings from other
+        # channels / indexes
         return self.with_context(
             active_test=False
         ).pp_effective_member_ids.open_se_binding()
