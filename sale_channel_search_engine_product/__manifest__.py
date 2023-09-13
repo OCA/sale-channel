@@ -17,7 +17,7 @@
         "bin": [],
     },
     "depends": [
-        "connector_search_engine",
+        "sale_channel_search_engine",
         "sale_channel_product",
     ],
     "data": [
