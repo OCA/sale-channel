@@ -21,6 +21,7 @@
     ],
     "data": [
         "views/product_category_view.xml",
+        "views/sale_channel_view.xml",
     ],
     "demo": [],
 }
