@@ -11,6 +11,7 @@
                     name="open_se_binding"
                     icon="fa-list-ul"
                     type="object"
+                    groups="connector_search_engine.group_connector_search_engine_user"
                 >
                        <div class="o_field_widget o_stat_info">
                             <span class="o_stat_value">
