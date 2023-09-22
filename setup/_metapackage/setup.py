@@ -11,6 +11,10 @@ setuptools.setup(
         'odoo-addon-sale_channel>=16.0dev,<16.1dev',
         'odoo-addon-sale_channel_category>=16.0dev,<16.1dev',
         'odoo-addon-sale_channel_product>=16.0dev,<16.1dev',
+        'odoo-addon-sale_channel_search_engine>=16.0dev,<16.1dev',
+        'odoo-addon-sale_channel_search_engine_category>=16.0dev,<16.1dev',
+        'odoo-addon-sale_channel_search_engine_demo>=16.0dev,<16.1dev',
+        'odoo-addon-sale_channel_search_engine_product>=16.0dev,<16.1dev',
     ],
     classifiers=[
         'Programming Language :: Python',

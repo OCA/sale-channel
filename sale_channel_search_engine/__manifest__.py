@@ -5,7 +5,7 @@
 {
     "name": "Sale Channel Search Engine",
     "summary": "Abstract module for configuring a search engine on a sale channel",
-    "version": "16.0.0.0.0",
+    "version": "16.0.0.0.1",
     "development_status": "Alpha",
     "category": "Uncategorized",
     "website": "https://github.com/OCA/sale-channel",
