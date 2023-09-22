@@ -9,6 +9,7 @@ class ProductTemplate(models.Model):
     _inherit = ["product.template", "sale.channel.owner"]
     _name = "product.template"
 
+    count_se_binding_total = fields.Integer(compute="_compute_count_binding")
     count_se_binding_done = fields.Integer(compute="_compute_count_binding")
     count_se_binding_pending = fields.Integer(compute="_compute_count_binding")
     count_se_binding_error = fields.Integer(compute="_compute_count_binding")
@@ -26,6 +27,7 @@ class ProductTemplate(models.Model):
             record.count_se_binding_done = done
             record.count_se_binding_pending = pending
             record.count_se_binding_error = error
+            record.count_se_binding_total = done + pending + error
 
     def _on_sale_channel_modified(self):
         self.product_variant_ids._synchronize_channel_index()

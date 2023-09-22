@@ -12,8 +12,10 @@
                     icon="fa-list-ul"
                     type="object"
                     groups="connector_search_engine.group_connector_search_engine_user"
+                    attrs="{'invisible': [('count_se_binding_total', '=', 0)]}"
                 >
-                       <div class="o_field_widget o_stat_info">
+                    <div class="o_field_widget o_stat_info">
+                            <field name="count_se_binding_total" invisible="1" />
                             <span class="o_stat_value">
                                 <i
                                 attrs="{'invisible': [
