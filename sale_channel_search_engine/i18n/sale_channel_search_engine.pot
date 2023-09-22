@@ -1,0 +1,81 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sale_channel_search_engine
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sale_channel_search_engine
+#: model_terms:ir.ui.view,arch_db:sale_channel_search_engine.sale_channel_view_form
+msgid "<span>Bindings</span>"
+msgstr ""
+
+#. module: sale_channel_search_engine
+#: model:ir.model.fields,field_description:sale_channel_search_engine.field_se_binding__channel_id
+msgid "Channel"
+msgstr ""
+
+#. module: sale_channel_search_engine
+#: model:ir.model.fields,field_description:sale_channel_search_engine.field_sale_channel_indexable_record__count_se_binding_done
+msgid "Count Se Binding Done"
+msgstr ""
+
+#. module: sale_channel_search_engine
+#: model:ir.model.fields,field_description:sale_channel_search_engine.field_sale_channel_indexable_record__count_se_binding_error
+msgid "Count Se Binding Error"
+msgstr ""
+
+#. module: sale_channel_search_engine
+#: model:ir.model.fields,field_description:sale_channel_search_engine.field_sale_channel_indexable_record__count_se_binding_pending
+msgid "Count Se Binding Pending"
+msgstr ""
+
+#. module: sale_channel_search_engine
+#: model:ir.model.fields,field_description:sale_channel_search_engine.field_sale_channel_indexable_record__count_se_binding_total
+msgid "Count Se Binding Total"
+msgstr ""
+
+#. module: sale_channel_search_engine
+#: model:ir.model.constraint,message:sale_channel_search_engine.constraint_sale_channel_se_uniq
+msgid "Only one backend per search engine"
+msgstr ""
+
+#. module: sale_channel_search_engine
+#: model:ir.model,name:sale_channel_search_engine.model_sale_channel
+#: model:ir.model.fields,field_description:sale_channel_search_engine.field_se_backend__sale_channel_id
+msgid "Sale Channel"
+msgstr ""
+
+#. module: sale_channel_search_engine
+#: model:ir.model,name:sale_channel_search_engine.model_sale_channel_indexable_record
+msgid "Sale Channel Indexable Record"
+msgstr ""
+
+#. module: sale_channel_search_engine
+#: model:ir.model,name:sale_channel_search_engine.model_se_backend
+msgid "Se Backend"
+msgstr ""
+
+#. module: sale_channel_search_engine
+#: model:ir.model.fields,field_description:sale_channel_search_engine.field_sale_channel_indexable_record__se_binding_ids
+msgid "Seacrh Engine Bindings"
+msgstr ""
+
+#. module: sale_channel_search_engine
+#: model:ir.model.fields,field_description:sale_channel_search_engine.field_sale_channel__search_engine_id
+#: model_terms:ir.ui.view,arch_db:sale_channel_search_engine.sale_channel_view_form
+msgid "Search Engine"
+msgstr ""
+
+#. module: sale_channel_search_engine
+#: model:ir.model,name:sale_channel_search_engine.model_se_binding
+msgid "Search Engine Record"
+msgstr ""
