@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="sale_channel_index_product_fr" model="se.index">
+        <field name="backend_id" ref="se_backend_sale_channel" />
+        <field name="lang_id" ref="base.lang_fr" />
+        <field name="model_id" ref="product.model_product_product" />
+        <field name="serializer_type">ir_exports</field>
+        <field name="exporter_id" ref="ir_exp_product_demo" />
+        <field name="config_id" ref="se_index_config_product" />
+    </record>
+
+    <record id="sale_channel_index_product_en" model="se.index">
+        <field name="backend_id" ref="se_backend_sale_channel" />
+        <field name="lang_id" ref="base.lang_en" />
+        <field name="model_id" ref="product.model_product_product" />
+        <field name="serializer_type">ir_exports</field>
+        <field name="exporter_id" ref="ir_exp_product_demo" />
+        <field name="config_id" ref="se_index_config_product" />
+    </record>
+
+    <record id="sale_channel_index_category_fr" model="se.index">
+        <field name="backend_id" ref="se_backend_sale_channel" />
+        <field name="lang_id" ref="base.lang_fr" />
+        <field name="model_id" ref="product.model_product_category" />
+        <field name="serializer_type">ir_exports</field>
+        <field name="exporter_id" ref="ir_exp_category_demo" />
+        <field name="config_id" ref="se_index_config_category" />
+    </record>
+
+    <record id="sale_channel_index_category_en" model="se.index">
+        <field name="backend_id" ref="se_backend_sale_channel" />
+        <field name="lang_id" ref="base.lang_en" />
+        <field name="model_id" ref="product.model_product_category" />
+        <field name="serializer_type">ir_exports</field>
+        <field name="exporter_id" ref="ir_exp_category_demo" />
+        <field name="config_id" ref="se_index_config_category" />
+    </record>
+
+</odoo>

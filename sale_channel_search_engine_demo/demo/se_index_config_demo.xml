@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="se_index_config_product" model="se.index.config">
+        <field name="name">Product Config</field>
+        <field name="body">{}</field>
+        <field name="body_str">
+{
+  "settings":{
+      "index" : {
+        "sort.field" : ["main", "id"],
+        "sort.order" : ["desc", "asc"]
+      }
+    },
+  "mappings":{
+    "properties":{
+      "id":{
+        "type":"integer"
+      }
+    }
+  }
+}
+        </field>
+    </record>
+
+    <record id="se_index_config_category" model="se.index.config">
+        <field name="name">Category Config</field>
+        <field name="body">{}</field>
+        <field name="body_str">
+{
+  "settings" : {
+    "index" : {
+      "sort.field" : ["id"],
+      "sort.order" : ["asc"]
+    }
+  },
+  "mappings": {
+    "properties": {
+      "id": {
+        "type":  "integer"
+      }
+    }
+  }
+}
+        </field>
+    </record>
+</odoo>
