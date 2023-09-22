@@ -19,6 +19,12 @@ msgid "Product Category"
 msgstr ""
 
 #. module: sale_channel_category
+#: model:ir.model.fields,field_description:sale_channel_category.field_sale_channel__root_categ_ids
+msgid "Root Categ"
+msgstr ""
+
+#. module: sale_channel_category
+#: model:ir.model,name:sale_channel_category.model_sale_channel
 #: model:ir.model.fields,field_description:sale_channel_category.field_product_category__channel_ids
 msgid "Sale Channel"
 msgstr ""
