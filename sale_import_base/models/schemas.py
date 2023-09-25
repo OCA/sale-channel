@@ -52,7 +52,7 @@ class Payment(BaseModel, metaclass=ExtendableModelMeta):
     provider_reference: Optional[str] = None
 
 
-class SaleOrder(BaseModel):
+class SaleOrder(BaseModel, metaclass=ExtendableModelMeta):
     name: str
     address_customer: Customer
     address_shipping: Address
