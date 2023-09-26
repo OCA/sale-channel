@@ -43,7 +43,7 @@ class TestSaleOrderImport(SaleImportCase):
         super().tearDownClass()
 
     def _get_path(self, path):
-        return self.fastapi_sale_import_app.root_path + path
+        return path
 
     def _call_path(self, path, vals, allow_error=False):
         with mock.patch.object(self.env.cr.__class__, "rollback"):
