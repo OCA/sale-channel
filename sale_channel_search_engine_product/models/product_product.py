@@ -8,7 +8,7 @@ from odoo import models
 class ProductProduct(models.Model):
     _inherit = [
         "product.product",
-        "sale.channel.indexable.record",
+        "se.indexable.record",
     ]
     _name = "product.product"
 

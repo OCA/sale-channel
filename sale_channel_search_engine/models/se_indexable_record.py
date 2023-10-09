@@ -5,14 +5,14 @@
 from odoo import models
 
 
-class SaleChannelIndexableRecord(models.AbstractModel):
-    _name = "sale.channel.indexable.record"
+class SEIndexableRecord(models.AbstractModel):
     _inherit = "se.indexable.record"
-    _description = "Sale Channel Indexable Record"
 
     def _synchronize_channel_index(self):
         """For a given record depending of the channels linked, the index binding
         will be created or deleted."""
+        if "channel_ids" not in self._fields:
+            return
         self = self.sudo()
         existing_bindings = self._get_bindings()
         bindings = self.env["se.binding"]

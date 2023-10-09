@@ -12,7 +12,9 @@ class SaleChannel(models.Model):
         ("se_uniq", "unique (search_engine_id)", "Only one backend per search engine")
     ]
 
-    search_engine_id = fields.Many2one("se.backend", "Search Engine")
+    search_engine_id = fields.Many2one(
+        comodel_name="se.backend", string="Search Engine"
+    )
 
     def open_se_binding(self):
         action = self.env.ref("connector_search_engine.se_binding_action").read()[0]
