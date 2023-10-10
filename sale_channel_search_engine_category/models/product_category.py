@@ -9,7 +9,7 @@ from odoo import models
 class ProductCategory(models.Model):
     _inherit = [
         "product.category",
-        "sale.channel.indexable.record",
+        "se.indexable.record",
     ]
     _name = "product.category"
 
