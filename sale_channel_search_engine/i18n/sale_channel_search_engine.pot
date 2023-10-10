@@ -24,23 +24,8 @@ msgid "Channel"
 msgstr ""
 
 #. module: sale_channel_search_engine
-#: model:ir.model.fields,field_description:sale_channel_search_engine.field_sale_channel_indexable_record__count_se_binding_done
-msgid "Count Se Binding Done"
-msgstr ""
-
-#. module: sale_channel_search_engine
-#: model:ir.model.fields,field_description:sale_channel_search_engine.field_sale_channel_indexable_record__count_se_binding_error
-msgid "Count Se Binding Error"
-msgstr ""
-
-#. module: sale_channel_search_engine
-#: model:ir.model.fields,field_description:sale_channel_search_engine.field_sale_channel_indexable_record__count_se_binding_pending
-msgid "Count Se Binding Pending"
-msgstr ""
-
-#. module: sale_channel_search_engine
-#: model:ir.model.fields,field_description:sale_channel_search_engine.field_sale_channel_indexable_record__count_se_binding_total
-msgid "Count Se Binding Total"
+#: model:ir.model,name:sale_channel_search_engine.model_se_indexable_record
+msgid "Mixin that make record indexable in a search engine"
 msgstr ""
 
 #. module: sale_channel_search_engine
@@ -55,18 +40,8 @@ msgid "Sale Channel"
 msgstr ""
 
 #. module: sale_channel_search_engine
-#: model:ir.model,name:sale_channel_search_engine.model_sale_channel_indexable_record
-msgid "Sale Channel Indexable Record"
-msgstr ""
-
-#. module: sale_channel_search_engine
 #: model:ir.model,name:sale_channel_search_engine.model_se_backend
 msgid "Se Backend"
-msgstr ""
-
-#. module: sale_channel_search_engine
-#: model:ir.model.fields,field_description:sale_channel_search_engine.field_sale_channel_indexable_record__se_binding_ids
-msgid "Seacrh Engine Bindings"
 msgstr ""
 
 #. module: sale_channel_search_engine
