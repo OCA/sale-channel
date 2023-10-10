@@ -24,10 +24,10 @@ addon | version | maintainers | summary
 [sale_channel](sale_channel/) | 16.0.0.1.0 |  | Adds the notion of sale channels
 [sale_channel_category](sale_channel_category/) | 16.0.1.0.2 |  | Link Category with sale channel
 [sale_channel_product](sale_channel_product/) | 16.0.1.0.1 |  | Link Product with sale channel
-[sale_channel_search_engine](sale_channel_search_engine/) | 16.0.0.0.1 |  | Abstract module for configuring a search engine on a sale channel
-[sale_channel_search_engine_category](sale_channel_search_engine_category/) | 16.0.0.0.1 |  | Implement an export of category in search engine based on sale channel link
+[sale_channel_search_engine](sale_channel_search_engine/) | 16.0.0.1.0 |  | Abstract module for configuring a search engine on a sale channel
+[sale_channel_search_engine_category](sale_channel_search_engine_category/) | 16.0.0.1.0 |  | Implement an export of category in search engine based on sale channel link
 [sale_channel_search_engine_demo](sale_channel_search_engine_demo/) | 16.0.0.0.1 |  | Implement an export of category in search engine based on sale channel link
-[sale_channel_search_engine_product](sale_channel_search_engine_product/) | 16.0.0.0.1 |  | Implement an export of category in search engine based on sale channel link
+[sale_channel_search_engine_product](sale_channel_search_engine_product/) | 16.0.0.1.0 |  | Implement an export of category in search engine based on sale channel link
 
 [//]: # (end addons)
 
