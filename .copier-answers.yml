@@ -1,8 +1,7 @@
 # Do NOT update manually; changes here will be overwritten by Copier
-_commit: v1.14.2
+_commit: v1.17.2
 _src_path: https://github.com/OCA/oca-addons-repo-template
 ci: GitHub
-dependency_installation_mode: PIP
 generate_requirements_txt: true
 github_check_license: true
 github_ci_extra_env: {}
@@ -11,6 +10,7 @@ github_enable_makepot: true
 github_enable_stale_action: true
 github_enforce_dev_status_compatibility: true
 include_wkhtmltopdf: false
+odoo_test_flavor: Both
 odoo_version: 16.0
 org_name: Odoo Community Association (OCA)
 org_slug: OCA
@@ -19,6 +19,4 @@ repo_description: Add the concept of channel on sale order, invoice...
 repo_name: Sale Channel
 repo_slug: sale-channel
 repo_website: https://github.com/OCA/sale-channel
-travis_apt_packages: []
-travis_apt_sources: []
 
