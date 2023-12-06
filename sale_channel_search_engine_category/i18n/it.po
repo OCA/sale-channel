@@ -6,40 +6,42 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2023-12-06 18:35+0000\n"
+"Last-Translator: mymage <stefano.consolaro@mymage.it>\n"
 "Language-Team: none\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.17\n"
 
 #. module: sale_channel_search_engine_category
 #: model:ir.model.fields,field_description:sale_channel_search_engine_category.field_product_category__count_se_binding_done
 msgid "Count Se Binding Done"
-msgstr ""
+msgstr "Conta collegamenti SE eseguiti"
 
 #. module: sale_channel_search_engine_category
 #: model:ir.model.fields,field_description:sale_channel_search_engine_category.field_product_category__count_se_binding_error
 msgid "Count Se Binding Error"
-msgstr ""
+msgstr "Conta errori collegamenti SE"
 
 #. module: sale_channel_search_engine_category
 #: model:ir.model.fields,field_description:sale_channel_search_engine_category.field_product_category__count_se_binding_pending
 msgid "Count Se Binding Pending"
-msgstr ""
+msgstr "Conta collegamenti SE in attesa"
 
 #. module: sale_channel_search_engine_category
 #: model:ir.model.fields,field_description:sale_channel_search_engine_category.field_product_category__count_se_binding_total
 msgid "Count Se Binding Total"
-msgstr ""
+msgstr "Conta collegamenti SE totali"
 
 #. module: sale_channel_search_engine_category
 #: model:ir.model,name:sale_channel_search_engine_category.model_product_category
 msgid "Product Category"
-msgstr ""
+msgstr "Categoria prodotto"
 
 #. module: sale_channel_search_engine_category
 #: model:ir.model.fields,field_description:sale_channel_search_engine_category.field_product_category__se_binding_ids
 msgid "Seacrh Engine Bindings"
-msgstr ""
+msgstr "Collgamenti mtore di ricerca"
