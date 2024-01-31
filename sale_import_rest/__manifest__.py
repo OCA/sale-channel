@@ -6,7 +6,7 @@
     "version": "16.0.0.0.0",
     "category": "Generic Modules/Sale",
     "author": "Akretion, Odoo Community Association (OCA)",
-    "website": "https://github.com/OCA/sale-channel",
+    "website": "https://github.com/akretion/sale-import",
     "depends": [
         "sale_import_base",
         # to avoid extra-glue module we have the dependency on auth_api_key
