@@ -134,9 +134,11 @@ class SaleChannelImporter(models.TransientModel):
                 )
                 if not state:
                     raise ValidationError(
-                        _("Missing State {} for country {}").format(
-                            data["state_code"], country.name
-                        )
+                        _("Missing State %(state_code)s for country %(country_name)s")
+                        % {
+                            "state_code": data["state_code"],
+                            "country_name": country.name,
+                        }
                     )
                 result["state_id"] = state.id
         return result
@@ -170,9 +172,8 @@ class SaleChannelImporter(models.TransientModel):
             )
         elif len(product) > 1:
             raise ValidationError(
-                _("{} products found for the code {}").format(
-                    len(product), line_data["product_code"]
-                )
+                _("%(product_num)s products found for the code %(code)s")
+                % {"product_num": len(product), "code": line_data["product_code"]}
             )
         vals = {
             "product_id": product.id,
@@ -214,9 +215,13 @@ class SaleChannelImporter(models.TransientModel):
             if currency != sale_order.currency_id:
                 raise ValidationError(
                     _(
-                        "Payment currency {} differs from the "
-                        "Sale Order pricelist currency {}"
-                    ).format(currency.name, sale_order.currency_id.name)
+                        "Payment currency %(currency)s differs from the "
+                        "Sale Order pricelist currency %(pricelist_currency)s"
+                    )
+                    % {
+                        "currency": currency.name,
+                        "pricelist_currency": sale_order.currency_id.name,
+                    }
                 )
         country = (
             sale_order.partner_invoice_id.country_id.id
