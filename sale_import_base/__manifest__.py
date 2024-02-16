@@ -16,6 +16,7 @@
     ],
     "license": "AGPL-3",
     "data": [
+        "security/ir.model.access.csv",
         "data/sale_exception.xml",
         "views/sale_channel_view.xml",
         "views/payment_provider_view.xml",
