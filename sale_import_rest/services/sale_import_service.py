@@ -16,7 +16,7 @@ class JSONEncoder(json.JSONEncoder):
         return super(JSONEncoder, self).default(obj)
 
 
-class SaleImportService(models.TransientModel):
+class SaleImportService(models.AbstractModel):
     _name = "sale.import.service.sale"
     _description = "Sale Import Service Sale"
 
