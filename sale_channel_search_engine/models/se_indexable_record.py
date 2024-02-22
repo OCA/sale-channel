@@ -8,6 +8,24 @@ from odoo import models
 class SEIndexableRecord(models.AbstractModel):
     _inherit = "se.indexable.record"
 
+    def _se_mark_to_update(self, indexes=None):
+        """Avoid to update bindings that should be deleted because the records
+        are not linked to the sale channel."""
+        if "channel_ids" not in self._fields:
+            return super()._se_mark_to_update(indexes)
+        for channel in self.mapped("channel_ids"):
+            indexes_to_update = channel.mapped("search_engine_id.index_ids")
+            if indexes:
+                indexes_to_update = indexes_to_update & indexes
+            if indexes_to_update:
+                records_to_update = self.filtered(
+                    lambda rec: channel in rec.channel_ids
+                )
+                super(SEIndexableRecord, records_to_update)._se_mark_to_update(
+                    indexes_to_update
+                )
+        return None
+
     def _synchronize_channel_index(self):
         """For a given record depending of the channels linked, the index binding
         will be created or deleted."""
