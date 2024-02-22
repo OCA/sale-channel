@@ -28,5 +28,6 @@ class SEIndexableRecord(models.AbstractModel):
             indexes = channel.search_engine_id.index_ids.filtered(
                 lambda s: s.model_id.model == self._name
             )
-            bindings |= items._add_to_index(indexes)
+            if indexes:
+                bindings |= items._add_to_index(indexes)
         (existing_bindings - bindings).write({"state": "to_delete"})
