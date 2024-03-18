@@ -19,6 +19,8 @@
                     </h1>
                     <group name="general_info" string="General information">
                         <field name="active" invisible="1" />
+                        <field name="channel_type" />
+                        <field name="company_id" groups="base.group_multi_company" />
                     </group>
                 </sheet>
             </form>
