@@ -1,6 +1,7 @@
 # Copyright 2022 Akretion (https://www.akretion.com).
 # @author Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+from abc import abstractmethod
 
 from odoo import api, fields, models
 
@@ -28,3 +29,7 @@ class SaleChannelOwner(models.AbstractModel):
 
     def _on_sale_channel_modified(self):
         """Hook for customisation when sale channel change"""
+
+    @abstractmethod
+    def _import_sale_orders_batch(self, channel_id, filters):
+        pass

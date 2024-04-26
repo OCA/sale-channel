@@ -1,0 +1,7 @@
+<odoo>
+    <record id="menu_sale_channel_root" model="ir.ui.menu">
+        <field name="name">Mirakl Sale Channel</field>
+        <field name="sequence" eval="10" />
+        <field name="action" ref="sale_channel_mirakl_action" />
+    </record>
+</odoo>

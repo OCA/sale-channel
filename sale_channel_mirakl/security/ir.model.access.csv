@@ -1,0 +1,8 @@
+"id","name","model_id/id","group_id/id","perm_read","perm_write","perm_create","perm_unlink"
+access_mirakl_binding,access.mirakl.binding,mirakl_connector.model_mirakl_binding,base.group_user,1,1,1,1
+access_mirakl_sale_order_importer,access.mirakl.sale.order.importer,mirakl_connector.model_mirakl_sale_order_importer,base.group_user,1,1,1,1
+access_product_product,access.product.product,mirakl_connector.model_product_product,base.group_user,1,1,1,1
+access_sale_channel,access.sale.channel,mirakl_connector.model_sale_channel,base.group_user,1,1,1,1
+access_sale_channel_mirakl,access.sale.channel.mirakl,mirakl_connector.model_sale_channel_mirakl,base.group_user,1,1,1,1
+access_sale_channel_owner,access.sale.channel.owner,mirakl_connector.model_sale_channel_owner,base.group_user,1,1,1,1
+access_sale_order,access.sale.order,mirakl_connector.model_sale_order,base.group_user,1,1,1,1
