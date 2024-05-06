@@ -9,7 +9,6 @@
           <tree>
             <field name="name" />
             <field name="location" />
-            <field name="binded_product_ids" widget="many2many_tags" />
           </tree>
         </field>
     </record>
@@ -29,33 +28,15 @@
                 <group>
                     <field name="offer_filename" />
                     <field name="shop_id" />
-                    <field name="binded_product_ids" widget="many2many_tags" />
                 </group>
-
-
-
-                <button
-                    name="action_view_binded_products"
-                    string="View Binded Products"
-                    type="object"
-                    class="oe_highlight"
-                />
 
             </form>
         </field>
     </record>
 
-
-    <!-- Vue action pour afficher les produits liés -->
-    <record id="action_view_binded_products" model="ir.actions.act_window">
-        <field name="name">Binded Products</field>
-        <field name="res_model">product.product</field>
-        <field name="view_mode">tree,form</field>
-    </record>
-
     <!--Action-->
     <record id="sale_channel_mirakl_action" model="ir.actions.act_window">
-        <field name="name">Mirakl SAle Channel</field>
+        <field name="name">Mirakl Sale Channel</field>
         <field name="res_model">sale.channel.mirakl</field>
         <field name="view_mode">tree,form</field>
     </record>

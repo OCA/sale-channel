@@ -1,8 +1,6 @@
-from odoo import fields, models
+from odoo import models
 
 
 class ResPartner(models.Model):
     _name = "res.partner"
-    _inherit = ["mirakl.binding", _name]
-
-    sale_channel_id = fields.Many2one("sale.channel", ondelete="restrict")
+    _inherit = [_name, "mirakl.binding", "sale.channel.owner"]

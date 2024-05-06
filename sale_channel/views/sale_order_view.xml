@@ -7,7 +7,7 @@
         <field name="inherit_id" ref="sale.view_order_form" />
         <field name="arch" type="xml">
             <xpath expr="//field[@name='payment_term_id']" position="after">
-                <field name="sale_channel_id" />
+                <field name="channel_ids" widget="many2many_tags" />
             </xpath>
         </field>
     </record>

@@ -2,8 +2,6 @@ import logging
 
 from odoo import fields, models, tools
 
-from odoo.addons.queue_job.exception import NothingToDoJob
-
 _logger = logging.getLogger(__name__)
 EXTERNAL_FIELD = "mirakl_id"
 SYNC_DAT_FIELD = "sync_date"
@@ -23,8 +21,8 @@ class MiraklImporter(models.AbstractModel):
             .with_context(active_test=False)
             .search(
                 [
-                    ("mirakl_id", "=", tools.ustr(external_id)),
-                    ("sale_channel_id", "=", sale_channel.channel_id.id),
+                    ("mirakl_code", "=", tools.ustr(external_id)),
+                    ("channel_ids", "in", sale_channel.channel_id.id),
                 ],
                 limit=2,
             )
@@ -52,16 +50,10 @@ class MiraklImporter(models.AbstractModel):
             if importer is None:
                 importer_name = self._get_importers(binding_model)
                 importer = self.env[importer_name]
-            try:
-                importer.create_or_update_record(
-                    sale_channel, mirakl_id, mirakl_data, binding_model
-                )
-            except NothingToDoJob:
-                _logger.info(
-                    "Dependency import of %s(%s) has been ignored.",
-                    binding_model,
-                    mirakl_id,
-                )
+
+            importer.create_or_update_record(
+                sale_channel, mirakl_id, mirakl_data, binding_model
+            )
 
     def _map_data(self, mirakl_pydantic_object):
         return self.env["sale.channel.mirakl"]._map_to_odoo_record(

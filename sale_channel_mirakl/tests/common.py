@@ -2,8 +2,10 @@ import csv
 from base64 import b64decode
 from io import StringIO
 
-from odoo import Command
 from odoo.tests import common
+
+MIRAKL_CODE1 = "29491209"
+MIRAKL_CODE2 = "29182572"
 
 
 class SetUpMiraklBase(common.TransactionCase):
@@ -16,19 +18,40 @@ class SetUpMiraklBase(common.TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.env = cls.env(
+            context=dict(
+                cls.env.context,
+                queue_job__no_delay=True,
+            )
+        )
 
-        cls.sale_channel = cls.env["sale.channel"].create(
+        cls.sale_channel_1 = cls.env["sale.channel"].create(
             {
-                "name": "Super sale channel",
+                "name": "Super sale channel product",
                 "channel_type": "mirakl",
+                "max_items_to_export": 2,
             }
         )
 
-        cls.sale_channel_mirakl = cls.env["sale.channel.mirakl"]
-
-        cls.mirakl_sc_for_product = cls.sale_channel_mirakl.create(
+        cls.sale_channel_2 = cls.env["sale.channel"].create(
             {
-                "channel_id": cls.sale_channel.id,
+                "name": "Super sale channel offer",
+                "channel_type": "mirakl",
+                "max_items_to_export": 2,
+            }
+        )
+
+        cls.sale_channel_3 = cls.env["sale.channel"].create(
+            {
+                "name": "Super sale channel catalog",
+                "channel_type": "mirakl",
+                "max_items_to_export": 2,
+            }
+        )
+
+        cls.mirakl_sc_for_product = cls.env["sale.channel.mirakl"].create(
+            {
+                "channel_id": cls.sale_channel_1.id,
                 "location": "http://anyurl.com",
                 "api_key": "azerty",
                 "offer_filename": "offers.csv",
@@ -37,9 +60,9 @@ class SetUpMiraklBase(common.TransactionCase):
             }
         )
 
-        cls.mirakl_sc_for_offer = cls.sale_channel_mirakl.create(
+        cls.mirakl_sc_for_offer = cls.env["sale.channel.mirakl"].create(
             {
-                "channel_id": cls.sale_channel.id,
+                "channel_id": cls.sale_channel_2.id,
                 "location": "http://anyurl.com",
                 "api_key": "azerty",
                 "offer_filename": "offers.csv",
@@ -48,35 +71,93 @@ class SetUpMiraklBase(common.TransactionCase):
             }
         )
 
-        cls.mirakl_sc_for_catalog = cls.sale_channel_mirakl.create(
+        cls.mirakl_sc_for_catalog = cls.env["sale.channel.mirakl"].create(
             {
-                "channel_id": cls.sale_channel.id,
+                "channel_id": cls.sale_channel_3.id,
                 "location": "http://anyurl.com",
                 "api_key": "azerty",
                 "offer_filename": "offers.csv",
                 "shop_id": "25",
-                "data_to_export": "both",
+                "data_to_export": "catalog",
             }
         )
 
         cls.product1 = cls.env.ref("product.product_product_9")
-        cls.product2 = cls.env.ref("product.product_product_11")
+        cls.product2 = cls.env.ref("product.product_product_8")
+
+        # relation 1 for product export
+        cls.product_channel_relation1 = cls.env[
+            "product.template.sale.channel.rel"
+        ].create(
+            {
+                "sale_channel_id": cls.sale_channel_1.id,
+                "product_template_id": cls.product1.product_tmpl_id.id,
+                "mirakl_code": MIRAKL_CODE1,
+            }
+        )
+        # relation 2 for product export
+        cls.product_channel_relation2 = cls.env[
+            "product.template.sale.channel.rel"
+        ].create(
+            {
+                "sale_channel_id": cls.sale_channel_1.id,
+                "product_template_id": cls.product2.product_tmpl_id.id,
+                "mirakl_code": MIRAKL_CODE2,
+            }
+        )
+        # relation 1 for offer export
+        cls.product_channel_relation3 = cls.env[
+            "product.template.sale.channel.rel"
+        ].create(
+            {
+                "sale_channel_id": cls.sale_channel_2.id,
+                "product_template_id": cls.product1.product_tmpl_id.id,
+                "mirakl_code": MIRAKL_CODE1,
+            }
+        )
+        # relation 2 for offer export
+        cls.product_channel_relation4 = cls.env[
+            "product.template.sale.channel.rel"
+        ].create(
+            {
+                "sale_channel_id": cls.sale_channel_2.id,
+                "product_template_id": cls.product2.product_tmpl_id.id,
+                "mirakl_code": MIRAKL_CODE2,
+            }
+        )
+
+        # relation 1 for catalog export
+        cls.product_channel_relation3 = cls.env[
+            "product.template.sale.channel.rel"
+        ].create(
+            {
+                "sale_channel_id": cls.sale_channel_3.id,
+                "product_template_id": cls.product1.product_tmpl_id.id,
+                "mirakl_code": MIRAKL_CODE1,
+            }
+        )
+        # relation 2 for catalog export
+        cls.product_channel_relation4 = cls.env[
+            "product.template.sale.channel.rel"
+        ].create(
+            {
+                "sale_channel_id": cls.sale_channel_3.id,
+                "product_template_id": cls.product2.product_tmpl_id.id,
+                "mirakl_code": MIRAKL_CODE2,
+            }
+        )
 
         cls.product1.write(
             {
-                "default_code": "29491209",
-                "mirakl_id": "29491209",
-                "channel_ids": [Command.link(cls.mirakl_sc_for_product.channel_id.id)],
+                "default_code": MIRAKL_CODE1,
             }
         )
         cls.product2.write(
             {
-                "default_code": "29182572",
-                "mirakl_id": "29182572",
+                "default_code": MIRAKL_CODE2,
                 "barcode": "4004764782703",
                 "description": "A smart description",
                 "list_price": 40.59,
-                "channel_ids": [Command.link(cls.mirakl_sc_for_product.channel_id.id)],
             }
         )
 

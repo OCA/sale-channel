@@ -1,6 +1,6 @@
 {
-    "name": "Sale Channel Account Fiscal Position",
-    "summary": "Link fiscal position with sale channel",
+    "name": "Sale Channel Account",
+    "summary": "Links some account items with sale channel",
     "website": "https://github.com/OCA/sale-channel",
     "version": "16.0.1.0.1",
     "category": "Sale Channel",

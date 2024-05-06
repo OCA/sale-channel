@@ -10,14 +10,25 @@ EXPECTED_OFFER_URL = "http://anyurl.com/api/offers/imports?shop_id=25"
 EXPECTED_HEADERS = {"Authorization": "azerty", "Accept": "application/json"}
 REQUEST_POST = "post"
 CAT_CODE = "All > Saleable > Office Furniture"
+EAN = "EAN"
+STATE = "11"
+PROD_ID_TYPE = "SHOP_SKU"
+EMPTY_STRING = ""
+CARRIAGE_RETURN = "\r\n"
 
 
-class TestSProductExporter(common.SetUpMiraklBase):
+class TestProductOfferExporter(common.SetUpMiraklBase):
     def test_make_product_file(self):
 
-        attachment = self.mirakl_sc_for_product._create_and_fill_csv_file(
-            [self.product1, self.product2]
+        struct_key = self.mirakl_sc_for_product.data_to_export
+        mapped_products = self.mirakl_sc_for_product.channel_id._map_items(
+            struct_key, [self.product1, self.product2]
         )
+
+        attachment = self.mirakl_sc_for_product._create_and_fill_csv_file(
+            mapped_products
+        )
+
         filename = attachment.name
         reader = self._read_filename(filename)
         linesByID = {}
@@ -30,7 +41,7 @@ class TestSProductExporter(common.SetUpMiraklBase):
         expectedDict = {
             "sku": "29182572",
             "ean": "4004764782703",
-            "PRODUCT_TITLE": "Conference Chair",
+            "PRODUCT_TITLE": "Large Desk",
             "PRODUCT_DESCRIPTION": "<p>A smart description</p>",
             "PRODUCT_CAT_CODE": "All > Saleable > Office Furniture",
         }
@@ -38,9 +49,12 @@ class TestSProductExporter(common.SetUpMiraklBase):
 
     def test_make_offers_file(self):
 
-        attachment = self.mirakl_sc_for_offer._create_and_fill_csv_file(
-            [self.product1, self.product2]
+        struct_key = self.mirakl_sc_for_offer.data_to_export
+        mapped_products = self.mirakl_sc_for_offer.channel_id._map_items(
+            struct_key, [self.product1, self.product2]
         )
+
+        attachment = self.mirakl_sc_for_offer._create_and_fill_csv_file(mapped_products)
         filename = attachment.name
 
         self.assertEqual("Offer_offers.csv", filename)
@@ -62,9 +76,13 @@ class TestSProductExporter(common.SetUpMiraklBase):
         self.assertDictEqual(lineDict, expectedDict)
 
     def test_make_catalog_file(self):
+        struct_key = self.mirakl_sc_for_catalog.data_to_export
+        mapped_products = self.mirakl_sc_for_catalog.channel_id._map_items(
+            struct_key, [self.product1, self.product2]
+        )
 
         attachment = self.mirakl_sc_for_catalog._create_and_fill_csv_file(
-            [self.product1, self.product2]
+            mapped_products
         )
         filename = attachment.name
         reader = self._read_filename(filename)
@@ -78,7 +96,7 @@ class TestSProductExporter(common.SetUpMiraklBase):
         expectedDict = {
             "sku": "29182572",
             "ean": "4004764782703",
-            "PRODUCT_TITLE": "Conference Chair",
+            "PRODUCT_TITLE": "Large Desk",
             "PRODUCT_DESCRIPTION": "<p>A smart description</p>",
             "PRODUCT_CAT_CODE": "All > Saleable > Office Furniture",
             "product-id": "4004764782703",
@@ -94,7 +112,7 @@ class TestSProductExporter(common.SetUpMiraklBase):
         self.assertEqual(self.request_type, request_type)
 
     @contextmanager
-    def _patch_process_request(self):
+    def _patch_process_request(self, sale_channel):
         def _mock_process_request(
             self_local,
             url,
@@ -110,42 +128,32 @@ class TestSProductExporter(common.SetUpMiraklBase):
             self.files = files
             self.request_type = request_type
 
-        self.mirakl_sc_for_product._patch_method(
-            "_process_request", _mock_process_request
-        )
+        sale_channel._patch_method("_process_request", _mock_process_request)
         yield
-        self.mirakl_sc_for_product._revert_method("_process_request")
+        sale_channel._revert_method("_process_request")
 
     def test_post_products_file_on_mirakl(self):
-
         expected_filename = "{}_{}".format(
             "Product", self.mirakl_sc_for_product.offer_filename
         )
         expected_file_content = (
             '"sku";"ean";"PRODUCT_TITLE";"PRODUCT_DESCRIPTION";"PRODUCT_CAT_CODE"\r\n'
-            '"{}";"{}";"{}";"{}";"{}"{}'.format(
-                self.product2.default_code,
-                self.product2.barcode,
-                self.product2.name,
-                self.product2.description,
-                CAT_CODE,
-                "\r\n",
-            )
-            + '"{}";"{}";"{}";"{}";"{}"{}'.format(
-                self.product1.default_code,
-                "",
-                self.product1.name,
-                self.product1.name,
-                CAT_CODE,
-                "\r\n",
+            '"{p2_dfl}";"{p2_brcd}";"{p2_name}";"{p2_desc}";"{cat}"{car_return}'
+            '"{p1_dfl}";"{empty}";"{p1_name}";"{p1_name}";"{cat}"{car_return}'.format(
+                p2_dfl=self.product2.default_code,
+                p2_brcd=self.product2.barcode,
+                p2_name=self.product2.name,
+                p2_desc=self.product2.description,
+                cat=CAT_CODE,
+                car_return=CARRIAGE_RETURN,
+                p1_dfl=self.product1.default_code,
+                empty=EMPTY_STRING,
+                p1_name=self.product1.name,
             )
         )
 
-        with self._patch_process_request():
-
-            self.mirakl_sc_for_product._export_data([self.product1, self.product2])
-            # self.mirakl_sc_for_product.channel_id._scheduler_export()
-
+        with self._patch_process_request(self.mirakl_sc_for_product):
+            self.mirakl_sc_for_product.channel_id._scheduler_export()
             self._check_parameters_test(
                 EXPECTED_PRODUCT_URL,
                 {"file": (expected_filename, expected_file_content)},
@@ -153,23 +161,25 @@ class TestSProductExporter(common.SetUpMiraklBase):
             )
 
     def test_post_offers_file_on_mirakl(self):
-
         expected_filename = "{}_{}".format(
             "Offer", self.mirakl_sc_for_offer.offer_filename
         )
         expected_file_content = (
             '"sku";"product-id";"product-id-type";"state"\r\n'
-            '"29491209";"29491209";"SHOP_SKU";"11"\r\n'
-            '"29182572";"4004764782703";"EAN";"11"\r\n'
+            '"{p2_dfl}";"{p2_brcd}";"{ean}";"{state}"{car_return}'
+            '"{p1_dfl}";"{p1_dfl}";"{prod_id_type}";"{state}"{car_return}'.format(
+                p2_dfl=self.product2.default_code,
+                p2_brcd=self.product2.barcode,
+                ean=EAN,
+                state=STATE,
+                car_return=CARRIAGE_RETURN,
+                p1_dfl=self.product1.default_code,
+                prod_id_type=PROD_ID_TYPE,
+            )
         )
 
-        with self._patch_process_request():
-
-            attachment = self.mirakl_sc_for_offer._create_and_fill_csv_file(
-                [self.product1, self.product2]
-            )
-            self.mirakl_sc_for_offer.post(attachment)
-
+        with self._patch_process_request(self.mirakl_sc_for_offer):
+            self.mirakl_sc_for_offer.channel_id._scheduler_export()
             self._check_parameters_test(
                 EXPECTED_OFFER_URL,
                 {
@@ -180,24 +190,31 @@ class TestSProductExporter(common.SetUpMiraklBase):
             )
 
     def test_post_catalog_file_on_mirakl(self):
-
         expected_filename = self.mirakl_sc_for_offer.offer_filename
         expected_file_content = (
-            '"sku";"ean";"PRODUCT_TITLE";"PRODUCT_DESCRIPTION";'
-            '"PRODUCT_CAT_CODE";"product-id";"product-id-type";"state"\r\n'
-            '"29491209";"";"Pedal Bin";"Pedal Bin";'
-            '"All > Saleable > Office Furniture";"29491209";"SHOP_SKU";"11"\r\n'
-            '"29182572";"4004764782703";"Conference Chair";'
-            '"<p>A smart description</p>";"All > Saleable > Office Furniture";'
-            '"4004764782703";"EAN";"11"\r\n'
+            '"sku";"ean";"PRODUCT_TITLE";"PRODUCT_DESCRIPTION";"PRODUCT_CAT_CODE"'
+            ';"product-id";"product-id-type";"state"\r\n'
+            '"{p2_dfl}";"{p2_brcd}";"{p2_name}";"{p2_desc}";"{cat}";"{p2_brcd}";'
+            '"{ean}";"{state}"{car_return}'
+            '"{p1_dfl}";"{empty}";"{p1_name}";"{p1_name}";"{cat}";"{p1_dfl}";'
+            '"{prod_id_type}";"{state}"{car_return}'.format(
+                p2_dfl=self.product2.default_code,
+                p2_brcd=self.product2.barcode,
+                p2_name=self.product2.name,
+                p2_desc=self.product2.description,
+                cat=CAT_CODE,
+                ean=EAN,
+                state=STATE,
+                car_return=CARRIAGE_RETURN,
+                p1_dfl=self.product1.default_code,
+                empty=EMPTY_STRING,
+                p1_name=self.product1.name,
+                prod_id_type=PROD_ID_TYPE,
+            )
         )
 
-        with self._patch_process_request():
-            attachment = self.mirakl_sc_for_catalog._create_and_fill_csv_file(
-                [self.product1, self.product2]
-            )
-            self.mirakl_sc_for_catalog.post(attachment)
-
+        with self._patch_process_request(self.mirakl_sc_for_catalog):
+            self.mirakl_sc_for_catalog.channel_id._scheduler_export()
             self._check_parameters_test(
                 EXPECTED_OFFER_URL,
                 {
@@ -207,30 +224,3 @@ class TestSProductExporter(common.SetUpMiraklBase):
                 },
                 REQUEST_POST,
             )
-
-    def test_make_pydantic_sale_orders(self):
-        sale_orders = self.mirakl_sc_for_catalog._make_mirakl_sale_order(self.orders)
-        return sale_orders
-
-    @contextmanager
-    def _patch_call_request(self):
-        def _make_sale_orders(
-            self_local,
-            url,
-            headers=None,
-            params=None,
-            data=None,
-            files=None,
-            ignore_result=False,
-            request_type=None,
-        ):
-
-            return {"orders": self.orders}
-
-        self.mirakl_sc_for_product._patch_method("_process_request", _make_sale_orders)
-        yield
-        self.mirakl_sc_for_product._revert_method("_process_request")
-
-    def test_map_data(self):
-        with self._patch_call_request():
-            self.mirakl_sc_for_product._import_sale_orders()

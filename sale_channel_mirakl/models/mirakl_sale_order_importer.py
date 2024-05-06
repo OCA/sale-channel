@@ -1,7 +1,12 @@
 import logging
 from datetime import date, timedelta
+from urllib.parse import urlencode
 
 from odoo import fields, models
+
+from odoo.addons.queue_job.exception import NothingToDoJob
+
+from ..mirakl_mapper.mirakl_sale_order import MiraklSaleOrder
 
 _logger = logging.getLogger(__name__)
 BINDING_MODEL = "sale.order"
@@ -11,6 +16,8 @@ class MiraklSaleOrderImporter(models.AbstractModel):
     _name = "mirakl.sale.order.importer"
     _description = "used to define specific methods for sale orders import"
     _inherit = "mirakl.importer"
+
+    _config = {}
 
     def _preprocess_address_emails(self, mirakl_record):
         billing_partner_obj = mirakl_record.customer.billing_address
@@ -54,52 +61,59 @@ class MiraklSaleOrderImporter(models.AbstractModel):
             "res.partner",
         )
 
-    def build_record(self, sale_channel, external_id, mirakl_sale_order, binding_model):
+    def create_or_update_record(
+        self, sale_channel, external_id, mirakl_sale_order, binding_model
+    ):
         mirakl_sale_order = self._preprocess_address_emails(mirakl_sale_order)
-        mirakl_sale_order = self._order_line_preprocess(
-            mirakl_sale_order
-        )  # order_line_process retourne NONE
+        mirakl_sale_order = self._order_line_preprocess(mirakl_sale_order)
 
-        return self.env["mirakl.importer"].create_or_update_record(
+        return super().create_or_update_record(
             sale_channel, external_id, mirakl_sale_order, binding_model
         )
 
-    def _import_record(
+    def _build_record(
         self, sale_channel, mirakl_sale_order, job_options=None, **kwargs
     ):
-        mirakl_id = mirakl_sale_order.order_id
+        external_id = mirakl_sale_order.order_id
 
         description = "Import sale order {} from Mirakl channel '{}'".format(
-            mirakl_id,
+            external_id,
             sale_channel.channel_id.name,
         )
 
         job_options = job_options or {}
         job_options.update({"description": description})
-        self.with_delay(**job_options or {}).build_record(
-            sale_channel, mirakl_id, mirakl_sale_order, BINDING_MODEL, **kwargs
-        )
+        binding_model = self._config.get("binding_model")
+        try:
+            self.with_delay(**job_options or {}).create_or_update_record(
+                sale_channel, external_id, mirakl_sale_order, binding_model, **kwargs
+            )
+        except NothingToDoJob:
+            _logger.info("Dependency import has been ignored.")
 
     def _call(self, sale_channel, api):
-        url = "{}/{}".format(sale_channel.location, api)
-        headers = {"Authorization": sale_channel.api_key}
+        location = self._config.get("channel_location")
+        channel_api_key = self._config.get("channel_api_key")
+        request_type = self._config.get("request_type")
+
+        url = "{}/{}".format(location, api)
+        headers = {"Authorization": channel_api_key}
         params = {"max": 100}
         return sale_channel._process_request(
-            url, headers=headers, params=params, request_type="get"
+            url, headers=headers, params=params, request_type=request_type
         )
 
-    def get_orders_data_from_mirakl(
-        self, sale_channel, api, from_date=None, to_date=None, state=None
-    ):
+    def import_orders(self, sale_channel, from_date=None, to_date=None, state=None):
         from_date = (
             fields.Date.to_string(date.today() - timedelta(days=1))
             if not from_date
             else from_date
         )
         to_date = fields.Date.to_string(date.today()) if not to_date else to_date
-        api = (
-            f"{api}?start_date={from_date}&end_date={to_date}&order_state_codes={state}"
-        )
+        state = state or "SHIPPING"
+        params = {"start_date": from_date, "end_date": to_date, "state": state}
+        mirakl_orders_api = self._config.get("mirakl_orders_api")
+        api = f"{mirakl_orders_api}?{urlencode(params)}"
         return self._call(sale_channel, api)
 
     def _after_import(self, binding):
@@ -112,26 +126,39 @@ class MiraklSaleOrderImporter(models.AbstractModel):
             shipping_partner.write(data)
         return res
 
+    def _map_orders(self, imported_orders: list):
+        """
+        Build pydantic sales order objects in mirakl format with data imported from mirakl
+        :param orders_data: sales order data imported from Mirakl
+        :return: pydantic sales order list
+        """
+        for order in imported_orders:
+            yield MiraklSaleOrder.make_mirakl_sale_order(order)
+
+    def update_config(self, new_config):
+        self._config.update(new_config)
+
     def _import_sale_orders_batch(self, sale_channel, filters):
+        self.update_config({"mirakl_orders_api": "api/orders"})
+        self.update_config({"channel_api_key": sale_channel.api_key})
+        self.update_config({"channel_location", sale_channel.location})
+        self.update_config({"request_type": "get"})
+        self.update_config({"binding_model": "sale.order"})
 
-        api = "api/orders"
-        filters = filters if filters else {}
-
+        filters = filters or {}
         from_date = filters.pop("from_date", None)
         to_date = filters.pop("to_date", None)
         state = filters.pop("state", "SHIPPING")
-        result = self.get_orders_data_from_mirakl(
-            sale_channel, api, from_date=from_date, to_date=to_date, state=state
+        result = self.import_orders(
+            sale_channel, from_date=from_date, to_date=to_date, state=state
         )
-        orders_data = result["orders"] or []
+        imported_orders = result["orders"] or []
 
-        mirakl_sale_orders = sale_channel._make_mirakl_sale_order(orders_data)
-
-        for mirakl_sale_order in mirakl_sale_orders:
+        for mirakl_sale_order in self._map_orders(imported_orders):
             if not self.env["sale.order"].search_count(
                 [
-                    ("sale_channel_id", "=", sale_channel.channel_id.id),
-                    ("mirakl_id", "=", mirakl_sale_order.order_id),
+                    ("channel_ids", "in", sale_channel.channel_id.id),
+                    ("mirakl_code", "=", mirakl_sale_order.order_id),
                 ]
             ):
-                self._import_record(sale_channel, mirakl_sale_order)
+                self._build_record(sale_channel, mirakl_sale_order)

@@ -1,15 +1,17 @@
 #  Copyright (c) Akretion 2020
 #  License AGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
 
-from odoo import fields, models
+from odoo import Command, models
 
 
 class SaleOrder(models.Model):
-    _inherit = "sale.order"
+    _name = "sale.order"
+    _inherit = [_name, "sale.channel.owner"]
 
-    sale_channel_id = fields.Many2one("sale.channel", ondelete="restrict")
+    # A sale order will only be linked to one and only one sale channel
 
     def _prepare_invoice(self):
         res = super()._prepare_invoice()
-        res["sale_channel_id"] = self.sale_channel_id.id
+        res["channel_ids"] = [Command.set(self.channel_ids.ids)]
+
         return res

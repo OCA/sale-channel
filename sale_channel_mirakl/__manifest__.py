@@ -1,5 +1,3 @@
-# Copyright 2019 Acsone SA/NV
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 {
     "name": "Mirakl Connector",
     "summary": "Module used to connect Odoo to Mirakl",

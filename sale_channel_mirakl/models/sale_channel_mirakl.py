@@ -8,15 +8,15 @@ from datetime import date, datetime, timedelta
 
 import requests
 
-from odoo import _, fields, models
-from odoo.exceptions import UserError
+from odoo import fields, models
 
-from .fastapi_mapper import MiraklOffer, MiraklProduct, MiraklSaleOrder
+from ..mirakl_mapper.mirakl_catalog import MiraklCatalog
+from ..mirakl_mapper.mirakl_offer import MiraklOffer
+from ..mirakl_mapper.mirakl_product import MiraklProduct
 
 _logger = logging.getLogger(__name__)
-
-SALE_ORDER = "sale.order"
-RES_PARTNER = "res.partner"
+DELIMITER = ";"
+MIRAKL_DELAY = 2
 
 
 class SaleChannelMirakl(models.Model):
@@ -35,25 +35,30 @@ class SaleChannelMirakl(models.Model):
     offer_filename = fields.Char(string="Offers File Name", required=True)
     shop_id = fields.Char(string="Shop ID on Mirakl")
 
-    binded_product_ids = fields.Many2many(
-        comodel_name="product.template",
-        relation="product_template_sale_channel_mirakl_rel",
-        column2="product_template_id",
-        column1="sale_channel_id",
-        string="Binded Products",
-    )
-
     data_to_export = fields.Selection(
         selection=[
             ("product", "Product"),
             ("offer", "Offer"),
-            ("both", "Both"),
+            ("catalog", "Catalog"),
         ],
         string="Type of data to Export",
         required=True,
     )
 
+    default_country_id = fields.Many2one(
+        "res.country",
+        string="Default Country",
+        help="This country will be mentionned by default on adresses if no one"
+        " is provided by the marketplace",
+    )
+
     import_orders_from_date = fields.Datetime("Import Orders from Date")
+
+    data_to_import = fields.Selection(
+        selection=[("sale.order", "Sale Order")],
+        default="sale.order",
+        string="Type of data to Import",
+    )
 
     def _get_url(self):
         return "{}/api/".format(self.location)
@@ -64,9 +69,9 @@ class SaleChannelMirakl(models.Model):
         :return: Additional options for the CSV file.
         """
         if self.data_to_export == "offer":
-            return {"import_mode": "NORMAL"}
-        elif self.data_to_export == "both":
-            return {"import_mode": "NORMAL", "with_products": "true"}
+            return MiraklOffer.get_additional_option_for_file()
+        elif self.data_to_export == "catalog":
+            return MiraklCatalog.get_additional_option_for_file()
         else:
             return {}
 
@@ -75,7 +80,7 @@ class SaleChannelMirakl(models.Model):
         The URL suffix (varies depending on the type of data to export)
         :return: url suffix
         """
-        if self.data_to_export == "both":
+        if self.data_to_export == "catalog":
             return "offers/imports"
         return "{}s/imports".format(self.data_to_export)
 
@@ -85,7 +90,7 @@ class SaleChannelMirakl(models.Model):
         (varies depending on the type of data to be exported)
         :return: file name prefix
         """
-        if self.data_to_export == "both":
+        if self.data_to_export == "catalog":
             return ""
         return "{}_".format(self.data_to_export.capitalize())
 
@@ -122,11 +127,8 @@ class SaleChannelMirakl(models.Model):
             return self.generate_header_from_fields(self._get_product_file_header())
         elif self.data_to_export == "offer":
             return self.generate_header_from_fields(self._get_offer_file_header())
-        elif self.data_to_export == "both":
+        elif self.data_to_export == "catalog":
             return self.generate_header_from_fields(self._get_catalog_file_header())
-        else:
-            error = _("The only data type to export can be (product, offer, both)")
-            raise UserError(error)
 
     def _get_http_request(self, request_type):
         if request_type == "post":
@@ -206,48 +208,7 @@ class SaleChannelMirakl(models.Model):
         except Exception as e:
             _logger.error("An error occurred while posting data to Mirakl: %s", e)
 
-    def _map_item(self, item):
-        """
-        Mapping function based on data type
-        :param item: item to map
-        :return: dictionary containing mapped data of the item
-        """
-        if self.data_to_export == "product":
-            mapped_product = MiraklProduct.build_mirakl_product(item)
-            return mapped_product.pydantic_product_model_dump()
-
-        elif self.data_to_export == "offer":
-            mapped_offer = MiraklOffer.build_mirakl_offer(item)
-            return mapped_offer.pydantic_offer_model_dump()
-
-        elif self.data_to_export == "both":
-            mapped_product = MiraklProduct.adapt_to_mirakl_record(item)
-            mapped_offer = MiraklOffer.adapt_to_mirakl_record(item)
-
-            json_product = mapped_product.pydantic_product_model_dump()
-            json_offer = mapped_offer.pydantic_offer_model_dump()
-
-            json_data = {
-                **json_product,
-                **{
-                    key: json_offer[key]
-                    for key in json_offer
-                    if key not in json_product
-                },
-            }
-            return json_data
-        return None
-
-    def _generate_mapped_items(self, items):
-        """
-        Generates mapped items one by one from the product list
-        :param items: products list
-        """
-        for item in items:
-            mapped_item_dict = self._map_item(item)
-            yield mapped_item_dict
-
-    def _create_and_fill_csv_file(self, items):
+    def _create_and_fill_csv_file(self, pydantic_items):
         """
         Method to initialize and populate the export file
         :param items: products list
@@ -258,12 +219,13 @@ class SaleChannelMirakl(models.Model):
         csvfile = io.StringIO()
 
         csv_writer = csv.writer(
-            csvfile, delimiter=";", quoting=csv.QUOTE_ALL, quotechar='"'
+            csvfile, delimiter=DELIMITER, quoting=csv.QUOTE_ALL, quotechar='"'
         )
         csv_writer.writerow(header)
 
-        for mapped_item_dict in self._generate_mapped_items(items):
-            csv_writer.writerow([mapped_item_dict.get(attr, "") for attr in header])
+        for pydantic_item in pydantic_items:
+            pydantic_json = pydantic_item.to_json()
+            csv_writer.writerow([pydantic_json.get(attr, "") for attr in header])
 
         filename_prefix = self._get_filename_prefix()
         filename = "{}{}".format(filename_prefix, self.offer_filename)
@@ -277,14 +239,36 @@ class SaleChannelMirakl(models.Model):
 
         return self.env["ir.attachment"].create(attach_data)
 
-    def _export_data(self, items):
+    def _export_data(self, pydantic_items):
         """
         Super class data export method adapted to Mirakl
         (Export products or offers)
         :param items: items to export.
         """
-        attachment = self._create_and_fill_csv_file(items)
+        self.ensure_one()
+        attachment = self._create_and_fill_csv_file(pydantic_items)
         self.post(attachment)
+
+    def _map_items(self, struct_key, products):
+        """
+
+        :param struct_key: Key word who allows you to define the appropriate
+         mapping function to call
+        :param products: products to map
+        :return: the list of mapped products
+        """
+        self.ensure_one()
+        mapped_products = []
+        mapping = {
+            "product": MiraklProduct,
+            "offer": MiraklOffer,
+            "catalog": MiraklCatalog,
+        }
+        MiraklMapping = mapping.get(struct_key)
+        if MiraklMapping:
+            for product in products:
+                mapped_products.append(MiraklMapping.map_item(self, product))
+        return mapped_products
 
     def _generate_hash_key(self, customer):
         """
@@ -304,15 +288,20 @@ class SaleChannelMirakl(models.Model):
             sale_channel, external_id, binding_model
         )
 
-    def _adapt_filter_for_sale_orders_import(self, filters):
-        # filters = filters or {}
+    def _import_data(self, filters=None):
+        filters = self._adapt_filter(filters)
+        self.env["sale.channel.owner"]._import_batch(self, filters)
+        self.write({"import_orders_from_date": False})
+
+    def _adapt_filter(self, filters):
+        filters = filters or {}
 
         from_date = (
             fields.Date.to_string(
                 fields.Datetime.from_string(self.import_orders_from_date).isoformat()
             )
             if self.import_orders_from_date
-            else fields.Date.to_string(date.today() - timedelta(days=2))
+            else fields.Date.to_string(date.today() - timedelta(days=MIRAKL_DELAY))
         )
         filters.setdefault("from_date", "{}T00:00:00".format(from_date))
 
@@ -329,29 +318,5 @@ class SaleChannelMirakl(models.Model):
         filters.setdefault("state", "SHIPPING")
         return filters
 
-    def _import_sale_orders(self, filters=None):
-        if not filters:
-            filters = {}
-        filters = self._adapt_filter_for_sale_orders_import(filters)
-        self.env["sale.channel.owner"]._import_sale_orders_batch(self, filters)
-        # self.write({"import_orders_from_date": False})
-
-    def _make_mirakl_sale_order(self, orders_data: list):
-        """
-        Build pydantic sales order objects in mirakl format with data imported from mirakl
-        :param orders_data: sales order data imported from Mirakl
-        :return: pydantic sales order list
-        """
-        mirakl_sale_orders = []
-        for order_data in orders_data:
-            mirakl_sale_orders.append(
-                MiraklSaleOrder.make_mirakl_sale_order(order_data)
-            )
-
-        return mirakl_sale_orders
-
     def _map_to_odoo_record(self, mirakl_pydantic_object):
         return mirakl_pydantic_object.odoo_model_dump(self)
-
-    def action_view_binded_products(self):
-        return self.channel_id.action_view_binded_products()

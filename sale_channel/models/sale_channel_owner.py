@@ -31,5 +31,5 @@ class SaleChannelOwner(models.AbstractModel):
         """Hook for customisation when sale channel change"""
 
     @abstractmethod
-    def _import_sale_orders_batch(self, channel_id, filters):
-        pass
+    def _import_batch(self, sale_channel, filters):
+        raise NotImplementedError("Something is missing")
