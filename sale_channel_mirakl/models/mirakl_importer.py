@@ -15,23 +15,10 @@ class MiraklImporter(models.AbstractModel):
         return
 
     def _get_binding(self, sale_channel, external_id, binding_model):
-
-        binding = (
-            self.env[binding_model]
-            .with_context(active_test=False)
-            .search(
-                [
-                    ("mirakl_code", "=", tools.ustr(external_id)),
-                    ("channel_ids", "in", sale_channel.channel_id.id),
-                ],
-                limit=2,
-            )
-        )
-
-        if len(binding) > 1:
-            _logger.warning("there are many records linked to the same mirakl record")
-            binding = fields.first(binding)
-        return binding
+        """
+        returns the odoo object attached to the external object whose id is 'external_id'
+        """
+        raise NotImplementedError("Something is missing here")
 
     def _get_importers(self, model):
         importers = {
@@ -59,21 +46,6 @@ class MiraklImporter(models.AbstractModel):
         return self.env["sale.channel.mirakl"]._map_to_odoo_record(
             mirakl_pydantic_object
         )
-
-    # def _update_data(self, map_record, **kwargs):
-    #     return map_record.values(**kwargs)
-    #
-    # def _update_record(self, binding, data):
-    #     binding.with_context(connector_no_export=True).write(data)
-    #     _logger.debug("%d updated from Mirakl %s", binding, self.mirakl_id)
-    #
-    #
-    #
-    # def _create_odoo_record(self, data, binding_model):
-    #     model = self.env[binding_model].with_context(connector_no_export=True)
-    #     binding = model.create(data)
-    #     _logger.debug("%d created from Mirakl %s", binding, self.mirakl_id)
-    #     return binding
 
     def attach_record(
         self, external_id, binding, binding_model

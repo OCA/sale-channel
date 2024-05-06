@@ -15,9 +15,10 @@ class SaleChannel(models.Model):
     )
 
     max_items_to_export = fields.Integer(
+        default=100,
         help="defines the maximum number of elements that can be exported. "
         "If <=0, we export all the items linked to the channel at once. "
-        "Otherwise, we will do several exports in batches of 'max_items_to_export' each"
+        "Otherwise, we will do several exports in batches of 'max_items_to_export' each",
     )
 
     channel_type = fields.Selection(selection_add=[(MIRAKL, "Mirakl Sale Channel")])
@@ -74,10 +75,10 @@ class SaleChannel(models.Model):
                 struct_to_import.append(record.data_to_import)
         return struct_to_import
 
-    def _job_trigger_import(self, struct_key, filters):
+    def _job_trigger_import(self, struct_key):
         if self.channel_type == MIRAKL:
             mirakl_channel = self.mirakl_channel_ids.filtered(
                 lambda x: x.data_to_import == struct_key
             )
-            return mirakl_channel._import_data(filters)
-        return super()._job_trigger_import(struct_key, filters)
+            return mirakl_channel._import_data(struct_key)
+        return super()._job_trigger_import(struct_key)

@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from .mirakl_json import MiraklJson
 
 
-class MiraklShippingAddress(BaseModel):
+class MiraklShippingAddress(MiraklJson):
     additional_info: str
     city: str
     civility: str

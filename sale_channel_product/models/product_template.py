@@ -6,8 +6,8 @@ from odoo import fields, models
 
 
 class ProductTemplate(models.Model):
-    _inherit = ["product.template", "sale.channel.owner"]
     _name = "product.template"
+    _inherit = [_name, "sale.channel.owner"]
 
     channel_ids = fields.Many2many(
         comodel_name="sale.channel",

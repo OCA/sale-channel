@@ -1,14 +1,13 @@
 from typing import Optional
 
-from pydantic import BaseModel
-
 from odoo import Command
 
 from .mirakl_billing_address import MiraklBillingAddress
+from .mirakl_json import MiraklJson
 from .mirakl_shipping_address import MiraklShippingAddress
 
 
-class MiraklResPartner(BaseModel):
+class MiraklResPartner(MiraklJson):
     billing_address: MiraklBillingAddress
     civility: str = ""
     customer_id: str  # required

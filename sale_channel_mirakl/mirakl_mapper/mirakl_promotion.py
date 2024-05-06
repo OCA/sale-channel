@@ -1,8 +1,8 @@
 from typing import List
 
-from pydantic import BaseModel
+from .mirakl_json import MiraklJson
 
 
-class MiraklPromotion(BaseModel):
+class MiraklPromotion(MiraklJson):
     applied_promotions: List[str]
     total_deduced_amount: float

@@ -4,19 +4,22 @@ import hashlib
 import io
 import logging
 from collections import OrderedDict
-from datetime import date, datetime, timedelta
+from datetime import timedelta
 
 import requests
 
 from odoo import fields, models
 
 from ..mirakl_mapper.mirakl_catalog import MiraklCatalog
+from ..mirakl_mapper.mirakl_json import MiraklJson
 from ..mirakl_mapper.mirakl_offer import MiraklOffer
 from ..mirakl_mapper.mirakl_product import MiraklProduct
 
 _logger = logging.getLogger(__name__)
-DELIMITER = ";"
-MIRAKL_DELAY = 2
+PRODUCT = "product"
+OFFER = "offer"
+CATALOG = "catalog"
+SALE_ORDER = "sale.order"
 
 
 class SaleChannelMirakl(models.Model):
@@ -30,16 +33,15 @@ class SaleChannelMirakl(models.Model):
 
     location = fields.Char(required=True, help="Url to Mirakl application")
     api_key = fields.Char(help="WebService API Key")
-    url = fields.Char(store=True)
 
     offer_filename = fields.Char(string="Offers File Name", required=True)
     shop_id = fields.Char(string="Shop ID on Mirakl")
 
     data_to_export = fields.Selection(
         selection=[
-            ("product", "Product"),
-            ("offer", "Offer"),
-            ("catalog", "Catalog"),
+            (PRODUCT, "Product"),
+            (OFFER, "Offer"),
+            (CATALOG, "Catalog"),
         ],
         string="Type of data to Export",
         required=True,
@@ -55,10 +57,39 @@ class SaleChannelMirakl(models.Model):
     import_orders_from_date = fields.Datetime("Import Orders from Date")
 
     data_to_import = fields.Selection(
-        selection=[("sale.order", "Sale Order")],
-        default="sale.order",
+        selection=[(SALE_ORDER, "Sale Order")],
+        default=SALE_ORDER,
         string="Type of data to Import",
     )
+
+    max_items_to_import = fields.Integer(
+        default=100,
+        help="allows you to define the maximum number of objects "
+        "to import per call. If <=0, import the maximum number possible "
+        "depending on the corresponding data to import",
+    )
+
+    sale_orders_api = fields.Char(
+        default="api/orders", help="Mirakl api key for sale order import"
+    )
+
+    file_delimiter = fields.Char(default=";")
+
+    attachment_delation_day = fields.Integer(
+        default=90,
+        help="Delay in days before attachments created by the channel are deleted",
+    )
+
+    mirakl_delay = fields.Integer(default=2)
+
+    _sql_constraints = [
+        (
+            "check_value",
+            "CHECK(mirakl_delay > 0)",
+            "The mirakl delay responsible for sale orders import "
+            "must be strictly positive",
+        ),
+    ]
 
     def _get_url(self):
         return "{}/api/".format(self.location)
@@ -68,19 +99,25 @@ class SaleChannelMirakl(models.Model):
         Get additional options for the CSV file based on data's type to export.
         :return: Additional options for the CSV file.
         """
-        if self.data_to_export == "offer":
-            return MiraklOffer.get_additional_option_for_file()
-        elif self.data_to_export == "catalog":
-            return MiraklCatalog.get_additional_option_for_file()
+        return self.pydantic_class.get_additional_options()
+
+    @property
+    def pydantic_class(self):
+        if self.data_to_export == PRODUCT:
+            return MiraklProduct
+        elif self.data_to_export == OFFER:
+            return MiraklOffer
+        elif self.data_to_export == CATALOG:
+            return MiraklCatalog
         else:
-            return {}
+            return MiraklJson
 
     def _get_url_suffix(self):
         """
         The URL suffix (varies depending on the type of data to export)
         :return: url suffix
         """
-        if self.data_to_export == "catalog":
+        if self.data_to_export == CATALOG:
             return "offers/imports"
         return "{}s/imports".format(self.data_to_export)
 
@@ -90,7 +127,7 @@ class SaleChannelMirakl(models.Model):
         (varies depending on the type of data to be exported)
         :return: file name prefix
         """
-        if self.data_to_export == "catalog":
+        if self.data_to_export == CATALOG:
             return ""
         return "{}_".format(self.data_to_export.capitalize())
 
@@ -123,12 +160,7 @@ class SaleChannelMirakl(models.Model):
         return list(self._get_header(header_dict))
 
     def _get_file_header(self):
-        if self.data_to_export == "product":
-            return self.generate_header_from_fields(self._get_product_file_header())
-        elif self.data_to_export == "offer":
-            return self.generate_header_from_fields(self._get_offer_file_header())
-        elif self.data_to_export == "catalog":
-            return self.generate_header_from_fields(self._get_catalog_file_header())
+        self.pydantic_class.get_file_header()
 
     def _get_http_request(self, request_type):
         if request_type == "post":
@@ -219,7 +251,7 @@ class SaleChannelMirakl(models.Model):
         csvfile = io.StringIO()
 
         csv_writer = csv.writer(
-            csvfile, delimiter=DELIMITER, quoting=csv.QUOTE_ALL, quotechar='"'
+            csvfile, delimiter=self.file_delimiter, quoting=csv.QUOTE_ALL, quotechar='"'
         )
         csv_writer.writerow(header)
 
@@ -236,8 +268,14 @@ class SaleChannelMirakl(models.Model):
             "res_model": self._name,
             "res_id": self.id,
         }
+        attachment = self.env["ir.attachment"].create(attach_data)
 
-        return self.env["ir.attachment"].create(attach_data)
+        deletion_day = fields.Datetime.now() + timedelta(
+            days=self.attachment_delation_day
+        )
+        self.env["ir.attachment"].with_delay(eta=deletion_day).unlink(attachment)
+
+        return attachment
 
     def _export_data(self, pydantic_items):
         """
@@ -260,13 +298,16 @@ class SaleChannelMirakl(models.Model):
         self.ensure_one()
         mapped_products = []
         mapping = {
-            "product": MiraklProduct,
-            "offer": MiraklOffer,
-            "catalog": MiraklCatalog,
+            PRODUCT: MiraklProduct,
+            OFFER: MiraklOffer,
+            CATALOG: MiraklCatalog,
         }
         MiraklMapping = mapping.get(struct_key)
         if MiraklMapping:
             for product in products:
+                # yield from MiraklMapping.map_item(
+                #     self, product
+                # )
                 mapped_products.append(MiraklMapping.map_item(self, product))
         return mapped_products
 
@@ -288,35 +329,13 @@ class SaleChannelMirakl(models.Model):
             sale_channel, external_id, binding_model
         )
 
-    def _import_data(self, filters=None):
-        filters = self._adapt_filter(filters)
-        self.env["sale.channel.owner"]._import_batch(self, filters)
+    def _import_data(self, struct_key):
+        if struct_key == SALE_ORDER:
+            self.env["mirakl.sale.order.importer"]._import_sale_orders_batch(self)
+        else:
+            return self.channel_id._import_data(self, struct_key)
+
         self.write({"import_orders_from_date": False})
-
-    def _adapt_filter(self, filters):
-        filters = filters or {}
-
-        from_date = (
-            fields.Date.to_string(
-                fields.Datetime.from_string(self.import_orders_from_date).isoformat()
-            )
-            if self.import_orders_from_date
-            else fields.Date.to_string(date.today() - timedelta(days=MIRAKL_DELAY))
-        )
-        filters.setdefault("from_date", "{}T00:00:00".format(from_date))
-
-        now = fields.Datetime.context_timestamp(self, datetime.now())
-        to_date = fields.Date.to_string(now.date())
-        time = now.time()
-        to_date = "{}T{}:{}:59".format(
-            to_date,
-            str(time.hour).zfill(2),
-            str(time.minute).zfill(2),
-        )
-        filters.setdefault("to_date", to_date)
-
-        filters.setdefault("state", "SHIPPING")
-        return filters
 
     def _map_to_odoo_record(self, mirakl_pydantic_object):
         return mirakl_pydantic_object.odoo_model_dump(self)

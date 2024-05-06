@@ -27,12 +27,16 @@ class MiraklOffer(MiraklJson):
         )
 
     @classmethod
-    def get_offers_file_header(cls):
-        return ["sku", "product-id", "product-id-type", "state"]
+    def get_file_header(cls):
+        res = super().get_file_header()
+        res.extend(["sku", "product-id", "product-id-type", "state"])
+        return res
 
     @classmethod
-    def get_additional_option_for_file(cls):
-        return {"import_mode": "NORMAL"}
+    def get_additional_options(cls):
+        res = super().get_additional_options()
+        res.update({"import_mode": "NORMAL"})
+        return res
 
     def to_json(self):
         return {

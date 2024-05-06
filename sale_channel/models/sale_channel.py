@@ -19,16 +19,17 @@ class SaleChannel(models.Model):
 
     @abstractmethod
     def _scheduler_export(self):
-        for struct_key in self._get_struct_to_export():
-            for items in self._get_items_to_export(struct_key):
-                description = "Export {} from {} whose id is {}".format(
-                    items,
-                    self.name,
-                    self.id,
-                )
-                self.with_delay(description=description)._job_trigger_export(
-                    struct_key, items
-                )
+        for record in self:
+            for struct_key in record._get_struct_to_export():
+                for items in record._get_items_to_export(struct_key):
+                    description = "Export {} from {} whose id is {}".format(
+                        items,
+                        record.name,
+                        record.id,
+                    )
+                    record.with_delay(description=description)._job_trigger_export(
+                        struct_key, items
+                    )
 
     def _job_trigger_export(self, struct_key, items):
         """
@@ -70,19 +71,23 @@ class SaleChannel(models.Model):
         raise NotImplementedError("Something is missing")
 
     @abstractmethod
-    def _scheduler_import(self, filters=None):
-        for struct_key in self._get_struct_to_import():
-            description = "Import {} from {} whose id is {}".format(
-                struct_key,
-                self.name,
-                self.id,
-            )
-            self.with_delay(description=description)._job_trigger_import(
-                struct_key, filters
-            )
+    def _scheduler_import(self):
+        for record in self:
+            for struct_key in record._get_struct_to_import():
+                description = "Import {} from {} whose id is {}".format(
+                    struct_key,
+                    record.name,
+                    record.id,
+                )
+                record.with_delay(description=description)._job_trigger_import(
+                    struct_key
+                )
 
     def _get_struct_to_import(self):
         return []
 
-    def _job_trigger_import(self, struct_key, filters):
+    def _job_trigger_import(self, struct_key):
         raise NotImplementedError("Something is missing")
+
+    def _import_data(self, struct_key):
+        raise NotImplementedError("Nothing found to import")

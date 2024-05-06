@@ -4,8 +4,11 @@ from io import StringIO
 
 from odoo.tests import common
 
+from ..models.sale_channel import MIRAKL
+
 MIRAKL_CODE1 = "29491209"
 MIRAKL_CODE2 = "29182572"
+OFFER_FILE_NAME = "offers.csv"
 
 
 class SetUpMiraklBase(common.TransactionCase):
@@ -36,16 +39,16 @@ class SetUpMiraklBase(common.TransactionCase):
         cls.sale_channel_2 = cls.env["sale.channel"].create(
             {
                 "name": "Super sale channel offer",
-                "channel_type": "mirakl",
-                "max_items_to_export": 2,
+                "channel_type": MIRAKL,
+                "max_items_to_export": 6,
             }
         )
 
         cls.sale_channel_3 = cls.env["sale.channel"].create(
             {
                 "name": "Super sale channel catalog",
-                "channel_type": "mirakl",
-                "max_items_to_export": 2,
+                "channel_type": MIRAKL,
+                "max_items_to_export": 20,
             }
         )
 
@@ -54,7 +57,7 @@ class SetUpMiraklBase(common.TransactionCase):
                 "channel_id": cls.sale_channel_1.id,
                 "location": "http://anyurl.com",
                 "api_key": "azerty",
-                "offer_filename": "offers.csv",
+                "offer_filename": OFFER_FILE_NAME,
                 "shop_id": "11",
                 "data_to_export": "product",
             }
@@ -65,7 +68,7 @@ class SetUpMiraklBase(common.TransactionCase):
                 "channel_id": cls.sale_channel_2.id,
                 "location": "http://anyurl.com",
                 "api_key": "azerty",
-                "offer_filename": "offers.csv",
+                "offer_filename": OFFER_FILE_NAME,
                 "shop_id": "25",
                 "data_to_export": "offer",
             }
@@ -76,7 +79,7 @@ class SetUpMiraklBase(common.TransactionCase):
                 "channel_id": cls.sale_channel_3.id,
                 "location": "http://anyurl.com",
                 "api_key": "azerty",
-                "offer_filename": "offers.csv",
+                "offer_filename": OFFER_FILE_NAME,
                 "shop_id": "25",
                 "data_to_export": "catalog",
             }
@@ -158,6 +161,23 @@ class SetUpMiraklBase(common.TransactionCase):
                 "barcode": "4004764782703",
                 "description": "A smart description",
                 "list_price": 40.59,
+            }
+        )
+
+        cls.sale_channel_4 = cls.env["sale.channel"].create(
+            {
+                "name": "Super channel import sale order",
+                "channel_type": MIRAKL,
+            }
+        )
+        cls.mirakl_sc_import = cls.env["sale.channel.mirakl"].create(
+            {
+                "channel_id": cls.sale_channel_4.id,
+                "location": "http://anyurl.com",
+                "api_key": "azerty",
+                "offer_filename": OFFER_FILE_NAME,
+                "shop_id": "237",
+                "data_to_export": "product",
             }
         )
 

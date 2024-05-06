@@ -10,3 +10,11 @@ class MiraklJson(BaseModel):
         Allow
         :return:
         """
+
+    @classmethod
+    def get_file_header(cls):
+        return []
+
+    @classmethod
+    def get_additional_options(cls):
+        return {}

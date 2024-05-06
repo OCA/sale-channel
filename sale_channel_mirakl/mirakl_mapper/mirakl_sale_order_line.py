@@ -1,11 +1,10 @@
 from typing import List
 
-from pydantic import BaseModel
-
 from .mirakl_commission_tax import MiraklCommissionTax
+from .mirakl_json import MiraklJson
 
 
-class MiraklSaleOrderLine(BaseModel):
+class MiraklSaleOrderLine(MiraklJson):
     can_refund: str
     cancelations: List[str]
     category_code: str

@@ -224,3 +224,7 @@ class TestProductOfferExporter(common.SetUpMiraklBase):
                 },
                 REQUEST_POST,
             )
+
+    def test_temp(self):
+        struct_keys = self.mirakl_sc_import.channel_id._scheduler_import()
+        return struct_keys

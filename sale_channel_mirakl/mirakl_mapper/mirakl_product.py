@@ -31,14 +31,18 @@ class MiraklProduct(MiraklJson):
         )
 
     @classmethod
-    def get_products_file_header(cls):
-        return [
-            "sku",
-            "ean",
-            "PRODUCT_TITLE",
-            "PRODUCT_DESCRIPTION",
-            "PRODUCT_CAT_CODE",
-        ]
+    def get_file_header(cls):
+        res = super().get_file_header()
+        res.extend(
+            [
+                "sku",
+                "ean",
+                "PRODUCT_TITLE",
+                "PRODUCT_DESCRIPTION",
+                "PRODUCT_CAT_CODE",
+            ]
+        )
+        return res
 
     def to_json(self):
         return {

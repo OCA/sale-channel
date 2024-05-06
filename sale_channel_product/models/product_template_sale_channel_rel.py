@@ -4,7 +4,7 @@ from odoo import fields, models
 class ProductTemplateSaleChannelRel(models.Model):
     _name = "product.template.sale.channel.rel"
     _table = "product_template_sale_channel_rel"
-    _description = "Product Template Sale Channel Relation"
+    _description = "Product template sale channel Relation"
 
     sale_channel_id = fields.Many2one("sale.channel", string="Sale Channel")
 

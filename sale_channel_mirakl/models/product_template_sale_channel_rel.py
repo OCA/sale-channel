@@ -1,7 +1,6 @@
-from odoo import fields, models
+from odoo import models
 
 
 class ProductTemplateSaleChannelRel(models.Model):
-    _inherit = "product.template.sale.channel.rel"
-
-    mirakl_code = fields.Char()
+    _name = "product.template.sale.channel.rel"
+    _inherit = ["sale.channel.relation", _name]

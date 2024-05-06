@@ -2,16 +2,16 @@ from typing import List
 
 import dateutil.parser
 import pytz
-from pydantic import BaseModel
 
 from odoo import Command
 
+from .mirakl_json import MiraklJson
 from .mirakl_promotion import MiraklPromotion
 from .mirakl_res_partner import MiraklResPartner
 from .mirakl_sale_order_line import MiraklSaleOrderLine
 
 
-class MiraklSaleOrder(BaseModel):
+class MiraklSaleOrder(MiraklJson):
 
     acceptance_decision_date: str
     can_cancel: str

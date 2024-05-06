@@ -37,8 +37,27 @@ class MiraklCatalog(MiraklJson):
         )
 
     @classmethod
-    def get_additional_option_for_file(cls):
-        return {"import_mode": "NORMAL", "with_products": "true"}
+    def get_file_header(cls):
+        res = super().get_file_header()
+        res.extend(
+            [
+                "sku",
+                "ean",
+                "PRODUCT_TITLE",
+                "PRODUCT_DESCRIPTION",
+                "PRODUCT_CAT_CODE",
+                "product-id",
+                "product-id-type",
+                "state",
+            ]
+        )
+        return res
+
+    @classmethod
+    def get_additional_options(cls):
+        res = super().get_additional_options()
+        res.update({"import_mode": "NORMAL", "with_products": "true"})
+        return res
 
     def to_json(self):
         return {

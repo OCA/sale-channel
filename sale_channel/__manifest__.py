@@ -7,7 +7,7 @@
     "category": "Generic Modules/Sale",
     "author": "Akretion, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/sale-channel",
-    "depends": ["sale_management"],
+    "depends": ["sale_management", "queue_job"],
     "license": "AGPL-3",
     "data": [
         "security/ir.model.access.csv",

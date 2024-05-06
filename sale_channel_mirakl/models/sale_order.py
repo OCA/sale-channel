@@ -1,8 +1,6 @@
-from odoo import fields, models
+from odoo import models
 
 
 class SaleOrder(models.Model):
     _name = "sale.order"
-    _inherit = ["mirakl.binding", _name]
-
-    mirakl_code = fields.Char()
+    _inherit = ["mirakl.binding", "sale.channel.relation", _name]

@@ -11,11 +11,10 @@
     "depends": [
         # OCA
         "sale_channel_product",
-        "queue_job",
     ],
     "data": [
         "security/ir.model.access.csv",
-        "views/sale_channel_mirakl_v2.xml",
+        "views/sale_channel_mirakl.xml",
         "views/menu_sale_channel_mirakl.xml",
     ],
 }
