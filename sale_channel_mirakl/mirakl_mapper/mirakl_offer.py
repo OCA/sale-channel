@@ -1,7 +1,7 @@
-from .mirakl_json import MiraklJson
+from .mirakl_export_mapper import MiraklExportMapper
 
 
-class MiraklOffer(MiraklJson):
+class MiraklOffer(MiraklExportMapper):
 
     sku: str
     product_id: str

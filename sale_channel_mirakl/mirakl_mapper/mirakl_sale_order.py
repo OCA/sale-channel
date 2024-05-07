@@ -5,13 +5,15 @@ import pytz
 
 from odoo import Command
 
-from .mirakl_json import MiraklJson
+from .mirakl_import_mapper import MiraklImportMapper
 from .mirakl_promotion import MiraklPromotion
 from .mirakl_res_partner import MiraklResPartner
 from .mirakl_sale_order_line import MiraklSaleOrderLine
 
 
-class MiraklSaleOrder(MiraklJson):
+class MiraklSaleOrder(MiraklImportMapper):
+    _odoo_model = "sale.order"
+    _identity_key = "order_id"
 
     acceptance_decision_date: str
     can_cancel: str
@@ -125,3 +127,6 @@ class MiraklSaleOrder(MiraklJson):
             # "pricelit_id": self._get_pricelist_id(),
             "channel_ids": [Command.link(mirakl_channel.channel_id.id)],
         }
+
+    def to_json(self):
+        return self.model_dump()

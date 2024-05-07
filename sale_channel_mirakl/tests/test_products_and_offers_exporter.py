@@ -225,6 +225,26 @@ class TestProductOfferExporter(common.SetUpMiraklBase):
                 REQUEST_POST,
             )
 
-    def test_temp(self):
-        struct_keys = self.mirakl_sc_import.channel_id._scheduler_import()
-        return struct_keys
+    @contextmanager
+    def _patch_call_request(self, sale_channel):
+        def _sub_function(
+            self_local,
+            url,
+            headers=None,
+            params=None,
+            data=None,
+            files=None,
+            ignore_result=False,
+            request_type=None,
+        ):
+
+            return self.mirakl_response
+
+        sale_channel._patch_method("_process_request", _sub_function)
+        yield
+        sale_channel._revert_method("_process_request")
+
+    def test_so_import(self):
+        with self._patch_call_request(self.mirakl_sc_import):
+            headers = self.mirakl_sc_import.channel_id._scheduler_import()
+            return headers

@@ -1,8 +1,11 @@
 from typing import List
 
-from .mirakl_json import MiraklJson
+from .mirakl_import_mapper import MiraklImportMapper
 
 
-class MiraklPromotion(MiraklJson):
+class MiraklPromotion(MiraklImportMapper):
     applied_promotions: List[str]
     total_deduced_amount: float
+
+    def to_json(self):
+        return self.model_dump()

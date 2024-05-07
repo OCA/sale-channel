@@ -1,7 +1,7 @@
-from .mirakl_json import MiraklJson
+from .mirakl_import_mapper import MiraklImportMapper
 
 
-class MiraklCommissionTax(MiraklJson):
+class MiraklCommissionTax(MiraklImportMapper):
     amount: float
     code: str
     rate: float

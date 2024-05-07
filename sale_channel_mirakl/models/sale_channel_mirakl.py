@@ -1,6 +1,5 @@
 import base64
 import csv
-import hashlib
 import io
 import logging
 from collections import OrderedDict
@@ -11,7 +10,7 @@ import requests
 from odoo import fields, models
 
 from ..mirakl_mapper.mirakl_catalog import MiraklCatalog
-from ..mirakl_mapper.mirakl_json import MiraklJson
+from ..mirakl_mapper.mirakl_export_mapper import MiraklExportMapper
 from ..mirakl_mapper.mirakl_offer import MiraklOffer
 from ..mirakl_mapper.mirakl_product import MiraklProduct
 
@@ -76,7 +75,7 @@ class SaleChannelMirakl(models.Model):
     file_delimiter = fields.Char(default=";")
 
     attachment_delation_day = fields.Integer(
-        default=90,
+        default=7,
         help="Delay in days before attachments created by the channel are deleted",
     )
 
@@ -110,7 +109,7 @@ class SaleChannelMirakl(models.Model):
         elif self.data_to_export == CATALOG:
             return MiraklCatalog
         else:
-            return MiraklJson
+            return MiraklExportMapper
 
     def _get_url_suffix(self):
         """
@@ -160,7 +159,7 @@ class SaleChannelMirakl(models.Model):
         return list(self._get_header(header_dict))
 
     def _get_file_header(self):
-        self.pydantic_class.get_file_header()
+        return self.pydantic_class.get_file_header()
 
     def _get_http_request(self, request_type):
         if request_type == "post":
@@ -270,10 +269,13 @@ class SaleChannelMirakl(models.Model):
         }
         attachment = self.env["ir.attachment"].create(attach_data)
 
-        deletion_day = fields.Datetime.now() + timedelta(
-            days=self.attachment_delation_day
-        )
-        self.env["ir.attachment"].with_delay(eta=deletion_day).unlink(attachment)
+        # deletion_day = fields.Datetime.now() + timedelta(
+        #     days=self.attachment_delation_day
+        # )
+        #
+        # attachment.with_delay(eta=deletion_day).unlink() Currently, I have to
+        # comment because having skipped the execution of the jobs for my tests,
+        # the attachment is deleted before being returned
 
         return attachment
 
@@ -305,24 +307,11 @@ class SaleChannelMirakl(models.Model):
         MiraklMapping = mapping.get(struct_key)
         if MiraklMapping:
             for product in products:
-                # yield from MiraklMapping.map_item(
+                # yield MiraklMapping.map_item(
                 #     self, product
                 # )
                 mapped_products.append(MiraklMapping.map_item(self, product))
         return mapped_products
-
-    def _generate_hash_key(self, customer):
-        """
-        This method is used to generate a key from customer not identified
-        on Mirakl.
-        The connector will generate one based on select data such as name,
-        and city. Used principally when the is imported
-        """
-        hashtring = "".join([customer.firstname, customer.lastname, customer.city])
-        if not hashtring:
-            return False
-        hash_object = hashlib.sha1(hashtring.encode("utf8"))
-        return hash_object.hexdigest()
 
     def _get_binding(self, sale_channel, external_id, binding_model):
         return self.env["mirakl_importer"]._get_binding(
@@ -332,10 +321,10 @@ class SaleChannelMirakl(models.Model):
     def _import_data(self, struct_key):
         if struct_key == SALE_ORDER:
             self.env["mirakl.sale.order.importer"]._import_sale_orders_batch(self)
+            self.write({"import_orders_from_date": False})
+            return None
         else:
             return self.channel_id._import_data(self, struct_key)
-
-        self.write({"import_orders_from_date": False})
 
     def _map_to_odoo_record(self, mirakl_pydantic_object):
         return mirakl_pydantic_object.odoo_model_dump(self)

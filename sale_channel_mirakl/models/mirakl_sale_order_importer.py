@@ -55,25 +55,20 @@ class MiraklSaleOrderImporter(models.AbstractModel):
         billing_partner_obj.customer_notification_email = (
             record.customer_notification_email
         )
-        partner_mirakl_id = record.customer.customer_id
-        self._build_dependency(
+
+        super()._build_dependencies(
             sale_channel,
-            partner_mirakl_id + "_billing",
             billing_partner_obj,
-            "res.partner",
         )
         shipping_partner_obj = record.customer.shipping_address
         shipping_partner_obj.shipping_zone_code = record.shipping_zone_code
-        self._build_dependency(
+
+        super()._build_dependencies(
             sale_channel,
-            partner_mirakl_id + "_shipping",
             shipping_partner_obj,
-            "res.partner",
         )
 
-    def create_or_update_record(
-        self, sale_channel, external_id, mirakl_sale_order, binding_model
-    ):
+    def create_or_update_record(self, sale_channel, mirakl_sale_order, recursion=False):
         """
 
         :param sale_channel:
@@ -82,14 +77,15 @@ class MiraklSaleOrderImporter(models.AbstractModel):
         :param binding_model:
         :return:
         """
-        mirakl_sale_order = self._preprocess_address_emails(mirakl_sale_order)
-        mirakl_sale_order = self._order_line_preprocess(mirakl_sale_order)
+        if not recursion:
+            mirakl_sale_order = self._preprocess_address_emails(mirakl_sale_order)
+            mirakl_sale_order = self._order_line_preprocess(mirakl_sale_order)
 
         return super().create_or_update_record(
-            sale_channel, external_id, mirakl_sale_order, binding_model
+            sale_channel, mirakl_sale_order, recursion=recursion
         )
 
-    def _build_record(self, sale_channel, mirakl_sale_order, **kwargs):
+    def _build_record(self, sale_channel, mirakl_sale_order):
         """
 
         :param sale_channel:
@@ -98,11 +94,8 @@ class MiraklSaleOrderImporter(models.AbstractModel):
         :param kwargs:
         :return:
         """
-        external_id = mirakl_sale_order.order_id
 
-        self.create_or_update_record(
-            sale_channel, external_id, mirakl_sale_order, "sale.order", **kwargs
-        )
+        self.create_or_update_record(sale_channel, mirakl_sale_order)
 
     def _call(self, sale_channel, api):
         """
@@ -116,7 +109,10 @@ class MiraklSaleOrderImporter(models.AbstractModel):
 
         url = "{}/{}".format(location, api)
         headers = {"Authorization": channel_api_key}
-        params = {"max": sale_channel.max_items_to_import}
+        params = {}
+        if sale_channel.max_items_to_import > 0:
+            params.update({"max": sale_channel.max_items_to_import})
+
         return sale_channel._process_request(
             url, headers=headers, params=params, request_type="get"
         )
@@ -199,19 +195,27 @@ class MiraklSaleOrderImporter(models.AbstractModel):
         filters.setdefault("state", "SHIPPING")
         return filters
 
-    def _get_binding(self, sale_channel, external_id, binding_model):
-        binding = self.env[binding_model].search(
-            [
-                ("mirakl_code", "=", tools.ustr(external_id)),
-                ("channel_ids", "in", sale_channel.channel_id.id),
-            ],
-            limit=2,
-        )
+    def _get_binding(self, sale_channel, mirakl_record):
+        external_id = mirakl_record.get_key()
+        binding_model = mirakl_record._odoo_model
 
-        if len(binding) > 1:
-            _logger.warning("there are many records linked to the same mirakl record")
-            binding = fields.first(binding)
-        return binding
+        if binding_model == "sale.order":
+            binding = self.env[binding_model].search(
+                [
+                    ("mirakl_code", "=", tools.ustr(external_id)),
+                    ("channel_ids", "in", sale_channel.channel_id.id),
+                ],
+                limit=2,
+            )
+
+            if len(binding) > 1:
+                _logger.warning(
+                    "there are many records linked to the same mirakl record"
+                )
+                binding = fields.first(binding)
+            return binding
+        else:
+            return super()._get_binding(sale_channel, mirakl_record)
 
     def _import_sale_orders_batch(self, sale_channel, filters=None):
         """
@@ -233,6 +237,7 @@ class MiraklSaleOrderImporter(models.AbstractModel):
 
         for mirakl_sale_order in self._map_orders(imported_orders):
             if not self._get_binding(
-                sale_channel, mirakl_sale_order.order_id, "sale.order"
+                sale_channel,
+                mirakl_sale_order,
             ):
-                self._build_record(sale_channel, mirakl_sale_order)
+                self.create_or_update_record(sale_channel, mirakl_sale_order)

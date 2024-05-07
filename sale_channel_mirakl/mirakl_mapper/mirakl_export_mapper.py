@@ -3,7 +3,10 @@ from abc import abstractmethod
 from pydantic import BaseModel
 
 
-class MiraklJson(BaseModel):
+class MiraklExportMapper(BaseModel):
+    def get_key(self):
+        return getattr(self, self._identity_key, "")
+
     @abstractmethod
     def to_json(self):
         """

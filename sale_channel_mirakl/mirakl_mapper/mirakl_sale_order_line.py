@@ -1,10 +1,10 @@
 from typing import List
 
 from .mirakl_commission_tax import MiraklCommissionTax
-from .mirakl_json import MiraklJson
+from .mirakl_import_mapper import MiraklImportMapper
 
 
-class MiraklSaleOrderLine(MiraklJson):
+class MiraklSaleOrderLine(MiraklImportMapper):
     can_refund: str
     cancelations: List[str]
     category_code: str
@@ -48,3 +48,6 @@ class MiraklSaleOrderLine(MiraklJson):
     @classmethod
     def build_mirakl_sale_order_line(cls, data: dict):
         return cls(**data)
+
+    def to_json(self):
+        return self.model_dump()

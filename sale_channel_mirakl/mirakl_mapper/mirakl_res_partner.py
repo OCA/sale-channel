@@ -3,11 +3,14 @@ from typing import Optional
 from odoo import Command
 
 from .mirakl_billing_address import MiraklBillingAddress
-from .mirakl_json import MiraklJson
+from .mirakl_import_mapper import MiraklImportMapper
 from .mirakl_shipping_address import MiraklShippingAddress
 
 
-class MiraklResPartner(MiraklJson):
+class MiraklResPartner(MiraklImportMapper):
+    _odoo_model = "res.partner"
+    _identity_key = "customer_id"
+
     billing_address: MiraklBillingAddress
     civility: str = ""
     customer_id: str  # required
@@ -19,9 +22,15 @@ class MiraklResPartner(MiraklJson):
     company: str = None
     country_iso_code: Optional[str] = None
 
-    @classmethod
-    def build_mirakl_customer(cls, data: dict):
-        return cls(**data)
+    def __init__(self, **kwargs):
+        billing_address = kwargs.get("billing_address", {})
+        billing_address["customer_id"] = kwargs.get("customer_id", "") + "_billing"
+        kwargs["billing_address"] = billing_address
+
+        shipping_address = kwargs.get("shipping_address", {})
+        shipping_address["customer_id"] = kwargs.get("customer_id", "") + "_shipping"
+        kwargs["shipping_address"] = shipping_address
+        super().__init__(**kwargs)
 
     def build_name(self):
         name = (
@@ -56,3 +65,6 @@ class MiraklResPartner(MiraklJson):
             "channel_ids": [Command.link(mirakl_channel.channel_id.id)],
             "is_from_mirakl": True,
         }
+
+    def to_json(self):
+        return self.model_dump()

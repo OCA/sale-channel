@@ -1,19 +1,7 @@
-from .mirakl_json import MiraklJson
+from .mirakl_import_mapper import MiraklImportMapper
+from .mirakl_partner_address import MiraklPartnerAddress
 
 
-class MiraklShippingAddress(MiraklJson):
+class MiraklShippingAddress(MiraklImportMapper, MiraklPartnerAddress):
+
     additional_info: str
-    city: str
-    civility: str
-    company: str
-    country: str
-    country_iso_code: str | None
-    firstname: str
-    lastname: str
-    phone: str
-    phone_secondary: str
-    state: str
-    street_1: str
-    street_2: str
-    zip_code: str
-    email: str = ""
