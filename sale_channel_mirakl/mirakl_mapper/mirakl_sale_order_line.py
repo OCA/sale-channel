@@ -48,6 +48,3 @@ class MiraklSaleOrderLine(MiraklImportMapper):
     @classmethod
     def build_mirakl_sale_order_line(cls, data: dict):
         return cls(**data)
-
-    def to_json(self):
-        return self.model_dump()

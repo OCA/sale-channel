@@ -3,7 +3,6 @@ import csv
 import io
 import logging
 from collections import OrderedDict
-from datetime import timedelta
 
 import requests
 
@@ -289,6 +288,30 @@ class SaleChannelMirakl(models.Model):
         attachment = self._create_and_fill_csv_file(pydantic_items)
         self.post(attachment)
 
+    # def _map_items(self, struct_key, products):
+    #     """
+    #
+    #     :param struct_key: Key word who allows you to define the appropriate
+    #      mapping function to call
+    #     :param products: products to map
+    #     :return: the list of mapped products
+    #     """
+    #     self.ensure_one()
+    #     mapped_products = []
+    #     mapping = {
+    #         PRODUCT: MiraklProduct,
+    #         OFFER: MiraklOffer,
+    #         CATALOG: MiraklCatalog,
+    #     }
+    #     MiraklMapping = mapping.get(struct_key)
+    #     if MiraklMapping:
+    #         for product in products:
+    #             # yield MiraklMapping.map_item(
+    #             #     self, product
+    #             # )
+    #             mapped_products.append(MiraklMapping.map_item(self, product))
+    #     return mapped_products
+
     def _map_items(self, struct_key, products):
         """
 
@@ -298,7 +321,6 @@ class SaleChannelMirakl(models.Model):
         :return: the list of mapped products
         """
         self.ensure_one()
-        mapped_products = []
         mapping = {
             PRODUCT: MiraklProduct,
             OFFER: MiraklOffer,
@@ -307,16 +329,7 @@ class SaleChannelMirakl(models.Model):
         MiraklMapping = mapping.get(struct_key)
         if MiraklMapping:
             for product in products:
-                # yield MiraklMapping.map_item(
-                #     self, product
-                # )
-                mapped_products.append(MiraklMapping.map_item(self, product))
-        return mapped_products
-
-    def _get_binding(self, sale_channel, external_id, binding_model):
-        return self.env["mirakl_importer"]._get_binding(
-            sale_channel, external_id, binding_model
-        )
+                yield MiraklMapping.map_item(self, product)
 
     def _import_data(self, struct_key):
         if struct_key == SALE_ORDER:
@@ -325,6 +338,3 @@ class SaleChannelMirakl(models.Model):
             return None
         else:
             return self.channel_id._import_data(self, struct_key)
-
-    def _map_to_odoo_record(self, mirakl_pydantic_object):
-        return mirakl_pydantic_object.odoo_model_dump(self)

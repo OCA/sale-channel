@@ -4,6 +4,7 @@ import logging
 from odoo import fields, models, tools
 
 from ..mirakl_mapper.mirakl_billing_address import MiraklBillingAddress
+from ..mirakl_mapper.mirakl_customer import MiraklCustomer
 from ..mirakl_mapper.mirakl_sale_order import MiraklSaleOrder
 from ..mirakl_mapper.mirakl_shipping_address import MiraklShippingAddress
 
@@ -17,17 +18,16 @@ class MiraklImporter(models.AbstractModel):
     def _build_dependencies(self, sale_channel, mirakl_record):
 
         importer_name = self._get_importers().get(type(mirakl_record))
+        if not importer_name or importer_name == self._name:
+            return None
         importer = self.env[importer_name]
-
         try:
             binding = importer._get_binding(sale_channel, mirakl_record)
         except NotImplementedError:
             binding = None
 
         if not binding:
-            importer.create_or_update_record(
-                sale_channel, mirakl_record, recursion=True
-            )
+            importer.create_or_update_record(sale_channel, mirakl_record)
         return None
 
     def _get_binding(self, sale_channel, mirakl_record):
@@ -38,20 +38,19 @@ class MiraklImporter(models.AbstractModel):
 
     def _get_importers(self):
         importers = {
+            MiraklCustomer: "mirakl.customer.importer",
             MiraklBillingAddress: "mirakl.res.partner.importer",
             MiraklShippingAddress: "mirakl.res.partner.importer",
             MiraklSaleOrder: "mirakl.sale.order.importer",
         }
         return importers
 
-    def _map_record(self, mirakl_pydantic_object):
-        return self.env["sale.channel.mirakl"]._map_to_odoo_record(
-            mirakl_pydantic_object
-        )
+    def _map_record(self, sale_channel, mirakl_record):
+        return mirakl_record.odoo_model_dump(sale_channel)
 
     def attach_record(
         self, external_id, binding, binding_model
-    ):  # from odoo.addons.connector.components.binder.py
+    ):  # from odoo.addons.connector.components.binder.py (bind())
         """Create the link between an external ID and an Odoo ID
 
         :param external_id: external id to bind
@@ -94,32 +93,32 @@ class MiraklImporter(models.AbstractModel):
         hash_object = hashlib.sha1(hashtring.encode("utf8"))
         return hash_object.hexdigest()
 
-    def create_or_update_record(self, sale_channel, mirakl_record, recursion=False):
+    def create_or_update_record(self, sale_channel, mirakl_record):
         """
 
         :param mirakl_id: identifier of the record on Mirakl
-        :param mirakl_data: data of the record on Mirakl
+        :param mirakl_record: the record who comes from Mirakl
         """
-        if not recursion:
-            mirakl_id = mirakl_record.get_key()
-            binding_model = mirakl_record._odoo_model
-            if not mirakl_id:
-                mirakl_id = self._generate_hash_key(mirakl_record)
 
-            self._build_dependencies(sale_channel, mirakl_record)
-        mapped_record = self._map_record(mirakl_record)
+        mirakl_id = mirakl_record.get_key()
+        binding_model = mirakl_record._odoo_model
+        if not mirakl_id:
+            mirakl_id = self._generate_hash_key(mirakl_record)
+
+        self._build_dependencies(sale_channel, mirakl_record)
 
         try:
-            binding = self._get_binding(sale_channel, mirakl_id, binding_model)
+            binding = self._get_binding(sale_channel, mirakl_record)
         except NotImplementedError:
             binding = None
+        odoo_data = self._map_record(sale_channel, mirakl_record)
 
         if binding:
-            record = self._update_data(mapped_record)
+            record = self._update_data(odoo_data)
             self._update_record(binding, record)
         else:
 
-            binding = self._create_odoo_record(mapped_record, binding_model)
+            binding = self._create_odoo_record(odoo_data, binding_model)
 
         self.attach_record(mirakl_id, binding, binding_model)
         self._after_import(binding)

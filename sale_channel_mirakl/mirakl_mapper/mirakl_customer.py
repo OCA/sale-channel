@@ -7,7 +7,7 @@ from .mirakl_import_mapper import MiraklImportMapper
 from .mirakl_shipping_address import MiraklShippingAddress
 
 
-class MiraklResPartner(MiraklImportMapper):
+class MiraklCustomer(MiraklImportMapper):
     _odoo_model = "res.partner"
     _identity_key = "customer_id"
 
@@ -65,6 +65,3 @@ class MiraklResPartner(MiraklImportMapper):
             "channel_ids": [Command.link(mirakl_channel.channel_id.id)],
             "is_from_mirakl": True,
         }
-
-    def to_json(self):
-        return self.model_dump()

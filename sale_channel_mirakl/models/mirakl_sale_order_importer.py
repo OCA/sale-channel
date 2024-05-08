@@ -51,24 +51,22 @@ class MiraklSaleOrderImporter(models.AbstractModel):
         :return:
         """
         record = mirakl_record
-        billing_partner_obj = record.customer.billing_address
-        billing_partner_obj.customer_notification_email = (
+        customer = record.customer
+        importer_customer_name = self._get_importers().get(type(customer))
+        importer_customer = self.env[importer_customer_name]
+        importer_customer._build_dependencies(
+            sale_channel,
+            customer,
+        )
+        res = super()._build_dependencies(sale_channel, mirakl_record)
+        customer.billing_address.customer_notification_email = (
             record.customer_notification_email
         )
 
-        super()._build_dependencies(
-            sale_channel,
-            billing_partner_obj,
-        )
-        shipping_partner_obj = record.customer.shipping_address
-        shipping_partner_obj.shipping_zone_code = record.shipping_zone_code
+        customer.shipping_address.shipping_zone_code = record.shipping_zone_code
+        return res
 
-        super()._build_dependencies(
-            sale_channel,
-            shipping_partner_obj,
-        )
-
-    def create_or_update_record(self, sale_channel, mirakl_sale_order, recursion=False):
+    def create_or_update_record(self, sale_channel, mirakl_sale_order):
         """
 
         :param sale_channel:
@@ -77,25 +75,11 @@ class MiraklSaleOrderImporter(models.AbstractModel):
         :param binding_model:
         :return:
         """
-        if not recursion:
-            mirakl_sale_order = self._preprocess_address_emails(mirakl_sale_order)
-            mirakl_sale_order = self._order_line_preprocess(mirakl_sale_order)
 
-        return super().create_or_update_record(
-            sale_channel, mirakl_sale_order, recursion=recursion
-        )
+        mirakl_sale_order = self._preprocess_address_emails(mirakl_sale_order)
+        mirakl_sale_order = self._order_line_preprocess(mirakl_sale_order)
 
-    def _build_record(self, sale_channel, mirakl_sale_order):
-        """
-
-        :param sale_channel:
-        :param mirakl_sale_order:
-        :param job_options:
-        :param kwargs:
-        :return:
-        """
-
-        self.create_or_update_record(sale_channel, mirakl_sale_order)
+        return super().create_or_update_record(sale_channel, mirakl_sale_order)
 
     def _call(self, sale_channel, api):
         """

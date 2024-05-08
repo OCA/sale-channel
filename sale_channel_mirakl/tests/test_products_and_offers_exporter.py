@@ -246,5 +246,5 @@ class TestProductOfferExporter(common.SetUpMiraklBase):
 
     def test_so_import(self):
         with self._patch_call_request(self.mirakl_sc_import):
-            headers = self.mirakl_sc_import.channel_id._scheduler_import()
-            return headers
+            so = self.mirakl_sc_import.channel_id._scheduler_import()
+            return so

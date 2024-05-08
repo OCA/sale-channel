@@ -1,6 +1,7 @@
 from . import mirakl_binding
 from . import mirakl_importer
 from . import mirakl_res_partner_importer
+from . import mirakl_customer_importer
 from . import mirakl_sale_order_importer
 from . import mirakl_channel_relation
 from . import product_template_sale_channel_rel
