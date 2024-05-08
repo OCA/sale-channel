@@ -1,17 +1,12 @@
-from pydantic import BaseModel
+from .res_partner_builder import ResPartnerBuilder
 
 
-class MiraklPartnerAddress(BaseModel):
+class MiraklPartnerAddress(ResPartnerBuilder):
     _odoo_model = "res.partner"
     _identity_key = "customer_id"
 
     city: str
-    civility: str
-    company: str
     country: str
-    country_iso_code: str | None
-    firstname: str
-    lastname: str
     phone: str
     phone_secondary: str
     state: str
@@ -19,4 +14,3 @@ class MiraklPartnerAddress(BaseModel):
     street_2: str
     zip_code: str
     email: str = ""
-    customer_id: str = ""

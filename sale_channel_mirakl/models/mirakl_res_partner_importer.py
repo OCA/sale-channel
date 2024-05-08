@@ -8,6 +8,7 @@ _logger = logging.getLogger(__name__)
 class MiraklResPartnerImporter(models.Model):
     _name = "mirakl.res.partner.importer"
     _inherit = "mirakl.importer"
+    _description = "Mirakl res partner importer"
 
     def _get_binding(self, sale_channel, mirakl_record):
         external_id = mirakl_record.get_key()

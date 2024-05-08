@@ -77,45 +77,48 @@ class MiraklSaleOrder(MiraklImportMapper):
     def get_partner_billing(self, mirakl_channel):
         billing_partner_obj = self.customer.billing_address
         partner = self.get_binding_partner(mirakl_channel, billing_partner_obj)
+
         if not partner:
-            # creer le partner
-            pass
+            model = billing_partner_obj._odoo_model
+            values = billing_partner_obj.odoo_model_dump(mirakl_channel)
+            partner = mirakl_channel.env[model].create(values)
         return partner
 
     def get_partner_shipping(self, mirakl_channel):
         shipping_partner_obj = self.customer.shipping_address
         partner = self.get_binding_partner(mirakl_channel, shipping_partner_obj)
+
         if not partner:
-            # creer le partner
-            pass
+            model = shipping_partner_obj._odoo_model
+            values = shipping_partner_obj.odoo_model_dump(mirakl_channel)
+            partner = mirakl_channel.env[model].create(values)
         return partner
 
-    def _get_fiscal_position_id(self, mirakl_channel):
+    def get_fiscal_position(self, mirakl_channel):
         country = self.customer.shipping_address.country
         fiscal_position = mirakl_channel.channel_id.fiscal_position_ids.filtered(
             lambda x: x.country_id.name == country
         )
         return fiscal_position
 
-    def _get_pricelist_id(self):  # TODO
-        return self.currency_iso_code
-        # currency = self.env["res.currency"].search([("name", "=", currency_code)])
+    # def get_pricelist(self, mirakl_channel):  # TODO
+    #     domain = [("name", "=", self.currency_code)]
+    #     currency = mirakl_channel.env["res.currency"].search(domain)
+    #     if currency:
 
     def odoo_model_dump(self, mirakl_channel):
         partner = self.get_partner_billing(mirakl_channel)
         return {
             "date_order": self.build_date_order(),
-            "partner_id": partner.id,  # required parameter for a SO
-            "partner_invoice_id": partner.id,  # required parameter for a SO
-            "partner_shipping_id": self.get_partner_shipping(
-                mirakl_channel
-            ).id,  # required parameter for a SO
+            "partner_id": partner.id,
+            "partner_invoice_id": partner.id,
+            "partner_shipping_id": self.get_partner_shipping(mirakl_channel).id,
             "user_id": False,
+            "fiscal_position_id": self.get_fiscal_position(mirakl_channel).id,
+            "name": self.order_id,
+            "channel_ids": [Command.link(mirakl_channel.channel_id.id)],
             # "analytic_account_id": mirakl_channel.analytic_account_id.id,  # TODO
-            # "fiscal_position_id": self._get_fiscal_position_id(mirakl_channel).id,
             # "warehouse_id": mirakl_channel.warehouse_id.id ,  # TODO
             # "payment_mode_id": mirakl_channel.payment_mode_id.id,  # TODO
-            "name": self.order_id,
-            # "pricelit_id": self._get_pricelist_id(),
-            "channel_ids": [Command.link(mirakl_channel.channel_id.id)],
+            # "pricelit_id": self.get_pricelist(mirakl_channel),  # TODO
         }

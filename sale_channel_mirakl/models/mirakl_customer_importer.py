@@ -8,6 +8,7 @@ _logger = logging.getLogger(__name__)
 class MiraklCustomerImporter(models.Model):
     _name = "mirakl.customer.importer"
     _inherit = "mirakl.importer"
+    _description = "Mirakl customer importer"
 
     def _build_dependencies(self, sale_channel, mirakl_record):
         """

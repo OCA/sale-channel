@@ -5,5 +5,7 @@ access_product_product,access.product.product,model_product_product,base.group_u
 access_sale_channel,access.sale.channel,model_sale_channel,base.group_user,1,1,1,1
 access_sale_channel_mirakl,access.sale.channel.mirakl,model_sale_channel_mirakl,base.group_user,1,1,1,1
 access_sale_order,access.sale.order,model_sale_order,base.group_user,1,1,1,0
-sale_channel_product.access_product_template_sale_channel_rel,access_product_template_sale_channel_rel,sale_channel_product.model_product_template_sale_channel_rel,base.group_user,1,0,0,0
-sale_channel_mirakl.access_res_partner_sale_channel_rel,access_res_partner_sale_channel_rel,sale_channel_mirakl.model_res_partner_sale_channel_rel,base.group_user,1,0,0,0
+sale_channel_product.access_product_template_sale_channel_rel,access.product.template.sale.channel.rel,sale_channel_product.model_product_template_sale_channel_rel,base.group_user,1,0,0,0
+access_res_partner_sale_channel_rel,access.res.partner.sale.channel.rel,model_res_partner_sale_channel_rel,base.group_user,1,0,0,0
+access_mirakl_res_partner_importer,access.mirakl.res.partner.importer,model_mirakl_res_partner_importer,base.group_user,1,0,0,0
+access_mirakl_customer_importer,access.mirakl.customer.importer,model_mirakl_customer_importer,base.group_user,1,0,0,0
