@@ -2,6 +2,7 @@ import csv
 from base64 import b64decode
 from io import StringIO
 
+from odoo import Command
 from odoo.tests import common
 
 from ..models.sale_channel import MIRAKL
@@ -84,9 +85,9 @@ class SetUpMiraklBase(common.TransactionCase):
                 "data_to_export": "catalog",
             }
         )
-
         cls.product1 = cls.env.ref("product.product_product_9")
         cls.product2 = cls.env.ref("product.product_product_8")
+        cls.product_pricelist = cls.env.ref("product.list0")
 
         # relation 1 for product export
         cls.product_channel_relation1 = cls.env[
@@ -168,6 +169,7 @@ class SetUpMiraklBase(common.TransactionCase):
             {
                 "name": "Super channel import sale order",
                 "channel_type": MIRAKL,
+                "pricelist_ids": [Command.set(cls.product_pricelist.ids)],
             }
         )
         cls.mirakl_sc_import = cls.env["sale.channel.mirakl"].create(
@@ -277,7 +279,7 @@ class SetUpMiraklBase(common.TransactionCase):
                             "price_additional_info": "",
                             "price_unit": 62.49,
                             "product_medias": [],
-                            "product_sku": "91191850",
+                            "product_sku": MIRAKL_CODE1,
                             "product_title": "Garage en bois jouet hape",
                             "promotions": [],
                             "quantity": 1,
@@ -408,7 +410,7 @@ class SetUpMiraklBase(common.TransactionCase):
                             "price_additional_info": "",
                             "price_unit": 64.99,
                             "product_medias": [],
-                            "product_sku": "91191860",
+                            "product_sku": MIRAKL_CODE1,
                             "product_title": "Jouet piano rouge bois hape",
                             "promotions": [],
                             "quantity": 1,
@@ -455,7 +457,7 @@ class SetUpMiraklBase(common.TransactionCase):
                             "price_additional_info": "",
                             "price_unit": 21.99,
                             "product_medias": [],
-                            "product_sku": "91191860",
+                            "product_sku": MIRAKL_CODE1,
                             "product_title": "Trieur de formes en bois hape",
                             "promotions": [],
                             "quantity": 1,
@@ -586,7 +588,7 @@ class SetUpMiraklBase(common.TransactionCase):
                             "price_additional_info": "",
                             "price_unit": 64.99,
                             "product_medias": [],
-                            "product_sku": "91191860",
+                            "product_sku": MIRAKL_CODE1,
                             "product_title": "Jouet piano rouge bois hape",
                             "promotions": [],
                             "quantity": 1,
@@ -633,7 +635,7 @@ class SetUpMiraklBase(common.TransactionCase):
                             "price_additional_info": "",
                             "price_unit": 21.99,
                             "product_medias": [],
-                            "product_sku": "91191860",
+                            "product_sku": MIRAKL_CODE1,
                             "product_title": "Trieur de formes en bois hape",
                             "promotions": [],
                             "quantity": 1,

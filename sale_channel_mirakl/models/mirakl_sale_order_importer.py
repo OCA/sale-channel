@@ -117,7 +117,7 @@ class MiraklSaleOrderImporter(models.AbstractModel):
         api = f"{mirakl_orders_api}?{urlencode(params)}".replace("%3A", ":")
         return self._call(sale_channel, api)
 
-    def _after_import(self, sale_channel, binding, mirakl_record):
+    def _after_import(self, binding):
         """
 
         :param binding:
@@ -131,13 +131,13 @@ class MiraklSaleOrderImporter(models.AbstractModel):
             data = {"type": "delivery", "parent_id": main_partner.id}
             shipping_partner.write(data)
 
-        mirakl_order_lines = mirakl_record.order_lines
-        for order_line in mirakl_order_lines:
-            order_line.order_id = binding.id
-            importer_name = self._get_importers().get(type(order_line))
-            if importer_name:
-                importer = self.env[importer_name]
-                importer.create_or_update_record(sale_channel, order_line)
+        # mirakl_order_lines = mirakl_record.order_lines
+        # for order_line in mirakl_order_lines:
+        #     order_line.order_id = binding.id
+        #     importer_name = self._get_importers().get(type(order_line))
+        #     if importer_name:
+        #         importer = self.env[importer_name]
+        #         importer.create_or_update_record(sale_channel, order_line)
 
         return res
 

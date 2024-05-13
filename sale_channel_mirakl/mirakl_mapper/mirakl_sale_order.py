@@ -72,13 +72,21 @@ class MiraklSaleOrder(MiraklImportMapper):
 
     def get_pricelist(self, mirakl_channel):
 
-        domain = [("name", "=", self.currency_code)]
-        currency = mirakl_channel.env["res.currency"].search(domain)
+        domain = [("name", "=", self.currency_iso_code)]
+        currency = mirakl_channel.env["res.currency"].search(domain, limit=1)
 
         product_pricelist = mirakl_channel.channel_id.pricelist_ids.filtered(
-            lambda x: x.currency_id == currency.id
+            lambda x: x.currency_id == currency
         )
         return product_pricelist
+
+    def get_order_lines(self, mirakl_channel):
+        order_lines_values = []
+        for order_line in self.order_lines:
+            order_lines_values.append(
+                Command.create(order_line.odoo_model_dump(mirakl_channel))
+            )
+        return order_lines_values
 
     def odoo_model_dump(self, mirakl_channel):
         return {
@@ -91,9 +99,8 @@ class MiraklSaleOrder(MiraklImportMapper):
             "name": self.order_id,
             "channel_ids": [Command.link(mirakl_channel.channel_id.id)],
             "analytic_account_id": mirakl_channel.channel_id.analytic_account_id.id,
-            "warehouse_id": mirakl_channel.warehouse_id.id,
-            "payment_mode_id": mirakl_channel.channel_id.payment_mode_id.id,
+            # "warehouse_id": mirakl_channel.warehouse_id.id,
+            # "payment_mode_id": mirakl_channel.channel_id.payment_mode_id.id,
             "pricelist_id": self.get_pricelist(mirakl_channel).id,
-            # "order_line": self.get_order_lines(mirakl_channel),
-            "order_line": {},
+            "order_line": self.get_order_lines(mirakl_channel),
         }

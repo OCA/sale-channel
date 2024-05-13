@@ -21,6 +21,7 @@ class MiraklCustomer(MiraklImportMapper, ResPartnerBuilder, CountryBuilder):
         shipping_address = kwargs.get("shipping_address", {})
         shipping_address["customer_id"] = kwargs.get("customer_id", "") + "_shipping"
         kwargs["shipping_address"] = shipping_address
+        super().__init__(**kwargs)
 
     def build_country(self, sale_channel):
         country = super().build_country(sale_channel)

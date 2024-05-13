@@ -49,7 +49,6 @@ class MiraklSaleOrderLine(MiraklImportMapper):
     taxes: List[str]
     total_commission: float
     total_price: float
-    order_id: str = ""
 
     def odoo_model_dump(self, mirakl_channel):
         domain = [("default_code", "=", self.product_sku)]
@@ -62,5 +61,4 @@ class MiraklSaleOrderLine(MiraklImportMapper):
             "product_uom_qty": self.quantity,  # S.O.Line
             "price_unit": self.price_unit,  # (price_unit == shipping_price du SO)  TODO
             "channel_ids": [Command.link(mirakl_channel.channel_id.id)],
-            "order_id": self.order_id,
         }

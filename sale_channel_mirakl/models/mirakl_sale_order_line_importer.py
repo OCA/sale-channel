@@ -31,3 +31,6 @@ class MiraklSaleOrderLineImporter(models.Model):
             return binding
         else:
             return super()._get_binding(sale_channel, mirakl_record)
+
+    def _create_record(self, binding_model, odoo_data):
+        return self.env[binding_model].new(odoo_data)

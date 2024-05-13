@@ -29,8 +29,8 @@ class MiraklImporter(models.AbstractModel):
                 isinstance(item, BaseModel) for item in attributes
             ):
                 for item in attributes:
-                    if isinstance(item, MiraklSaleOrderLine):
-                        return None
+                    # if isinstance(item, MiraklSaleOrderLine):
+                    #     return None
                     importer_name = self._get_importers().get(type(item))
                     if importer_name:
                         importer = self.env[importer_name]
@@ -103,7 +103,7 @@ class MiraklImporter(models.AbstractModel):
                     }
                 )
 
-    def _after_import(self, sale_channel, binding, mirakl_record):
+    def _after_import(self, binding):
         return
 
     def _generate_hash_key(self, customer):
@@ -150,5 +150,5 @@ class MiraklImporter(models.AbstractModel):
             binding = self._create_record(binding_model, odoo_data)
         mirakl_record._define_internal_id(binding.id)
         # self._after_binding(binding, sale_channel, mirakl_id)
-        self._after_import(sale_channel, binding, mirakl_record)
+        self._after_import(binding)
         return binding
