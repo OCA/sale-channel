@@ -9,6 +9,7 @@
     "application": False,
     "installable": True,
     "depends": [
+        "account_payment_mode",
         "sale_channel",
     ],
 }

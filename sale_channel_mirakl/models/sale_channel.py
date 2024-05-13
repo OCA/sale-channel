@@ -23,6 +23,8 @@ class SaleChannel(models.Model):
 
     channel_type = fields.Selection(selection_add=[(MIRAKL, "Mirakl Sale Channel")])
 
+    pricelist_ids = fields.Many2many(comodel_name="product.pricelist")
+
     @api.constrains("mirakl_channel_ids")
     def _check_uniqueness(self):
         for record in self:

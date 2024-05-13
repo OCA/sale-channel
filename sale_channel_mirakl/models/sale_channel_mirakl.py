@@ -80,6 +80,14 @@ class SaleChannelMirakl(models.Model):
 
     mirakl_delay = fields.Integer(default=2)
 
+    warehouse_id = fields.Many2one(
+        comodel_name="stock.warehouse",
+        string="Warehouse",
+        required=False,
+        help="If specified, this warehouse will be used to fill the "
+        "field warehouse on the sale order created by the connector.",
+    )
+
     _sql_constraints = [
         (
             "check_value",

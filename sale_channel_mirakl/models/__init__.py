@@ -11,4 +11,7 @@ from . import res_partner_sale_channel_rel
 from . import res_partner
 from . import sale_channel
 from . import sale_channel_mirakl
+from . import sale_order_line
+from . import mirakl_sale_order_line_importer
 from . import sale_order
+from . import product_pricelist

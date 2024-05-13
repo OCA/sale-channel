@@ -1,12 +1,10 @@
-from .country_builder import CountryBuilder
-from .mirakl_import_mapper import MiraklImportMapper
-from .mirakl_partner_address import MiraklPartnerAddress
+from typing import Optional
+
+from pydantic import BaseModel
 
 
-class MiraklShippingAddress(MiraklImportMapper, MiraklPartnerAddress, CountryBuilder):
-
-    additional_info: str
-    shipping_zone_code: str = ""
+class CountryBuilder(BaseModel):
+    shipping_zone_code: Optional[str] = None  # not required, Can be None
 
     def build_country(self, sale_channel):
         country = super().build_country(sale_channel)

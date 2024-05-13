@@ -52,12 +52,6 @@ class MiraklSaleOrderImporter(models.AbstractModel):
         """
         record = mirakl_record
         customer = record.customer
-        importer_customer_name = self._get_importers().get(type(customer))
-        importer_customer = self.env[importer_customer_name]
-        importer_customer._build_dependencies(
-            sale_channel,
-            customer,
-        )
         res = super()._build_dependencies(sale_channel, mirakl_record)
         customer.billing_address.customer_notification_email = (
             record.customer_notification_email
@@ -123,7 +117,7 @@ class MiraklSaleOrderImporter(models.AbstractModel):
         api = f"{mirakl_orders_api}?{urlencode(params)}".replace("%3A", ":")
         return self._call(sale_channel, api)
 
-    def _after_import(self, binding):
+    def _after_import(self, sale_channel, binding, mirakl_record):
         """
 
         :param binding:
@@ -136,6 +130,15 @@ class MiraklSaleOrderImporter(models.AbstractModel):
         if main_partner not in (shipping_partner, shipping_partner.parent_id):
             data = {"type": "delivery", "parent_id": main_partner.id}
             shipping_partner.write(data)
+
+        mirakl_order_lines = mirakl_record.order_lines
+        for order_line in mirakl_order_lines:
+            order_line.order_id = binding.id
+            importer_name = self._get_importers().get(type(order_line))
+            if importer_name:
+                importer = self.env[importer_name]
+                importer.create_or_update_record(sale_channel, order_line)
+
         return res
 
     def _map_orders(self, imported_orders: list):

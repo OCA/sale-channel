@@ -63,37 +63,6 @@ class MiraklSaleOrder(MiraklImportMapper):
         date_order = date_order.astimezone(pytz.utc).replace(tzinfo=None)
         return date_order
 
-    def get_binding_partner(self, mirakl_channel, mirakl_partner_obj):
-        importer_name = (
-            mirakl_channel.env["mirakl_importer"]
-            ._get_importers()
-            .get(type(mirakl_partner_obj))
-        )
-        importer = mirakl_channel.env[importer_name]
-        partner = importer._get_binding(mirakl_channel, mirakl_partner_obj)
-
-        return partner
-
-    def get_partner_billing(self, mirakl_channel):
-        billing_partner_obj = self.customer.billing_address
-        partner = self.get_binding_partner(mirakl_channel, billing_partner_obj)
-
-        if not partner:
-            model = billing_partner_obj._odoo_model
-            values = billing_partner_obj.odoo_model_dump(mirakl_channel)
-            partner = mirakl_channel.env[model].create(values)
-        return partner
-
-    def get_partner_shipping(self, mirakl_channel):
-        shipping_partner_obj = self.customer.shipping_address
-        partner = self.get_binding_partner(mirakl_channel, shipping_partner_obj)
-
-        if not partner:
-            model = shipping_partner_obj._odoo_model
-            values = shipping_partner_obj.odoo_model_dump(mirakl_channel)
-            partner = mirakl_channel.env[model].create(values)
-        return partner
-
     def get_fiscal_position(self, mirakl_channel):
         country = self.customer.shipping_address.country
         fiscal_position = mirakl_channel.channel_id.fiscal_position_ids.filtered(
@@ -101,24 +70,30 @@ class MiraklSaleOrder(MiraklImportMapper):
         )
         return fiscal_position
 
-    # def get_pricelist(self, mirakl_channel):  # TODO
-    #     domain = [("name", "=", self.currency_code)]
-    #     currency = mirakl_channel.env["res.currency"].search(domain)
-    #     if currency:
+    def get_pricelist(self, mirakl_channel):
+
+        domain = [("name", "=", self.currency_code)]
+        currency = mirakl_channel.env["res.currency"].search(domain)
+
+        product_pricelist = mirakl_channel.channel_id.pricelist_ids.filtered(
+            lambda x: x.currency_id == currency.id
+        )
+        return product_pricelist
 
     def odoo_model_dump(self, mirakl_channel):
-        partner = self.get_partner_billing(mirakl_channel)
         return {
             "date_order": self.build_date_order(),
-            "partner_id": partner.id,
-            "partner_invoice_id": partner.id,
-            "partner_shipping_id": self.get_partner_shipping(mirakl_channel).id,
+            "partner_id": self.customer.billing_address._get_internal_id(),
+            "partner_invoice_id": self.customer.billing_address._get_internal_id(),
+            "partner_shipping_id": self.customer.shipping_address._get_internal_id(),
             "user_id": False,
             "fiscal_position_id": self.get_fiscal_position(mirakl_channel).id,
             "name": self.order_id,
             "channel_ids": [Command.link(mirakl_channel.channel_id.id)],
-            # "analytic_account_id": mirakl_channel.analytic_account_id.id,  # TODO
-            # "warehouse_id": mirakl_channel.warehouse_id.id ,  # TODO
-            # "payment_mode_id": mirakl_channel.payment_mode_id.id,  # TODO
-            # "pricelit_id": self.get_pricelist(mirakl_channel),  # TODO
+            "analytic_account_id": mirakl_channel.channel_id.analytic_account_id.id,
+            "warehouse_id": mirakl_channel.warehouse_id.id,
+            "payment_mode_id": mirakl_channel.channel_id.payment_mode_id.id,
+            "pricelist_id": self.get_pricelist(mirakl_channel).id,
+            # "order_line": self.get_order_lines(mirakl_channel),
+            "order_line": {},
         }

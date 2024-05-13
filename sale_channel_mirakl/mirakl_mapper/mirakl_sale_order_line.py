@@ -1,10 +1,15 @@
 from typing import List
 
+from odoo import Command
+
 from .mirakl_commission_tax import MiraklCommissionTax
 from .mirakl_import_mapper import MiraklImportMapper
 
 
 class MiraklSaleOrderLine(MiraklImportMapper):
+    _identity_key = "order_line_id"
+    _odoo_model = "sale.order.line"
+
     can_refund: str
     cancelations: List[str]
     category_code: str
@@ -44,7 +49,18 @@ class MiraklSaleOrderLine(MiraklImportMapper):
     taxes: List[str]
     total_commission: float
     total_price: float
+    order_id: str = ""
 
-    @classmethod
-    def build_mirakl_sale_order_line(cls, data: dict):
-        return cls(**data)
+    def odoo_model_dump(self, mirakl_channel):
+        domain = [("default_code", "=", self.product_sku)]
+        product = mirakl_channel.env["product.product"].search(domain, limit=1)
+
+        return {
+            "product_id": product.id,
+            "name": product.name,  # ProductTemplate
+            "product_uom": product.uom_id.id,  # ProductTemplate
+            "product_uom_qty": self.quantity,  # S.O.Line
+            "price_unit": self.price_unit,  # (price_unit == shipping_price du SO)  TODO
+            "channel_ids": [Command.link(mirakl_channel.channel_id.id)],
+            "order_id": self.order_id,
+        }

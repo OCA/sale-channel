@@ -22,16 +22,10 @@ class ResPartnerBuilder(BaseModel):
         name = "{}, {}".format(self.company, name) if self.company else name
         return name
 
-    def build_country_id(self, sale_channel):
-
+    def build_country(self, sale_channel):
         if self.country_iso_code:
             country = sale_channel.env["res.country"].search(
                 [("code", "=", self.country_iso_code)],
-                limit=1,
-            )
-        elif self.shipping_zone_code:
-            country = sale_channel.env["res.country"].search(
-                [("code", "=", self.shipping_zone_code)],
                 limit=1,
             )
         else:
@@ -39,7 +33,7 @@ class ResPartnerBuilder(BaseModel):
         return country
 
     def odoo_model_dump(self, mirakl_channel):
-        country = self.build_country_id(mirakl_channel)
+        country = self.build_country(mirakl_channel)
         return {
             "name": self.build_name(),
             "country_id": country.id,

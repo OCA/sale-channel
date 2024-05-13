@@ -11,6 +11,7 @@
     "depends": [
         # OCA
         "sale_channel_product",
+        "sale_channel_account",
     ],
     "data": [
         "security/ir.model.access.csv",
