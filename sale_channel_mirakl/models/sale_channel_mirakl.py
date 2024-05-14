@@ -296,6 +296,14 @@ class SaleChannelMirakl(models.Model):
         attachment = self._create_and_fill_csv_file(pydantic_items)
         self.post(attachment)
 
+    def _get_mappers(self):
+        mappers = {
+            PRODUCT: MiraklProduct,
+            OFFER: MiraklOffer,
+            CATALOG: MiraklCatalog,
+        }
+        return mappers
+
     def _map_items(self, struct_key, products):
         """
 
@@ -305,12 +313,8 @@ class SaleChannelMirakl(models.Model):
         :return: the list of mapped products
         """
         self.ensure_one()
-        mapping = {
-            PRODUCT: MiraklProduct,
-            OFFER: MiraklOffer,
-            CATALOG: MiraklCatalog,
-        }
-        MiraklMapping = mapping.get(struct_key)
+        mappers = self._get_mappers()
+        MiraklMapping = mappers.get(struct_key)
         if MiraklMapping:
             for product in products:
                 yield MiraklMapping.map_item(self, product)
