@@ -100,7 +100,7 @@ class MiraklSaleOrder(MiraklImportMapper):
             "channel_ids": [Command.link(mirakl_channel.channel_id.id)],
             "analytic_account_id": mirakl_channel.channel_id.analytic_account_id.id,
             "warehouse_id": mirakl_channel.warehouse_id.id,
-            # "payment_mode_id": mirakl_channel.channel_id.payment_mode_id.id,
+            "payment_mode_id": mirakl_channel.channel_id.payment_mode_id.id,
             "pricelist_id": self.get_pricelist(mirakl_channel).id,
             "order_line": self.get_order_lines(mirakl_channel),
         }
