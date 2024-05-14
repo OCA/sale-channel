@@ -88,6 +88,10 @@ class SetUpMiraklBase(common.TransactionCase):
         cls.product1 = cls.env.ref("product.product_product_9")
         cls.product2 = cls.env.ref("product.product_product_8")
         cls.product_pricelist = cls.env.ref("product.list0")
+        cls.currency = cls.env.ref("base.EUR")
+        cls.payment_mode = cls.env.ref("account_payment_mode.payment_mode_outbound_ct1")
+
+        cls.product_pricelist.write({"currency_id": cls.currency.id})
 
         # relation 1 for product export
         cls.product_channel_relation1 = cls.env[
@@ -170,8 +174,10 @@ class SetUpMiraklBase(common.TransactionCase):
                 "name": "Super channel import sale order",
                 "channel_type": MIRAKL,
                 "pricelist_ids": [Command.set(cls.product_pricelist.ids)],
+                "payment_mode_id": cls.payment_mode.id,
             }
         )
+        cls.stock_warehouse = cls.env.ref("stock.warehouse0")
         cls.mirakl_sc_import = cls.env["sale.channel.mirakl"].create(
             {
                 "channel_id": cls.sale_channel_4.id,
@@ -180,6 +186,7 @@ class SetUpMiraklBase(common.TransactionCase):
                 "offer_filename": OFFER_FILE_NAME,
                 "shop_id": "237",
                 "data_to_export": "catalog",
+                "warehouse_id": cls.stock_warehouse.id,
             }
         )
 

@@ -9,9 +9,12 @@
     "application": True,
     "external_dependencies": {"python": ["pydantic"]},
     "depends": [
+        # ODOO
+        "sale_stock",
         # OCA
         "sale_channel_product",
         "sale_channel_account",
+        "account_payment_sale",
     ],
     "data": [
         "security/ir.model.access.csv",

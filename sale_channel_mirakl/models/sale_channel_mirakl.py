@@ -29,8 +29,8 @@ class SaleChannelMirakl(models.Model):
         comodel_name="sale.channel", required=True, index=True, ondelete="restrict"
     )
 
-    location = fields.Char(required=True, help="Url to Mirakl application")
-    api_key = fields.Char(help="WebService API Key")
+    location = fields.Char(help="Url to Mirakl application", required=True)
+    api_key = fields.Char(help="WebService API Key", required=True)
 
     offer_filename = fields.Char(string="Offers File Name", required=True)
     shop_id = fields.Char(string="Shop ID on Mirakl")

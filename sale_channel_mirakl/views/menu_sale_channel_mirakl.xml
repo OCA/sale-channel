@@ -2,6 +2,7 @@
     <record id="menu_sale_channel_root" model="ir.ui.menu">
         <field name="name">Mirakl Sale Channel</field>
         <field name="sequence" eval="10" />
+        <field name="parent_id" ref="sale_channel.menuitem_sale_channels" />
         <field name="action" ref="sale_channel_mirakl_action" />
     </record>
 </odoo>
