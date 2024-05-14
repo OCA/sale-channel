@@ -10,3 +10,4 @@ access_res_partner_sale_channel_rel,access.res.partner.sale.channel.rel,model_re
 access_mirakl_res_partner_importer,access.mirakl.res.partner.importer,model_mirakl_res_partner_importer,base.group_user,1,0,0,0
 access_mirakl_customer_importer,access.mirakl.customer.importer,model_mirakl_customer_importer,base.group_user,1,0,0,0
 access_mirakl_sale_order_line_importer,access_mirakl_sale_order_line_importer,model_mirakl_sale_order_line_importer,base.group_user,1,0,0,0
+access_sale_order_sale_channel_rel,access_sale_order_sale_channel_rel,model_sale_order_sale_channel_rel,base.group_user,1,0,0,0

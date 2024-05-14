@@ -180,7 +180,11 @@ class MiraklSaleOrderImporter(models.AbstractModel):
         if binding_model == "sale.order":
             binding = self.env[binding_model].search(
                 [
-                    ("mirakl_code", "=", tools.ustr(external_id)),
+                    (
+                        "sale_order_sale_channel_ids.mirakl_code",
+                        "=",
+                        tools.ustr(external_id),
+                    ),
                     ("channel_ids", "in", sale_channel.channel_id.id),
                 ],
                 limit=2,

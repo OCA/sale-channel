@@ -10,6 +10,7 @@ from ..mirakl_mapper.mirakl_customer import MiraklCustomer
 from ..mirakl_mapper.mirakl_sale_order import MiraklSaleOrder
 from ..mirakl_mapper.mirakl_sale_order_line import MiraklSaleOrderLine
 from ..mirakl_mapper.mirakl_shipping_address import MiraklShippingAddress
+from .sale_channel_owner import SaleChannelOwner
 
 _logger = logging.getLogger(__name__)
 
@@ -61,6 +62,48 @@ class MiraklImporter(models.AbstractModel):
     def _map_record(self, sale_channel, mirakl_record):
         return mirakl_record.odoo_model_dump(sale_channel)
 
+    # def _after_binding(
+    #     self, record, sale_channel, external_id
+    # ):  # from odoo.addons.connector.components.binder.py (bind())
+    #     """Create the link between an external ID and an Odoo ID
+    #
+    #     :param external_id: external id to bind
+    #     :param binding: Odoo record to bind
+    #     :type binding: int
+    #     """
+    #     # Prevent False, None, or "", but not 0
+    #     # avoid to trigger the export when we modify the `external_id`
+    #     now_fmt = fields.Datetime.now()
+    #     if hasattr(record, "_name") and record._name == "sale.channel.owner":
+    #         record._fields.get("channel_ids").relation
+    #         # Check there is a (Odoo) model related to this relation table
+    #         model_name = (
+    #             ""  # a revoir--------------------------------------------------------
+    #         )
+    #         TargetModel = self.env[model_name]
+    #         relation_fields_record = [
+    #             f for f in TargetModel._fields.values() if f.comodel_name == self._name
+    #         ]
+    #         relation_fields_channel = [
+    #             f
+    #             for f in TargetModel._fields.values()
+    #             if f.comodel_name == sale_channel._name
+    #         ]
+    #         if len(relation_fields_record) == 1 and len(relation_fields_channel) == 1:
+    #             relation_field = relation_fields_record[0]
+    #             relation_field_channel = relation_fields_channel[0]
+    #             domain = [
+    #                 (relation_field, "=", record.id),
+    #                 (relation_field_channel, "=", sale_channel.id),
+    #             ]
+    #             binding = TargetModel.search(domain, limit=1)
+    #             binding.write(
+    #                 {
+    #                     "mirakl_code": tools.ustr(external_id),
+    #                     "sync_date": now_fmt,
+    #                 }
+    #             )
+
     def _after_binding(
         self, record, sale_channel, external_id
     ):  # from odoo.addons.connector.components.binder.py (bind())
@@ -70,38 +113,45 @@ class MiraklImporter(models.AbstractModel):
         :param binding: Odoo record to bind
         :type binding: int
         """
-        # Prevent False, None, or "", but not 0
-        # avoid to trigger the export when we modify the `external_id`
         now_fmt = fields.Datetime.now()
-        if hasattr(record, "_name") and record._name == "sale.channel.owner":
-            record._fields.get("channel_ids").relation
-            # Check there is a (Odoo) model related to this relation table
-            model_name = (
-                ""  # a revoir--------------------------------------------------------
-            )
-            TargetModel = self.env[model_name]
-            relation_fields_record = [
-                f for f in TargetModel._fields.values() if f.comodel_name == self._name
-            ]
-            relation_fields_channel = [
-                f
-                for f in TargetModel._fields.values()
-                if f.comodel_name == sale_channel._name
-            ]
-            if len(relation_fields_record) == 1 and len(relation_fields_channel) == 1:
-                relation_field = relation_fields_record[0]
-                relation_field_channel = relation_fields_channel[0]
-                domain = [
-                    (relation_field, "=", record.id),
-                    (relation_field_channel, "=", sale_channel.id),
+        if isinstance(record, SaleChannelOwner):
+            model_name = record._fields.get("channel_ids").relation
+            model_name = model_name.replace("_", ".")
+
+            if self.env["ir.model"].search([("model", "=", model_name)], limit=1):
+                TargetModel = self.env[model_name]
+                relation_fields_record = [
+                    f
+                    for f in TargetModel._fields.values()
+                    if f.comodel_name == record._name
                 ]
-                binding = TargetModel.search(domain, limit=1)
-                binding.write(
-                    {
-                        "mirakl_code": tools.ustr(external_id),
-                        "sync_date": now_fmt,
-                    }
-                )
+                relation_fields_channel = [
+                    f
+                    for f in TargetModel._fields.values()
+                    if f.comodel_name == sale_channel.channel_id._name
+                ]
+                if (
+                    len(relation_fields_record) == 1
+                    and len(relation_fields_channel) == 1
+                ):
+                    relation_field_record = relation_field_channel = ""
+                    for key, val in TargetModel._fields.items():
+                        if val == relation_fields_record[0]:
+                            relation_field_record = key
+                        elif val == relation_fields_channel[0]:
+                            relation_field_channel = key
+
+                    domain = [
+                        (relation_field_record, "=", record.id),
+                        (relation_field_channel, "=", sale_channel.channel_id.id),
+                    ]
+                    binding = TargetModel.search(domain, limit=1)
+                    binding.write(
+                        {
+                            "mirakl_code": tools.ustr(external_id),
+                            "sync_date": now_fmt,
+                        }
+                    )
 
     def _after_import(self, binding):
         return
@@ -149,6 +199,6 @@ class MiraklImporter(models.AbstractModel):
         else:
             binding = self._create_record(binding_model, odoo_data)
         mirakl_record._define_internal_id(binding.id)
-        # self._after_binding(binding, sale_channel, mirakl_id)
+        self._after_binding(binding, sale_channel, mirakl_id)
         self._after_import(binding)
         return binding

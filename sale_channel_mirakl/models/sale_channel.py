@@ -59,7 +59,8 @@ class SaleChannel(models.Model):
         if self.channel_type == MIRAKL:
             for item in self.mirakl_channel_ids._map_items(struct_key, items):
                 yield item
-        return super()._map_items()
+        else:
+            super()._map_items(struct_key, items)
 
     def _trigger_export(self, struct_key, pydantic_items):
         if self.channel_type == MIRAKL:
@@ -71,11 +72,11 @@ class SaleChannel(models.Model):
         return super()._trigger_export(struct_key, pydantic_items)
 
     def _get_struct_to_import(self):
-        struct_to_import = super()._get_struct_to_import()
         if self.channel_type == MIRAKL:
             for record in self.mirakl_channel_ids:
-                struct_to_import.append(record.data_to_import)
-        return struct_to_import
+                yield record.data_to_import
+        else:
+            super()._get_struct_to_import()
 
     def _job_trigger_import(self, struct_key):
         if self.channel_type == MIRAKL:

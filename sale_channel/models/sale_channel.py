@@ -84,7 +84,7 @@ class SaleChannel(models.Model):
                 )
 
     def _get_struct_to_import(self):
-        return []
+        NotImplementedError("Something is missing")
 
     def _job_trigger_import(self, struct_key):
         raise NotImplementedError("Something is missing")
