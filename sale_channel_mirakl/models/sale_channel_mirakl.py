@@ -296,30 +296,6 @@ class SaleChannelMirakl(models.Model):
         attachment = self._create_and_fill_csv_file(pydantic_items)
         self.post(attachment)
 
-    # def _map_items(self, struct_key, products):
-    #     """
-    #
-    #     :param struct_key: Key word who allows you to define the appropriate
-    #      mapping function to call
-    #     :param products: products to map
-    #     :return: the list of mapped products
-    #     """
-    #     self.ensure_one()
-    #     mapped_products = []
-    #     mapping = {
-    #         PRODUCT: MiraklProduct,
-    #         OFFER: MiraklOffer,
-    #         CATALOG: MiraklCatalog,
-    #     }
-    #     MiraklMapping = mapping.get(struct_key)
-    #     if MiraklMapping:
-    #         for product in products:
-    #             # yield MiraklMapping.map_item(
-    #             #     self, product
-    #             # )
-    #             mapped_products.append(MiraklMapping.map_item(self, product))
-    #     return mapped_products
-
     def _map_items(self, struct_key, products):
         """
 

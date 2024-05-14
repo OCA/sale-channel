@@ -57,10 +57,8 @@ class SaleChannel(models.Model):
 
     def _map_items(self, struct_key, items):
         if self.channel_type == MIRAKL:
-            pydantic_items = []
             for item in self.mirakl_channel_ids._map_items(struct_key, items):
-                pydantic_items.append(item)
-            return pydantic_items
+                yield item
         return super()._map_items()
 
     def _trigger_export(self, struct_key, pydantic_items):
