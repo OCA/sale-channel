@@ -20,6 +20,12 @@ class MiraklImporter(models.AbstractModel):
     _description = "import record from mirakl"
 
     def _build_dependencies(self, sale_channel, mirakl_record):
+        """
+
+        :param sale_channel:
+        :param mirakl_record:
+        :return:
+        """
         for attr in mirakl_record.model_fields_set:
             attributes = getattr(mirakl_record, attr)
 
@@ -30,8 +36,6 @@ class MiraklImporter(models.AbstractModel):
                 isinstance(item, BaseModel) for item in attributes
             ):
                 for item in attributes:
-                    # if isinstance(item, MiraklSaleOrderLine):
-                    #     return None
                     importer_name = self._get_importers().get(type(item))
                     if importer_name:
                         importer = self.env[importer_name]
@@ -62,88 +66,42 @@ class MiraklImporter(models.AbstractModel):
     def _map_record(self, sale_channel, mirakl_record):
         return mirakl_record.odoo_model_dump(sale_channel)
 
-    # def _after_binding(
-    #     self, record, sale_channel, external_id
-    # ):  # from odoo.addons.connector.components.binder.py (bind())
-    #     """Create the link between an external ID and an Odoo ID
-    #
-    #     :param external_id: external id to bind
-    #     :param binding: Odoo record to bind
-    #     :type binding: int
-    #     """
-    #     # Prevent False, None, or "", but not 0
-    #     # avoid to trigger the export when we modify the `external_id`
-    #     now_fmt = fields.Datetime.now()
-    #     if hasattr(record, "_name") and record._name == "sale.channel.owner":
-    #         record._fields.get("channel_ids").relation
-    #         # Check there is a (Odoo) model related to this relation table
-    #         model_name = (
-    #             ""  # a revoir--------------------------------------------------------
-    #         )
-    #         TargetModel = self.env[model_name]
-    #         relation_fields_record = [
-    #             f for f in TargetModel._fields.values() if f.comodel_name == self._name
-    #         ]
-    #         relation_fields_channel = [
-    #             f
-    #             for f in TargetModel._fields.values()
-    #             if f.comodel_name == sale_channel._name
-    #         ]
-    #         if len(relation_fields_record) == 1 and len(relation_fields_channel) == 1:
-    #             relation_field = relation_fields_record[0]
-    #             relation_field_channel = relation_fields_channel[0]
-    #             domain = [
-    #                 (relation_field, "=", record.id),
-    #                 (relation_field_channel, "=", sale_channel.id),
-    #             ]
-    #             binding = TargetModel.search(domain, limit=1)
-    #             binding.write(
-    #                 {
-    #                     "mirakl_code": tools.ustr(external_id),
-    #                     "sync_date": now_fmt,
-    #                 }
-    #             )
-
-    def _after_binding(
-        self, record, sale_channel, external_id
-    ):  # from odoo.addons.connector.components.binder.py (bind())
-        """Create the link between an external ID and an Odoo ID
-
-        :param external_id: external id to bind
-        :param binding: Odoo record to bind
-        :type binding: int
+    def _after_binding(self, record, sale_channel, external_id):
+        """
+        Add mirakl_code and sync_date on the relation between record and channel
+        :param record: Odoo record to update
+        :param sale_channel: channel linked to the record
+        :param external_id: external id used to update record
         """
         now_fmt = fields.Datetime.now()
-        if isinstance(record, SaleChannelOwner):
-            model_name = record._fields.get("channel_ids").relation
-            model_name = model_name.replace("_", ".")
-
-            if self.env["ir.model"].search([("model", "=", model_name)], limit=1):
-                TargetModel = self.env[model_name]
-                relation_fields_record = [
-                    f
-                    for f in TargetModel._fields.values()
+        if SaleChannelOwner._name in record._inherit:
+            relation = record._fields.get("channel_ids").relation
+            model_name = relation.replace("_", "%")
+            models_candidate = self.env["ir.model"].search(
+                [("model", "ilike", model_name)]
+            )
+            model = fields.first(
+                models_candidate.filtered(
+                    lambda m, r=relation: m.env[m.model]._table == r
+                )
+            )
+            if model:
+                TargetModel = self.env[model.model]
+                relation_field_record = [
+                    k
+                    for k, f in TargetModel._fields.items()
                     if f.comodel_name == record._name
                 ]
-                relation_fields_channel = [
-                    f
-                    for f in TargetModel._fields.values()
+                relation_field_channel = [
+                    k
+                    for k, f in TargetModel._fields.items()
                     if f.comodel_name == sale_channel.channel_id._name
                 ]
-                if (
-                    len(relation_fields_record) == 1
-                    and len(relation_fields_channel) == 1
-                ):
-                    relation_field_record = relation_field_channel = ""
-                    for key, val in TargetModel._fields.items():
-                        if val == relation_fields_record[0]:
-                            relation_field_record = key
-                        elif val == relation_fields_channel[0]:
-                            relation_field_channel = key
+                if len(relation_field_record) == 1 and len(relation_field_channel) == 1:
 
                     domain = [
-                        (relation_field_record, "=", record.id),
-                        (relation_field_channel, "=", sale_channel.channel_id.id),
+                        (relation_field_record[0], "=", record.id),
+                        (relation_field_channel[0], "=", sale_channel.channel_id.id),
                     ]
                     binding = TargetModel.search(domain, limit=1)
                     binding.write(
@@ -152,6 +110,8 @@ class MiraklImporter(models.AbstractModel):
                             "sync_date": now_fmt,
                         }
                     )
+                    record._compute_mirakl_code()
+                    record._compute_sync_date()
 
     def _after_import(self, binding):
         return
@@ -178,7 +138,7 @@ class MiraklImporter(models.AbstractModel):
     def create_or_update_record(self, sale_channel, mirakl_record):
         """
 
-        :param mirakl_id: identifier of the record on Mirakl
+        :param sale_channel: channel on which the record is attached
         :param mirakl_record: the record who comes from Mirakl
         """
         mirakl_id = mirakl_record.get_key()

@@ -1,7 +1,5 @@
 from typing import List
 
-from odoo import Command
-
 from .mirakl_commission_tax import MiraklCommissionTax
 from .mirakl_import_mapper import MiraklImportMapper
 
@@ -60,5 +58,4 @@ class MiraklSaleOrderLine(MiraklImportMapper):
             "product_uom": product.uom_id.id,  # ProductTemplate
             "product_uom_qty": self.quantity,  # S.O.Line
             "price_unit": self.price_unit,  # (price_unit == shipping_price du SO)  TODO
-            "channel_ids": [Command.link(mirakl_channel.channel_id.id)],
         }
