@@ -21,10 +21,10 @@ class MiraklImporter(models.AbstractModel):
 
     def _build_dependencies(self, sale_channel, mirakl_record):
         """
-
-        :param sale_channel:
-        :param mirakl_record:
-        :return:
+        Allows you to construct the dependencies of an object.
+         These dependencies are also objects
+        :param sale_channel: channel on which the object is attached
+        :param mirakl_record: the object whose dependencies we want to build
         """
         for attr in mirakl_record.model_fields_set:
             attributes = getattr(mirakl_record, attr)
@@ -68,7 +68,8 @@ class MiraklImporter(models.AbstractModel):
 
     def _after_binding(self, record, sale_channel, external_id):
         """
-        Add mirakl_code and sync_date on the relation between record and channel
+        Add sale_channel_external_code and sale_channel_sync_date
+        on the relation between record and channel
         :param record: Odoo record to update
         :param sale_channel: channel linked to the record
         :param external_id: external id used to update record
@@ -106,11 +107,11 @@ class MiraklImporter(models.AbstractModel):
                     binding = TargetModel.search(domain, limit=1)
                     binding.write(
                         {
-                            "mirakl_code": tools.ustr(external_id),
-                            "sync_date": now_fmt,
+                            "sale_channel_external_code": tools.ustr(external_id),
+                            "sale_channel_sync_date": now_fmt,
                         }
                     )
-                    record._compute_mirakl_code()
+                    record._compute_external_code()
                     record._compute_sync_date()
 
     def _after_import(self, binding):
@@ -137,7 +138,8 @@ class MiraklImporter(models.AbstractModel):
 
     def create_or_update_record(self, sale_channel, mirakl_record):
         """
-
+        Allows you to create or update an odoo record from
+         the corresponding imported Mirakl object
         :param sale_channel: channel on which the record is attached
         :param mirakl_record: the record who comes from Mirakl
         """

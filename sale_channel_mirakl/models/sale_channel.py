@@ -36,13 +36,20 @@ class SaleChannel(models.Model):
                 )
 
     def _get_struct_to_export(self):
-        struct_keys = super()._get_struct_to_export()
         if self.channel_type == MIRAKL:
             for channel in self.mirakl_channel_ids:
-                struct_keys.append(channel.data_to_export)
-        return struct_keys
+                yield channel.data_to_export
+        else:
+            super()._get_struct_to_export()
 
     def split_products(self, products):
+        """
+        constructs a list of product lists whose length of e
+        ach sublist depends on a given parameter.
+        This is to avoid launching the export of too many products at once.
+        :param products: list of products to split
+        :return: A generator that returns each sublist of products one by one
+        """
         return split_every(self.max_items_to_export, products)
 
     def _get_items_to_export(self, struct_key):

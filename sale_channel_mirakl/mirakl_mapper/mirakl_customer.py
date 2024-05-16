@@ -14,6 +14,14 @@ class MiraklCustomer(MiraklImportMapper, ResPartnerBuilder, CountryBuilder):
     shipping_address: MiraklShippingAddress
 
     def __init__(self, **kwargs):
+        """
+        allows you to update the data for the construction of
+        the billing_address and shipping_address objects
+        which are also partners
+
+        :param kwargs: dictionary containing values for constructing the
+        customer including subdictionaries for its object attributes
+        """
         billing_address = kwargs.get("billing_address", {})
         billing_address["customer_id"] = kwargs.get("customer_id", "") + "_billing"
         kwargs["billing_address"] = billing_address

@@ -1,7 +1,9 @@
 import logging
 from contextlib import contextmanager
 
+from ..models.sale_channel_mirakl import SALE_ORDER
 from . import common
+from .common import MIRAKL_CODE2
 
 _logger = logging.getLogger(__name__)
 
@@ -37,12 +39,12 @@ class TestProductOfferExporter(common.SetUpMiraklBase):
 
         self.assertEqual(2, len(linesByID))
 
-        lineDict = linesByID["29182572"]
+        lineDict = linesByID[MIRAKL_CODE2]
         expectedDict = {
-            "sku": "29182572",
-            "ean": "4004764782703",
-            "PRODUCT_TITLE": "Large Desk",
-            "PRODUCT_DESCRIPTION": "<p>A smart description</p>",
+            "sku": MIRAKL_CODE2,
+            "ean": self.product2.barcode,
+            "PRODUCT_TITLE": self.product2.name,
+            "PRODUCT_DESCRIPTION": self.product2.description,
             "PRODUCT_CAT_CODE": "All > Saleable > Office Furniture",
         }
         self.assertDictEqual(lineDict, expectedDict)
@@ -66,12 +68,12 @@ class TestProductOfferExporter(common.SetUpMiraklBase):
 
         self.assertEqual(2, len(linesByID))
 
-        lineDict = linesByID["29182572"]
+        lineDict = linesByID[MIRAKL_CODE2]
         expectedDict = {
-            "sku": "29182572",
-            "product-id": "4004764782703",
-            "product-id-type": "EAN",
-            "state": "11",
+            "sku": MIRAKL_CODE2,
+            "product-id": self.product2.barcode,
+            "product-id-type": EAN,
+            "state": STATE,
         }
         self.assertDictEqual(lineDict, expectedDict)
 
@@ -92,16 +94,16 @@ class TestProductOfferExporter(common.SetUpMiraklBase):
 
         self.assertEqual(2, len(linesByID))
 
-        lineDict = linesByID["29182572"]
+        lineDict = linesByID[MIRAKL_CODE2]
         expectedDict = {
-            "sku": "29182572",
-            "ean": "4004764782703",
-            "PRODUCT_TITLE": "Large Desk",
-            "PRODUCT_DESCRIPTION": "<p>A smart description</p>",
+            "sku": MIRAKL_CODE2,
+            "ean": self.product2.barcode,
+            "PRODUCT_TITLE": self.product2.name,
+            "PRODUCT_DESCRIPTION": self.product2.description,
             "PRODUCT_CAT_CODE": "All > Saleable > Office Furniture",
-            "product-id": "4004764782703",
-            "product-id-type": "EAN",
-            "state": "11",
+            "product-id": self.product2.barcode,
+            "product-id-type": EAN,
+            "state": STATE,
         }
         self.assertDictEqual(lineDict, expectedDict)
 
@@ -225,6 +227,10 @@ class TestProductOfferExporter(common.SetUpMiraklBase):
                 REQUEST_POST,
             )
 
+    def test_get_struct_to_import(self):
+        for struct_key in self.mirakl_sc_import.channel_id._get_struct_to_import():
+            self.assertEqual(struct_key, SALE_ORDER)
+
     @contextmanager
     def _patch_call_request(self, sale_channel):
         def _sub_function(
@@ -238,13 +244,38 @@ class TestProductOfferExporter(common.SetUpMiraklBase):
             request_type=None,
         ):
 
-            return self.mirakl_response
+            return self.mirakl_sale_orders
 
         sale_channel._patch_method("_process_request", _sub_function)
         yield
         sale_channel._revert_method("_process_request")
 
-    def test_so_import(self):
+    def test_sale_orders_import(self):
         with self._patch_call_request(self.mirakl_sc_import):
-            so = self.mirakl_sc_import.channel_id._scheduler_import()
-            return so
+            self.mirakl_sc_import.channel_id._scheduler_import()
+
+    @contextmanager
+    def _patch_import_one_sale_order(self, sale_channel):
+        def _only_one_sale_order(
+            self_local,
+            url,
+            headers=None,
+            params=None,
+            data=None,
+            files=None,
+            ignore_result=False,
+            request_type=None,
+        ):
+            return self.a_sale_order
+
+        sale_channel._patch_method("_process_request", _only_one_sale_order)
+        yield
+        sale_channel._revert_method("_process_request")
+
+    def test_import_one_sale_order(self):
+        with self._patch_import_one_sale_order(self.mirakl_sc_import):
+            orders = self.sale_channel_4._job_trigger_import(SALE_ORDER)
+
+            self.assertEqual(1, len(orders))
+            self.assertEqual(type(orders[0]), self.env[SALE_ORDER].__class__)
+            self.assertTrue(orders[0].is_from_mirakl)

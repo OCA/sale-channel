@@ -18,7 +18,7 @@ class MiraklResPartnerImporter(models.Model):
             binding = self.env[binding_model].search(
                 [
                     (
-                        "res_partner_sale_channel_ids.mirakl_code",
+                        "res_partner_sale_channel_ids.sale_channel_external_code",
                         "=",
                         tools.ustr(external_id),
                     ),

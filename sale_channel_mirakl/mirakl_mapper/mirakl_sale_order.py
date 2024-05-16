@@ -89,6 +89,12 @@ class MiraklSaleOrder(MiraklImportMapper):
         return order_lines_values
 
     def odoo_model_dump(self, mirakl_channel):
+        """
+        Allows you to build an odoo record
+        :param mirakl_channel: Mirakl channel on which the sale order is attached
+        :return: dictionary allowing to construct the odoo record corresponding
+         to the data coming from mirakl
+        """
         return {
             "date_order": self.build_date_order(),
             "partner_id": self.customer.billing_address._get_internal_id(),
@@ -103,4 +109,5 @@ class MiraklSaleOrder(MiraklImportMapper):
             "payment_mode_id": mirakl_channel.channel_id.payment_mode_id.id,
             "pricelist_id": self.get_pricelist(mirakl_channel).id,
             "order_line": self.get_order_lines(mirakl_channel),
+            "is_from_mirakl": True,
         }

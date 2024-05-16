@@ -16,9 +16,10 @@ class MiraklSaleOrderImporter(models.AbstractModel):
 
     def _preprocess_address_emails(self, mirakl_record):
         """
-
-        :param mirakl_record:
-        :return:
+        If the shipping address partner and the billing partner have
+         the same email address, the shipping partner's email address is unload
+        :param mirakl_record: record to modify
+        :return: the modified mirakl record
         """
         billing_partner_obj = mirakl_record.customer.billing_address
         delivery_partner_obj = mirakl_record.customer.shipping_address
@@ -30,9 +31,10 @@ class MiraklSaleOrderImporter(models.AbstractModel):
 
     def _order_line_preprocess(self, mirakl_record):
         """
-
+        Scans the lines of the imported sales order and deletes
+         those whose status is canceled or refused
         :param mirakl_record:
-        :return:
+        :return: the modified mirakl record
         """
         accepted_lines = []
         order_lines = mirakl_record.order_lines
@@ -44,12 +46,6 @@ class MiraklSaleOrderImporter(models.AbstractModel):
         return mirakl_record
 
     def _build_dependencies(self, sale_channel, mirakl_record):
-        """
-
-        :param sale_channel:
-        :param mirakl_record:
-        :return:
-        """
         record = mirakl_record
         customer = record.customer
         res = super()._build_dependencies(sale_channel, mirakl_record)
@@ -61,15 +57,6 @@ class MiraklSaleOrderImporter(models.AbstractModel):
         return res
 
     def create_or_update_record(self, sale_channel, mirakl_sale_order):
-        """
-
-        :param sale_channel:
-        :param external_id:
-        :param mirakl_sale_order:
-        :param binding_model:
-        :return:
-        """
-
         mirakl_sale_order = self._preprocess_address_emails(mirakl_sale_order)
         mirakl_sale_order = self._order_line_preprocess(mirakl_sale_order)
 
@@ -77,10 +64,11 @@ class MiraklSaleOrderImporter(models.AbstractModel):
 
     def _call(self, sale_channel, api):
         """
-
-        :param sale_channel:
-        :param api:
-        :return:
+        Launches the call to Mirakl for importing sales orders
+        :param sale_channel: sale channel Mirakl
+        :param api: url suffix corresponding to the url of the endpoint
+         on the mirakl side
+        :return: The sale orders imported
         """
         location = sale_channel.location
         channel_api_key = sale_channel.api_key
@@ -97,12 +85,10 @@ class MiraklSaleOrderImporter(models.AbstractModel):
 
     def import_orders(self, sale_channel, from_date=None, to_date=None, state=None):
         """
-
-        :param sale_channel:
-        :param from_date:
-        :param to_date:
-        :param state:
-        :return:
+        :param sale_channel: Sale channel Mirakl
+        :param from_date: minimum date from which sales orders must be dated to be imported
+        :param to_date: maximum date from which sales orders must be dated to be imported
+        :param state: state in which customer orders should be imported
         """
         from_date = (
             fields.Date.to_string(date.today() - timedelta(days=1))
@@ -119,9 +105,8 @@ class MiraklSaleOrderImporter(models.AbstractModel):
 
     def _after_import(self, binding):
         """
-
-        :param binding:
-        :return:
+        Updates partner data after importing sal order
+        :param binding: res partner created from the imported sales order
         """
         res = super()._after_import(binding)
         main_partner = binding.partner_id
@@ -143,10 +128,7 @@ class MiraklSaleOrderImporter(models.AbstractModel):
 
     def _adapt_filter(self, sale_channel, filters):
         """
-
-        :param sale_channel:
-        :param filters:
-        :return:
+        Sets filter dates for importing sales orders if they are not already set
         """
         from_date = (
             fields.Date.to_string(
@@ -181,7 +163,7 @@ class MiraklSaleOrderImporter(models.AbstractModel):
             binding = self.env[binding_model].search(
                 [
                     (
-                        "sale_order_sale_channel_ids.mirakl_code",
+                        "sale_order_sale_channel_ids.sale_channel_external_code",
                         "=",
                         tools.ustr(external_id),
                     ),
@@ -201,10 +183,9 @@ class MiraklSaleOrderImporter(models.AbstractModel):
 
     def _import_sale_orders_batch(self, sale_channel, filters=None):
         """
-
-        :param sale_channel:
-        :param filters:
-        :return:
+        Allows you to import sales orders from the sales channel
+        :param sale_channel: sale channel mirakl
+        :param filters: Allows to filter sales orders to import
         """
         filters = filters or {}
         filters = self._adapt_filter(sale_channel, filters)
@@ -217,9 +198,13 @@ class MiraklSaleOrderImporter(models.AbstractModel):
         )
         imported_orders = result["orders"] or []
 
+        created_or_updated_orders = []
         for mirakl_sale_order in self._map_orders(imported_orders):
             if not self._get_binding(
                 sale_channel,
                 mirakl_sale_order,
             ):
-                self.create_or_update_record(sale_channel, mirakl_sale_order)
+                created_or_updated_orders.append(
+                    self.create_or_update_record(sale_channel, mirakl_sale_order)
+                )
+        return created_or_updated_orders

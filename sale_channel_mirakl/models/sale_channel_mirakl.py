@@ -83,8 +83,8 @@ class SaleChannelMirakl(models.Model):
     warehouse_id = fields.Many2one(
         comodel_name="stock.warehouse",
         string="Warehouse",
-        required=False,
-        help="If specified, this warehouse will be used to fill the "
+        required=True,
+        help="This warehouse will be used to fill the "
         "field warehouse on the sale order created by the connector.",
     )
 
@@ -137,36 +137,20 @@ class SaleChannelMirakl(models.Model):
             return ""
         return "{}_".format(self.data_to_export.capitalize())
 
-    def _get_product_file_header(self):
-        return MiraklProduct.get_products_file_header()
-
-    def _get_offer_file_header(self):
-        return MiraklOffer.get_offers_file_header()
-
-    def _get_catalog_file_header(self):
-        header = self._get_product_file_header().copy()
-        header.extend(
-            [
-                attr
-                for attr in self._get_offer_file_header()
-                if attr not in self._get_product_file_header()
-            ]
-        )
-        return header
-
-    def _get_header(self, data_map):
+    def _create_ordered_headers(self, data_map):
         ordered_dict = OrderedDict(sorted(data_map.items(), key=lambda r: r[1]))
         return ordered_dict.keys()
 
-    def _create_ordered_dict(self, data_list):
-        return {key: position for position, key in enumerate(data_list)}
+    def _create_numbered_dict(self, fields_list):
+        return {key: position for position, key in enumerate(fields_list)}
 
-    def generate_header_from_fields(self, fields_list):
-        header_dict = self._create_ordered_dict(fields_list)
-        return list(self._get_header(header_dict))
+    def _manage_headers_list(self, fields_list):
+        headers_dict = self._create_numbered_dict(fields_list)
+        return list(self._create_ordered_headers(headers_dict))
 
     def _get_file_header(self):
-        return self.pydantic_class.get_file_header()
+        header_fields = self.pydantic_class.get_file_header()
+        return self._manage_headers_list(header_fields)
 
     def _get_http_request(self, request_type):
         if request_type == "post":
@@ -249,7 +233,7 @@ class SaleChannelMirakl(models.Model):
     def _create_and_fill_csv_file(self, pydantic_items):
         """
         Method to initialize and populate the export file
-        :param items: products list
+        :param pydantic_items: items list to export
         :return: the file's name and its contents
         """
 
@@ -320,9 +304,15 @@ class SaleChannelMirakl(models.Model):
                 yield MiraklMapping.map_item(self, product)
 
     def _import_data(self, struct_key):
+        """
+        Launches the import of data of type 'struct_key'
+        :param struct_key: type of data to import
+        """
         if struct_key == SALE_ORDER:
-            self.env["mirakl.sale.order.importer"]._import_sale_orders_batch(self)
+            orders = self.env["mirakl.sale.order.importer"]._import_sale_orders_batch(
+                self
+            )
             self.write({"import_orders_from_date": False})
-            return None
+            return orders
         else:
             return self.channel_id._import_data(self, struct_key)

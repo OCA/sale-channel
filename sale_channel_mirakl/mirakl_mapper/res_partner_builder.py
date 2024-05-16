@@ -33,6 +33,12 @@ class ResPartnerBuilder(BaseModel):
         return country
 
     def odoo_model_dump(self, mirakl_channel):
+        """
+        Allows you to build an odoo record
+        :param mirakl_channel: Mirakl channel on which the partner is attached
+        :return: dictionary allowing to construct the odoo record corresponding
+         to the data coming from mirakl
+        """
         country = self.build_country(mirakl_channel)
         return {
             "name": self.build_name(),

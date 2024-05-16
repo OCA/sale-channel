@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <record id="access_adyen_klarna_capture_manual" model="ir.model.access">
+    <record id="access_product_template_sale_channel_relation" model="ir.model.access">
         <field name="name">Sale channel product access</field>
         <field name="model_id" ref="product_template_sale_channel_rel" />
         <field name="group_id" ref="base.group_user" />

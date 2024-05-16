@@ -43,11 +43,17 @@ class SaleChannel(models.Model):
     def _get_struct_to_export(self):
         """
         Retrieves the item types to export
-        :return: list of data types to export
         """
-        return []
+        NotImplementedError("Something is missing")
 
     def _map_items(self, struct_key, items):
+        """
+        Allows to map items before export
+        :param struct_key: helps identify type of items
+        to call the appropriate mapping
+        :param items: list of items to map
+        :return:
+        """
         return []
 
     @abstractmethod
@@ -84,10 +90,20 @@ class SaleChannel(models.Model):
                 )
 
     def _get_struct_to_import(self):
+        """Retrieves the item types to import"""
         NotImplementedError("Something is missing")
 
     def _job_trigger_import(self, struct_key):
+        """
+        Initiates the import of channel items
+        :param struct_key: type of item to import
+        """
         raise NotImplementedError("Something is missing")
 
     def _import_data(self, struct_key):
+        """
+        launches the import of items on the sales channel.
+        this method is called when the channel dedicated
+        to the import of data of type 'struct_key' is found
+        """
         raise NotImplementedError("Nothing found to import")

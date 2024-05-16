@@ -49,13 +49,19 @@ class MiraklSaleOrderLine(MiraklImportMapper):
     total_price: float
 
     def odoo_model_dump(self, mirakl_channel):
+        """
+        Allows you to build an odoo record
+        :param mirakl_channel: Mirakl channel on which the sale order line is attached
+        :return: dictionary allowing to construct the odoo record corresponding
+         to the data coming from mirakl
+        """
         domain = [("default_code", "=", self.product_sku)]
         product = mirakl_channel.env["product.product"].search(domain, limit=1)
 
         return {
             "product_id": product.id,
-            "name": product.name,  # ProductTemplate
-            "product_uom": product.uom_id.id,  # ProductTemplate
-            "product_uom_qty": self.quantity,  # S.O.Line
+            "name": product.name,
+            "product_uom": product.uom_id.id,
+            "product_uom_qty": self.quantity,
             "price_unit": self.price_unit,  # (price_unit == shipping_price du SO)  TODO
         }
