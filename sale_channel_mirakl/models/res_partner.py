@@ -3,7 +3,7 @@ from odoo import fields, models
 
 class ResPartner(models.Model):
     _name = "res.partner"
-    _inherit = [_name, "mirakl.binding", "sale.channel.owner"]
+    _inherit = [_name, "sale.channel.owner"]
 
     channel_ids = fields.Many2many(
         comodel_name="sale.channel",

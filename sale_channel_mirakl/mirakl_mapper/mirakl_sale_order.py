@@ -81,12 +81,10 @@ class MiraklSaleOrder(MiraklImportMapper):
         return product_pricelist
 
     def get_order_lines(self, mirakl_channel):
-        order_lines_values = []
-        for order_line in self.order_lines:
-            order_lines_values.append(
-                Command.create(order_line.odoo_model_dump(mirakl_channel))
-            )
-        return order_lines_values
+        return [
+            Command.create(order_line.odoo_model_dump(mirakl_channel))
+            for order_line in self.order_lines
+        ]
 
     def odoo_model_dump(self, mirakl_channel):
         """

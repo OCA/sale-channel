@@ -11,12 +11,6 @@ class MiraklProduct(MiraklExportMapper):
 
     @classmethod
     def map_item(cls, mirakl_channel, product):
-        """
-        Build a mirakl record from an odoo record
-        :param mirakl_channel: Mirakl channel on which the product is attached
-        :param product: product to map
-        :return: a pydantic object corresponding to the form expected by mirakl
-        """
         cat = product.categ_id.display_name or ""
         cat = cat.replace(
             "/", ">"

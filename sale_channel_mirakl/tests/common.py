@@ -1,5 +1,6 @@
 import csv
 from base64 import b64decode
+from contextlib import contextmanager
 from io import StringIO
 
 from odoo import Command
@@ -40,9 +41,10 @@ class SetUpMiraklBase(common.TransactionCase):
         cls.product2 = cls.env.ref("product.product_product_8")
         cls.product3 = cls.env.ref("product.product_product_5")
         cls.product4 = cls.env.ref("product.product_product_11b")
-        cls.product_pricelist = cls.env.ref("product.list0")
         cls.currency = cls.env.ref("base.EUR")
-        cls.product_pricelist.write({"currency_id": cls.currency.id})
+        cls.product_pricelist = cls.env.ref("product.list0").copy(
+            {"currency_id": cls.currency.id}
+        )
         cls.payment_mode = cls.env.ref("account_payment_mode.payment_mode_outbound_ct1")
 
         cls.product1.write(
@@ -215,6 +217,63 @@ class SetUpMiraklBase(common.TransactionCase):
                 "sale_channel_external_code": MIRAKL_CODE2,
             }
         )
+
+    @contextmanager
+    def _patch_process_request(self, sale_channel):
+        def _mock_process_request(
+            self_local,
+            url,
+            headers=None,
+            params=None,
+            data=None,
+            files=None,
+            ignore_result=False,
+            request_type=None,
+        ):
+            self.url = url
+            self.headers = headers
+            self.files = files
+            self.request_type = request_type
+
+        sale_channel._patch_method("_process_request", _mock_process_request)
+        yield
+        sale_channel._revert_method("_process_request")
+
+    @contextmanager
+    def _patch_call_request(self, sale_channel):
+        def _sub_function(
+            self_local,
+            url,
+            headers=None,
+            params=None,
+            data=None,
+            files=None,
+            ignore_result=False,
+            request_type=None,
+        ):
+            return self.mirakl_sale_orders
+
+        sale_channel._patch_method("_process_request", _sub_function)
+        yield
+        sale_channel._revert_method("_process_request")
+
+    @contextmanager
+    def _patch_import_one_sale_order(self, sale_channel):
+        def _only_one_sale_order(
+            self_local,
+            url,
+            headers=None,
+            params=None,
+            data=None,
+            files=None,
+            ignore_result=False,
+            request_type=None,
+        ):
+            return self.a_sale_order
+
+        sale_channel._patch_method("_process_request", _only_one_sale_order)
+        yield
+        sale_channel._revert_method("_process_request")
 
     def setUp(self):
         super().setUp()

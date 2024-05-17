@@ -7,8 +7,14 @@ class SaleOrderSaleChannelRel(models.Model):
     _inherit = "sale.channel.relation"
     _description = " sale order sale channel relation"
 
-    sale_channel_id = fields.Many2one(
-        comodel_name="sale.channel", string="sale channel"
+    sale_order_id = fields.Many2one(
+        comodel_name="sale.order", string="sale order", required=True
     )
 
-    sale_order_id = fields.Many2one(comodel_name="sale.order", string="sale order")
+    _sql_constraints = [
+        (
+            "unique_sale_order_sale_channel",
+            "unique(sale_channel_id, sale_order_id)",
+            "The combination of Sale Channel and Sale Order must be unique",
+        )
+    ]

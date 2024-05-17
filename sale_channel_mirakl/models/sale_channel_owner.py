@@ -1,5 +1,7 @@
 from odoo import api, fields, models
 
+from .sale_channel import MIRAKL
+
 
 class SaleChannelOwner(models.AbstractModel):
     _inherit = "sale.channel.owner"
@@ -13,8 +15,12 @@ class SaleChannelOwner(models.AbstractModel):
         store=True,
         help="Date of last import sync for the related record",
     )
+    is_from_mirakl = fields.Boolean(
+        compute="_compute_is_from_mirakl",
+        store=True,
+    )
 
-    def _get_values_for_updating(self, field_name, only_single_result=False):
+    def _get_values_for_updating(self, field_name):
         """
         :param field_name: field to update
         :param only_single_result: set to True if we want the values to
@@ -47,17 +53,9 @@ class SaleChannelOwner(models.AbstractModel):
                     fields=[relation_field, f"{field_name}s:array_agg({field_name})"],
                     groupby=[relation_field],
                 )
-                if only_single_result:
-                    values_for_updating = {
-                        x[relation_field][0]: x.get(f"{field_name}s", [])
-                        for x in result
-                        if x.get(relation_field + "_count", 0) == 1
-                    }
-                else:
-                    values_for_updating = {
-                        x[relation_field][0]: x.get(f"{field_name}s", [])
-                        for x in result
-                    }
+                values_for_updating = {
+                    x[relation_field][0]: x.get(f"{field_name}s", []) for x in result
+                }
 
                 return values_for_updating
 
@@ -84,9 +82,13 @@ class SaleChannelOwner(models.AbstractModel):
         field_name = "sale_channel_sync_date"
         self.update({field_name: False})
 
-        values_for_updating = self._get_values_for_updating(
-            field_name, only_single_result=True
-        )
+        values_for_updating = self._get_values_for_updating(field_name)
         if values_for_updating:
             for record in self:
                 record.sale_channel_sync_date = values_for_updating.get(record.id)[0]
+
+    @api.depends("channel_ids")
+    def _compute_is_from_mirakl(self):
+        for record in self:
+            if any(x.channel_type == MIRAKL for x in record.channel_ids):
+                record.is_from_mirakl = True

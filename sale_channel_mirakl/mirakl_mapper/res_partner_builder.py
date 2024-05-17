@@ -23,13 +23,15 @@ class ResPartnerBuilder(BaseModel):
         return name
 
     def build_country(self, sale_channel):
-        if self.country_iso_code:
-            country = sale_channel.env["res.country"].search(
-                [("code", "=", self.country_iso_code)],
-                limit=1,
+        country = sale_channel.default_country_id
+        if self.shipping_zone_code:
+            country = (
+                sale_channel.env["res.country"].search(
+                    [("code", "=", self.shipping_zone_code)],
+                    limit=1,
+                )
+                or country
             )
-        else:
-            country = sale_channel.default_country_id
         return country
 
     def odoo_model_dump(self, mirakl_channel):

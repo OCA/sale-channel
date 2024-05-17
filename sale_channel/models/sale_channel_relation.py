@@ -17,3 +17,7 @@ class SaleChannelRelation(models.AbstractModel):
     sale_channel_sync_date = fields.Datetime(
         help="Date of last import sync for the related record"
     )
+
+    sale_channel_id = fields.Many2one(
+        comodel_name="sale.channel", string="sale channel", required=True
+    )

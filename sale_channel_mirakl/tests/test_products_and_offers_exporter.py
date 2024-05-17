@@ -17,9 +17,26 @@ STATE = "11"
 PROD_ID_TYPE = "SHOP_SKU"
 EMPTY_STRING = ""
 CARRIAGE_RETURN = "\r\n"
+PRODUCT_FILE_HEADER = (
+    '"sku";"ean";"PRODUCT_TITLE";"PRODUCT_DESCRIPTION";"PRODUCT_CAT_CODE"'
+)
+OFFER_FILE_HEADER = '"sku";"product-id";"product-id-type";"state"'
+CATALOG_FILE_HEADER = (
+    '"sku";"ean";"PRODUCT_TITLE";"PRODUCT_DESCRIPTION";'
+    '"PRODUCT_CAT_CODE";"product-id";"product-id-type";"state"'
+)
 
 
 class TestProductOfferExporter(common.SetUpMiraklBase):
+    @contextmanager
+    def _patch_unlink_attachment(self, attachment):
+        def _local_unlink(self_local):
+            return True
+
+        attachment._patch_method("unlink", _local_unlink)
+        yield
+        attachment._revert_method("unlink")
+
     def test_make_product_file(self):
 
         struct_key = self.mirakl_sc_for_product.data_to_export
@@ -113,33 +130,12 @@ class TestProductOfferExporter(common.SetUpMiraklBase):
         self.assertDictEqual(self.files, files)
         self.assertEqual(self.request_type, request_type)
 
-    @contextmanager
-    def _patch_process_request(self, sale_channel):
-        def _mock_process_request(
-            self_local,
-            url,
-            headers=None,
-            params=None,
-            data=None,
-            files=None,
-            ignore_result=False,
-            request_type=None,
-        ):
-            self.url = url
-            self.headers = headers
-            self.files = files
-            self.request_type = request_type
-
-        sale_channel._patch_method("_process_request", _mock_process_request)
-        yield
-        sale_channel._revert_method("_process_request")
-
     def test_post_products_file_on_mirakl(self):
         expected_filename = "{}_{}".format(
             "Product", self.mirakl_sc_for_product.offer_filename
         )
         expected_file_content = (
-            '"sku";"ean";"PRODUCT_TITLE";"PRODUCT_DESCRIPTION";"PRODUCT_CAT_CODE"\r\n'
+            PRODUCT_FILE_HEADER + "\r\n"
             '"{p2_dfl}";"{p2_brcd}";"{p2_name}";"{p2_desc}";"{cat}"{car_return}'
             '"{p1_dfl}";"{empty}";"{p1_name}";"{p1_name}";"{cat}"{car_return}'.format(
                 p2_dfl=self.product2.default_code,
@@ -167,7 +163,7 @@ class TestProductOfferExporter(common.SetUpMiraklBase):
             "Offer", self.mirakl_sc_for_offer.offer_filename
         )
         expected_file_content = (
-            '"sku";"product-id";"product-id-type";"state"\r\n'
+            OFFER_FILE_HEADER + "\r\n"
             '"{p2_dfl}";"{p2_brcd}";"{ean}";"{state}"{car_return}'
             '"{p1_dfl}";"{p1_dfl}";"{prod_id_type}";"{state}"{car_return}'.format(
                 p2_dfl=self.product2.default_code,
@@ -194,8 +190,7 @@ class TestProductOfferExporter(common.SetUpMiraklBase):
     def test_post_catalog_file_on_mirakl(self):
         expected_filename = self.mirakl_sc_for_offer.offer_filename
         expected_file_content = (
-            '"sku";"ean";"PRODUCT_TITLE";"PRODUCT_DESCRIPTION";"PRODUCT_CAT_CODE"'
-            ';"product-id";"product-id-type";"state"\r\n'
+            CATALOG_FILE_HEADER + "\r\n"
             '"{p2_dfl}";"{p2_brcd}";"{p2_name}";"{p2_desc}";"{cat}";"{p2_brcd}";'
             '"{ean}";"{state}"{car_return}'
             '"{p1_dfl}";"{empty}";"{p1_name}";"{p1_name}";"{cat}";"{p1_dfl}";'
@@ -231,51 +226,14 @@ class TestProductOfferExporter(common.SetUpMiraklBase):
         for struct_key in self.mirakl_sc_import.channel_id._get_struct_to_import():
             self.assertEqual(struct_key, SALE_ORDER)
 
-    @contextmanager
-    def _patch_call_request(self, sale_channel):
-        def _sub_function(
-            self_local,
-            url,
-            headers=None,
-            params=None,
-            data=None,
-            files=None,
-            ignore_result=False,
-            request_type=None,
-        ):
-
-            return self.mirakl_sale_orders
-
-        sale_channel._patch_method("_process_request", _sub_function)
-        yield
-        sale_channel._revert_method("_process_request")
-
     def test_sale_orders_import(self):
         with self._patch_call_request(self.mirakl_sc_import):
             self.mirakl_sc_import.channel_id._scheduler_import()
-
-    @contextmanager
-    def _patch_import_one_sale_order(self, sale_channel):
-        def _only_one_sale_order(
-            self_local,
-            url,
-            headers=None,
-            params=None,
-            data=None,
-            files=None,
-            ignore_result=False,
-            request_type=None,
-        ):
-            return self.a_sale_order
-
-        sale_channel._patch_method("_process_request", _only_one_sale_order)
-        yield
-        sale_channel._revert_method("_process_request")
 
     def test_import_one_sale_order(self):
         with self._patch_import_one_sale_order(self.mirakl_sc_import):
             orders = self.sale_channel_4._job_trigger_import(SALE_ORDER)
 
             self.assertEqual(1, len(orders))
-            self.assertEqual(type(orders[0]), self.env[SALE_ORDER].__class__)
-            self.assertTrue(orders[0].is_from_mirakl)
+            self.assertEqual(orders._name, SALE_ORDER)
+            self.assertTrue(orders.is_from_mirakl)

@@ -1,6 +1,5 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
-from odoo.tools import split_every
 
 MIRAKL = "mirakl"
 
@@ -36,38 +35,40 @@ class SaleChannel(models.Model):
                 )
 
     def _get_struct_to_export(self):
+        struct_keys = super()._get_struct_to_export()
         if self.channel_type == MIRAKL:
-            for channel in self.mirakl_channel_ids:
-                yield channel.data_to_export
-        else:
-            super()._get_struct_to_export()
-
-    def split_products(self, products):
-        """
-        constructs a list of product lists whose length of e
-        ach sublist depends on a given parameter.
-        This is to avoid launching the export of too many products at once.
-        :param products: list of products to split
-        :return: A generator that returns each sublist of products one by one
-        """
-        return split_every(self.max_items_to_export, products)
+            struct_keys.extend([c.data_to_export for c in self.mirakl_channel_ids])
+        return struct_keys
 
     def _get_items_to_export(self, struct_key):
         if self.channel_type == MIRAKL:
-            products = self.env["product.product"].search(
-                [("product_tmpl_id.channel_ids", "in", self.id)]
-            )
-            products_list = self.split_products(products)  # List of lists of products
-            return products_list
+            yield from self._get_items_to_export_mirakl_product()
 
         return super()._get_items_to_export(struct_key)
+
+    def _get_items_to_export_mirakl_product(self):
+        domain = [("product_tmpl_id.channel_ids", "in", self.id)]
+        if self.max_items_to_export <= 0:
+            products = self.env["product.product"].search(domain)
+            yield products
+        else:
+            products = self.env["product.product"].search(
+                domain, limit=self.max_items_to_export
+            )
+            already_loaded = self.max_items_to_export
+            while products:
+                yield products
+                products = self.env["product.product"].search(
+                    domain, limit=self.max_items_to_export, offset=already_loaded
+                )
+                already_loaded += self.max_items_to_export
 
     def _map_items(self, struct_key, items):
         if self.channel_type == MIRAKL:
             for item in self.mirakl_channel_ids._map_items(struct_key, items):
                 yield item
         else:
-            super()._map_items(struct_key, items)
+            return super()._map_items(struct_key, items)
 
     def _trigger_export(self, struct_key, pydantic_items):
         if self.channel_type == MIRAKL:
@@ -75,15 +76,15 @@ class SaleChannel(models.Model):
                 lambda r: r.data_to_export == struct_key
             )
             return mirakl_channel._export_data(pydantic_items)
-
         return super()._trigger_export(struct_key, pydantic_items)
 
     def _get_struct_to_import(self):
+        struct_keys = super()._get_struct_to_import()
         if self.channel_type == MIRAKL:
-            for record in self.mirakl_channel_ids:
-                yield record.data_to_import
-        else:
-            super()._get_struct_to_import()
+            struct_keys.extend(
+                record.data_to_import for record in self.mirakl_channel_ids
+            )
+        return struct_keys
 
     def _job_trigger_import(self, struct_key):
         if self.channel_type == MIRAKL:

@@ -198,13 +198,14 @@ class MiraklSaleOrderImporter(models.AbstractModel):
         )
         imported_orders = result["orders"] or []
 
-        created_or_updated_orders = []
+        created_or_updated_orders = self.env["sale.order"].browse()
         for mirakl_sale_order in self._map_orders(imported_orders):
             if not self._get_binding(
                 sale_channel,
                 mirakl_sale_order,
             ):
-                created_or_updated_orders.append(
-                    self.create_or_update_record(sale_channel, mirakl_sale_order)
+                created_or_updated_orders |= self.create_or_update_record(
+                    sale_channel, mirakl_sale_order
                 )
+
         return created_or_updated_orders

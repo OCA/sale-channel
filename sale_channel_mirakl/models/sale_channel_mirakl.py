@@ -263,10 +263,8 @@ class SaleChannelMirakl(models.Model):
         # deletion_day = fields.Datetime.now() + timedelta(
         #     days=self.attachment_delation_day
         # )
-        #
-        # attachment.with_delay(eta=deletion_day).unlink() Currently, I have to
-        # comment because having skipped the execution of the jobs for my tests,
-        # the attachment is deleted before being returned
+        # attachment.with_delay(eta=deletion_day).unlink()
+        # TODO : Patch the ir_attachment 'unlink' method in tests
 
         return attachment
 
@@ -274,10 +272,11 @@ class SaleChannelMirakl(models.Model):
         """
         Super class data export method adapted to Mirakl
         (Export products or offers)
-        :param items: items to export.
+        :param pydantic_items: items to export.
         """
         self.ensure_one()
         attachment = self._create_and_fill_csv_file(pydantic_items)
+
         self.post(attachment)
 
     def _get_mappers(self):

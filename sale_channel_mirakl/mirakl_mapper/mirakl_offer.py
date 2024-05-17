@@ -10,12 +10,6 @@ class MiraklOffer(MiraklExportMapper):
 
     @classmethod
     def map_item(cls, mirakl_channel, product):
-        """
-        Build a mirakl record from an odoo record
-        :param mirakl_channel: Mirakl channel on which the product is attached
-        :param product: product to map
-        :return: a pydantic object corresponding to the form expected by mirakl
-        """
         relation_prod_channel = product.product_tmpl_id.prod_sale_channel_ids.filtered(
             lambda r: r.sale_channel_id == mirakl_channel.channel_id
         )

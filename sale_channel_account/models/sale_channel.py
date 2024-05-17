@@ -11,8 +11,6 @@ class SaleChannel(models.Model):
     analytic_account_id = fields.Many2one(
         comodel_name="account.analytic.account",
         string="Analytic account",
-        help="If specified, this analytic account will be used to fill the "
-        "field  on the sale order created by the connector.",
     )
 
     payment_mode_id = fields.Many2one(

@@ -6,10 +6,15 @@
         <field name="name">mirakl.backend.tree</field>
         <field name="model">sale.channel.mirakl</field>
         <field name="arch" type="xml">
-          <tree>
-            <field name="name" />
-            <field name="location" />
-          </tree>
+            <tree>
+                <field name="channel_id" />
+                <field name="location" />
+                <field name="api_key" />
+                <field name="offer_filename" />
+                <field name="shop_id" />
+                <field name="data_to_export" />
+                <field name="data_to_import" />
+            </tree>
         </field>
     </record>
 
@@ -19,17 +24,30 @@
         <field name="model">sale.channel.mirakl</field>
         <field name="arch" type="xml">
             <form string="Sale Channel Mirakl">
-                <group>
-                    <field name="name" />
-                    <field name="active" />
-                    <field name="location" />
-                    <field name="api_key" />
-                </group>
-                <group>
-                    <field name="offer_filename" />
-                    <field name="shop_id" />
-                </group>
+                <sheet>
+                    <group>
+                        <field name="channel_id" />
+                        <field name="location" />
+                        <field name="api_key" />
+                        <field name="offer_filename" />
+                        <field name="shop_id" />
+                    </group>
+                    <group>
+                        <group>
+                            <field name="data_to_export" />
+                            <field name="data_to_import" />
+                            <field name="max_items_to_import" />
+                        </group>
 
+                        <group>
+                            <field name="attachment_delation_day" />
+                            <field name="warehouse_id" />
+                            <field name="default_country_id" />
+                            <field name="import_orders_from_date" />
+                        </group>
+                    </group>
+
+                </sheet>
             </form>
         </field>
     </record>

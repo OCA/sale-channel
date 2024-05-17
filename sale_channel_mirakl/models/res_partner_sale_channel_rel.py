@@ -11,6 +11,4 @@ class ResPartnerSaleChannelRel(models.Model):
     _description = "Res partner sale channel Relation"
     _inherit = "sale.channel.relation"
 
-    sale_channel_id = fields.Many2one("sale.channel", string="Sale Channel")
-
-    res_partner_id = fields.Many2one("res.partner", string="Res Partner")
+    res_partner_id = fields.Many2one("res.partner", string="Res Partner", required=True)

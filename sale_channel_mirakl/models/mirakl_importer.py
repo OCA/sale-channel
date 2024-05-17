@@ -55,7 +55,7 @@ class MiraklImporter(models.AbstractModel):
 
     def _get_importers(self):
         importers = {
-            MiraklCustomer: "mirakl.customer.importer",
+            MiraklCustomer: "mirakl.res.partner.importer",
             MiraklBillingAddress: "mirakl.res.partner.importer",
             MiraklShippingAddress: "mirakl.res.partner.importer",
             MiraklSaleOrder: "mirakl.sale.order.importer",

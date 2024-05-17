@@ -7,6 +7,6 @@ class ProductTemplateSaleChannelRel(models.Model):
     _description = "Product template sale channel Relation"
     _inherit = "sale.channel.relation"
 
-    sale_channel_id = fields.Many2one("sale.channel", string="Sale Channel")
-
-    product_template_id = fields.Many2one("product.template", string="Product Template")
+    product_template_id = fields.Many2one(
+        "product.template", string="Product Template", required=True
+    )

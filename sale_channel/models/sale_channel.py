@@ -21,15 +21,17 @@ class SaleChannel(models.Model):
     def _scheduler_export(self):
         for record in self:
             for struct_key in record._get_struct_to_export():
-                for items in record._get_items_to_export(struct_key):
-                    description = "Export {} from {} whose id is {}".format(
-                        items,
+                for i, items in enumerate(record._get_items_to_export(struct_key)):
+                    key = f"{i}_export_items_{struct_key}_for_channel_{record.id}"
+                    description = "Export part {} from {}({}) whose id is {}".format(
+                        i,
                         record.name,
+                        struct_key,
                         record.id,
                     )
-                    record.with_delay(description=description)._job_trigger_export(
-                        struct_key, items
-                    )
+                    record.with_delay(
+                        description=description, identity_key=key
+                    )._job_trigger_export(struct_key, items)
 
     def _job_trigger_export(self, struct_key, items):
         """
@@ -44,7 +46,7 @@ class SaleChannel(models.Model):
         """
         Retrieves the item types to export
         """
-        NotImplementedError("Something is missing")
+        return []
 
     def _map_items(self, struct_key, items):
         """
@@ -64,7 +66,7 @@ class SaleChannel(models.Model):
         :return: A list of several lists of Odoo objects to export split
         according to a predefined size
         """
-        raise NotImplementedError("Nothing found to export with %s" % struct_key)
+        return []
 
     def _trigger_export(self, struct_key, mapped_items):
         """
@@ -79,19 +81,20 @@ class SaleChannel(models.Model):
     @abstractmethod
     def _scheduler_import(self):
         for record in self:
-            for struct_key in record._get_struct_to_import():
+            for i, struct_key in enumerate(record._get_struct_to_import()):
+                key = f"{i}import_{struct_key}_for_channel{record.id}"
                 description = "Import {} from {} whose id is {}".format(
                     struct_key,
                     record.name,
                     record.id,
                 )
-                record.with_delay(description=description)._job_trigger_import(
-                    struct_key
-                )
+                record.with_delay(
+                    description=description, identity_key=key
+                )._job_trigger_import(struct_key)
 
     def _get_struct_to_import(self):
         """Retrieves the item types to import"""
-        NotImplementedError("Something is missing")
+        return []
 
     def _job_trigger_import(self, struct_key):
         """
