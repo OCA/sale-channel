@@ -13,6 +13,11 @@ class SaleChannelImporter(models.TransientModel):
 
     chunk_id = fields.Many2one("queue.job.chunk", "Chunk")
 
+    def _get_formatted_data(self):
+        """Override if you need to translate the Chunk's raw data into the current
+        SaleOrder schemas"""
+        return self.chunk_id._get_data()
+
     def _get_existing_so(self, data):
         ref = data["name"]
         return self.env["sale.order"].search(
@@ -22,14 +27,22 @@ class SaleChannelImporter(models.TransientModel):
             ]
         )
 
+    def _manage_existing_so(self, existing_so, data):
+        """Override if you need to update existing Sale Order instead of raising
+        an error"""
+        raise ValidationError(
+            _("Sale Order {} has already been created").format(data["name"])
+        )
+
     def run(self):
         # Get validated sale order
-        data = SaleOrder(**self.chunk_id._get_data()).model_dump()
+        formatted_data = self._get_formatted_data()
+        data = SaleOrder(**formatted_data).model_dump()
         existing_so = self._get_existing_so(data)
         if existing_so:
-            raise ValidationError(
-                _("Sale Order {} has already been created").format(data["name"])
-            )
+            self._manage_existing_so(existing_so, data)
+            return existing_so
+
         so_vals = self._prepare_sale_vals(data)
         sale_order = self.env["sale.order"].create(so_vals)
         so_line_vals = self._prepare_sale_line_vals(data, sale_order)
@@ -50,7 +63,9 @@ class SaleChannelImporter(models.TransientModel):
             "client_order_ref": data["name"],
             "sale_channel_id": channel.id,
             "pricelist_id": data.get("pricelist_id") or channel.pricelist_id.id,
+            "team_id": channel.crm_team_id.id,
         }
+
         amount = data.get("amount")
         if amount:
             so_vals.update(
@@ -184,6 +199,7 @@ class SaleChannelImporter(models.TransientModel):
         }
         if line_data.get("description"):
             vals["name"] = line_data["description"]
+
         return vals
 
     def _finalize(self, new_sale_order, raw_import_data):
