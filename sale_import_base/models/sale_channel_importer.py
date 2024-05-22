@@ -178,17 +178,34 @@ class SaleChannelImporter(models.TransientModel):
         return [self._prepare_sale_line(line, sale_order) for line in data["lines"]]
 
     def _prepare_sale_line(self, line_data, sale_order):
+        channel = self.chunk_id.reference
+        company_id = channel.company_id
+
         product = self.env["product.product"].search(
-            [("default_code", "=", line_data["product_code"])]
+            [
+                ("default_code", "=", line_data["product_code"]),
+                ("product_tmpl_id.company_id", "=", company_id.id),
+            ]
         )
         if not product:
             raise ValidationError(
-                _("Missing product {}").format(line_data["product_code"])
+                _(
+                    "There is no active product with the Internal Reference %(code)s "
+                    "and related to the company %(company)s."
+                )
+                % {"code": line_data["product_code"], "company": company_id.name}
             )
         elif len(product) > 1:
             raise ValidationError(
-                _("%(product_num)s products found for the code %(code)s")
-                % {"product_num": len(product), "code": line_data["product_code"]}
+                _(
+                    "%(product_num)s products found for the code %(code)s and related "
+                    "to the company %(company)s."
+                )
+                % {
+                    "product_num": len(product),
+                    "code": line_data["product_code"],
+                    "company": company_id.name,
+                }
             )
         vals = {
             "product_id": product.id,
