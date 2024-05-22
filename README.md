@@ -21,7 +21,7 @@ Available addons
 ----------------
 addon | version | maintainers | summary
 --- | --- | --- | ---
-[sale_channel](sale_channel/) | 16.0.0.1.0 |  | Adds the notion of sale channels
+[sale_channel](sale_channel/) | 16.0.0.2.0 |  | Adds the notion of sale channels
 [sale_channel_category](sale_channel_category/) | 16.0.1.0.2 |  | Link Category with sale channel
 [sale_channel_product](sale_channel_product/) | 16.0.1.0.1 |  | Link Product with sale channel
 [sale_channel_search_engine](sale_channel_search_engine/) | 16.0.0.1.0 |  | Abstract module for configuring a search engine on a sale channel
