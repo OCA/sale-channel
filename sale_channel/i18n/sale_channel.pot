@@ -19,9 +19,25 @@ msgid "Active"
 msgstr ""
 
 #. module: sale_channel
+#: model:ir.model.fields,help:sale_channel.field_sale_channel__channel_type
+msgid ""
+"Allows to use specific fields and actions for a specific channel's type"
+msgstr ""
+
+#. module: sale_channel
 #: model_terms:ir.ui.view,arch_db:sale_channel.sale_channel_view_form
 #: model_terms:ir.ui.view,arch_db:sale_channel.sale_channel_view_search
 msgid "Archived"
+msgstr ""
+
+#. module: sale_channel
+#: model:ir.model.fields,field_description:sale_channel.field_sale_channel__channel_type
+msgid "Channel Type"
+msgstr ""
+
+#. module: sale_channel
+#: model:ir.model.fields,field_description:sale_channel.field_sale_channel__company_id
+msgid "Company"
 msgstr ""
 
 #. module: sale_channel
