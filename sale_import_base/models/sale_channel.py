@@ -20,6 +20,7 @@ class SaleChannel(models.Model):
         "(technical) Check total amounts against imported values"
     )
     pricelist_id = fields.Many2one("product.pricelist", string="Pricelist")
+    crm_team_id = fields.Many2one("crm.team")
     confirm_order = fields.Boolean(help="Confirm order after import")
     invoice_order = fields.Boolean(help="Generate invoice after import")
     internal_naming_method = fields.Selection(
