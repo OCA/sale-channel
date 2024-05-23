@@ -188,6 +188,13 @@ class SaleChannelImporter(models.TransientModel):
             ]
         )
         if not product:
+            product = self.env["product.product"].search(
+                [
+                    ("default_code", "=", line_data["product_code"]),
+                    ("product_tmpl_id.company_id", "=", False),
+                ]
+            )
+        if not product:
             raise ValidationError(
                 _(
                     "There is no active product with the Internal Reference %(code)s "
@@ -197,15 +204,8 @@ class SaleChannelImporter(models.TransientModel):
             )
         elif len(product) > 1:
             raise ValidationError(
-                _(
-                    "%(product_num)s products found for the code %(code)s and related "
-                    "to the company %(company)s."
-                )
-                % {
-                    "product_num": len(product),
-                    "code": line_data["product_code"],
-                    "company": company_id.name,
-                }
+                _("%(product_num)s products found for the code %(code)s.")
+                % {"product_num": len(product), "code": line_data["product_code"]}
             )
         vals = {
             "product_id": product.id,
