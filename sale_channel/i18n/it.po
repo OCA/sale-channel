@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2023-12-06 18:35+0000\n"
+"PO-Revision-Date: 2024-05-27 15:38+0000\n"
 "Last-Translator: mymage <stefano.consolaro@mymage.it>\n"
 "Language-Team: none\n"
 "Language: it\n"
@@ -25,6 +25,8 @@ msgstr "Attivo"
 #: model:ir.model.fields,help:sale_channel.field_sale_channel__channel_type
 msgid "Allows to use specific fields and actions for a specific channel's type"
 msgstr ""
+"Consente di utilizzare campi e azioni specifici per un tipo specifico di "
+"canale"
 
 #. module: sale_channel
 #: model_terms:ir.ui.view,arch_db:sale_channel.sale_channel_view_form
@@ -35,12 +37,12 @@ msgstr "In archivio"
 #. module: sale_channel
 #: model:ir.model.fields,field_description:sale_channel.field_sale_channel__channel_type
 msgid "Channel Type"
-msgstr ""
+msgstr "Tipo canale"
 
 #. module: sale_channel
 #: model:ir.model.fields,field_description:sale_channel.field_sale_channel__company_id
 msgid "Company"
-msgstr ""
+msgstr "Azienda"
 
 #. module: sale_channel
 #: model:ir.model.fields,field_description:sale_channel.field_sale_channel__create_uid
