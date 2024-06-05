@@ -158,10 +158,13 @@ class SaleChannelImporter(models.TransientModel):
                 result["state_id"] = state.id
         return result
 
+    def _should_merge_addresses(self, vals_addr_invoice, vals_addr_shipping):
+        return vals_addr_invoice == vals_addr_shipping
+
     def _process_addresses(self, parent, address_invoice, address_shipping):
         vals_addr_invoice = self._prepare_partner(address_invoice, parent.id, True)
         vals_addr_shipping = self._prepare_partner(address_shipping, parent.id, True)
-        if vals_addr_invoice == vals_addr_shipping:
+        if self._should_merge_addresses(vals_addr_invoice, vals_addr_shipping):
             # not technically correct for the shipping addr, but this shouldn't matter
             vals_addr_invoice["type"] = "invoice"
             result = self.env["res.partner"].create(vals_addr_invoice)
