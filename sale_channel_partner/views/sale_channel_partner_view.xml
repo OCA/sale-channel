@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="sale_channel_partner_view_tree" model="ir.ui.view">
+        <field name="model">sale.channel.partner</field>
+        <field name="arch" type="xml">
+            <tree create="false">
+                <field name="external_id" />
+                <field name="sale_channel_id" />
+                <field name="partner_id" />
+            </tree>
+        </field>
+    </record>
+</odoo>

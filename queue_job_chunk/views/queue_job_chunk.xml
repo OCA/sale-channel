@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_queue_job_form" model="ir.ui.view">
+        <field name="model">queue.job.chunk</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="button_retry"
+                        type="object"
+                        string="Retry job"
+                        attrs="{'invisible': [('state', '=', 'done')]}"
+                        class="btn-primary"
+                    />
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="processor" />
+                            <field name="reference" />
+                            <field name="state_info" />
+                            <field name="stack_trace" groups="base.group_system" />
+                            <field name="data_str" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_queue_job_tree" model="ir.ui.view">
+        <field name="model">queue.job.chunk</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="create_date" />
+                <field name="processor" />
+                <field name="reference" />
+                <field name="state" />
+                <field name="data_str" optional="hide" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_queue_job_search" model="ir.ui.view">
+        <field name="model">queue.job.chunk</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="data_str" />
+                <field name="stack_trace" />
+                <filter
+                    string="Pending"
+                    name="pending"
+                    domain="[('state', '=', 'pending')]"
+                />
+                <filter
+                    string="Failed"
+                    name="failed"
+                    domain="[('state', '=', 'fail')]"
+                />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_queue_job_chunk" model="ir.actions.act_window">
+        <field name="name">Queue Job Chunks</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">queue.job.chunk</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem
+        id="menu_queue_job_chunk"
+        name="Queue Chunks"
+        parent="queue_job.menu_queue_job_root"
+        action="action_queue_job_chunk"
+    />
+
+</odoo>
