@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="sale_channel_notification_view_form" model="ir.ui.view">
+        <field name="model">sale.channel</field>
+        <field name="inherit_id" ref="sale_channel.sale_channel_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <notebook>
+                    <page name="sale_notification" string="Notification">
+                        <field name="notification_ids" nolabel="1" required="1">
+                            <tree editable="bottom">
+                                <field name="notification_type" />
+                                <field name="model_id" />
+                                <field
+                                    name="template_id"
+                                    domain="[('model_id', '=', model_id)]"
+                                />
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
