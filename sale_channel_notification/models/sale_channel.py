@@ -2,7 +2,7 @@
 # @author Mathieu Delva <mathieu.delva@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from odoo import api, fields, models
+from odoo import fields, models
 from odoo.tools.translate import _
 
 
@@ -25,11 +25,8 @@ class SaleChannel(models.Model):
                 ("notification_type", "=", notification),
             ]
         )
-        description = _("Notify %s for %s,%s") % (
-            notification,
-            record._name,
-            record.id,
-        )
+        (_(f"Notify {notification} for {record._name},{record.id}"))
+
         for notif in notifs:
             notif.send(record.id)
         return True
