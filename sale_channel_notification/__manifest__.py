@@ -18,6 +18,7 @@
     },
     "depends": [
         "sale_channel",
+        "stock",
     ],
     "data": [
         "security/ir.model.access.csv",
