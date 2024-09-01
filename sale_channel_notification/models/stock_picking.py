@@ -11,6 +11,4 @@ class StockPicking(models.Model):
     @api.onchange("carrier_id")
     def onchange_carrier_id(self):
         if self.carrier_id and self.sale_id.sale_channel_id:
-            self.sale_id.sale_channel_id._send_notification(
-                "picking_shipped", self.env["stock.picking"].browse(self.ids)
-            )
+            self.sale_id.sale_channel_id._send_notification("picking_shipped", self)

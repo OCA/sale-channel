@@ -3,7 +3,6 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import fields, models
-from odoo.tools.translate import _
 
 
 class SaleChannel(models.Model):
@@ -25,8 +24,6 @@ class SaleChannel(models.Model):
                 ("notification_type", "=", notification),
             ]
         )
-        (_(f"Notify {notification} for {record._name},{record.id}"))
-
         for notif in notifs:
             notif.send(record.id)
         return True
