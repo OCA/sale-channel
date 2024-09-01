@@ -17,6 +17,7 @@
         "bin": [],
     },
     "depends": [
+        "delivery",
         "sale_channel",
         "stock",
     ],

@@ -9,14 +9,12 @@ class SaleOrder(models.Model):
     _inherit = "sale.order"
 
     def action_confirm(self):
-        if "send_email" in self._context and self._context.get("send_email"):
-            self.env.context = dict(self.env.context)
-            self.env.context.pop("send_email")
         res = super().action_confirm()
         for record in self:
-            if record.state != "draft" and record.sale_channel_id:
+            if record.state == "sale" and record.sale_channel_id:
                 record.sale_channel_id._send_notification("sale_confirmation", record)
         return res
 
     def _get_confirmation_template(self):
+        # disable native email sending
         return False
