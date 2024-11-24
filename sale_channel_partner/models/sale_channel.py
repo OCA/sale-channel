@@ -27,6 +27,6 @@ class SaleChannel(models.Model):
             "res_model": "sale.channel.partner",
             "type": "ir.actions.act_window",
             "views": [(tree_view_id, "tree")],
-            "domain": [("sale_channel", "=", self.id)],
+            "domain": [("sale_channel_id", "=", self.id)],
         }
         return act
