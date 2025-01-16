@@ -58,6 +58,7 @@ Contributors
 ------------
 
 - Sébastien Beau <sebastien.beau@akretion.com>
+- `Heliconia Solutions Pvt. Ltd. <https://www.heliconia.io>`__
 
 Maintainers
 -----------
