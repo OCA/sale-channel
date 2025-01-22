@@ -6,7 +6,7 @@
     "version": "16.0.0.0.0",
     "category": "Generic Modules/Sale",
     "author": "Akretion, Odoo Community Association (OCA)",
-    "website": "https://github.com/akretion/sale-import",
+    "website": "https://github.com/OCA/sale-channel",
     "depends": [
         "queue_job_chunk",
         "sale_channel_partner",
