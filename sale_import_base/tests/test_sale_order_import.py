@@ -3,7 +3,7 @@
 
 import datetime
 
-import mock
+from unittest import mock
 
 from odoo.tests import tagged
 

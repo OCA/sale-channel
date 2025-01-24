@@ -162,4 +162,4 @@ class SaleImportCase(TestSaleCommonNoDuplicates, ExtendableMixin):
     def _helper_create_chunk(cls, vals_dict):
         """Converts data_str content to appropriate JSON format"""
         vals_dict["data_str"] = json.dumps(vals_dict["data_str"])
-        return cls.env["queue.job.chunk"].create(vals_dict)
+        return cls.env["queue.job.chunk"].sudo().create(vals_dict)
