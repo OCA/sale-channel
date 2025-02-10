@@ -77,6 +77,14 @@ OCA, or the Odoo Community Association, is a nonprofit organization whose
 mission is to support the collaborative development of Odoo features and
 promote its widespread use.
 
+.. |maintainer-florian-dacosta| image:: https://github.com/florian-dacosta.png?size=40px
+    :target: https://github.com/florian-dacosta
+    :alt: florian-dacosta
+
+Current `maintainer <https://odoo-community.org/page/maintainer-role>`__:
+
+|maintainer-florian-dacosta| 
+
 This module is part of the `OCA/sale-channel <https://github.com/OCA/sale-channel/tree/16.0/sale_import_base>`_ project on GitHub.
 
 You are welcome to contribute. To learn how please visit https://odoo-community.org/page/Contribute.

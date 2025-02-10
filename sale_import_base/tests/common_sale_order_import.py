@@ -146,20 +146,18 @@ class SaleImportCase(TestSaleCommonNoDuplicates, ExtendableMixin):
         cls.env = cls.env(context=dict(cls.env.context, test_queue_job_no_delay=True))
 
     @classmethod
-    def get_chunk_vals(cls, which_data):
+    def get_payload_vals(cls, which_data):
         """
         :param which_data: all | mixed | minimum
         see data.py
         """
         return {
             "data_str": deepcopy(getattr(cls, "sale_order_example_vals_" + which_data)),
-            "processor": "sale_channel_importer",
-            "model_name": "sale.channel",
-            "record_id": cls.env.ref("sale_channel.sale_channel_ebay").id,
+            "sale_channel_id": cls.env.ref("sale_channel.sale_channel_ebay").id,
         }
 
     @classmethod
-    def _helper_create_chunk(cls, vals_dict):
+    def _helper_create_payload(cls, vals_dict):
         """Converts data_str content to appropriate JSON format"""
         vals_dict["data_str"] = json.dumps(vals_dict["data_str"])
-        return cls.env["queue.job.chunk"].sudo().create(vals_dict)
+        return cls.env["sale.import.payload"].sudo().create(vals_dict)

@@ -11,19 +11,19 @@ class SaleChannelImporter(models.TransientModel):
     _name = "sale.channel.importer"
     _description = "Sale Channel Importer"
 
-    chunk_id = fields.Many2one("queue.job.chunk", "Chunk")
+    payload_id = fields.Many2one("sale.import.payload", "Payload")
 
     def _get_formatted_data(self):
-        """Override if you need to translate the Chunk's raw data into the current
+        """Override if you need to translate the payload's raw data into the current
         SaleOrder schemas"""
-        return self.chunk_id._get_data()
+        return self.payload_id._get_data()
 
     def _get_existing_so(self, data):
         ref = data["name"]
         return self.env["sale.order"].search(
             [
                 ("client_order_ref", "=", ref),
-                ("sale_channel_id", "=", self.chunk_id.reference.id),
+                ("sale_channel_id", "=", self.payload_id.sale_channel_id.id),
             ]
         )
 
@@ -34,10 +34,13 @@ class SaleChannelImporter(models.TransientModel):
             _("Sale Order {} has already been created").format(data["name"])
         )
 
+    def _validated_data(self, formatted_data):
+        return SaleOrder(**formatted_data).model_dump()
+
     def run(self):
         # Get validated sale order
         formatted_data = self._get_formatted_data()
-        data = SaleOrder(**formatted_data).model_dump()
+        data = self._validated_data(formatted_data)
         existing_so = self._get_existing_so(data)
         if existing_so:
             self._manage_existing_so(existing_so, data)
@@ -51,7 +54,7 @@ class SaleChannelImporter(models.TransientModel):
         return sale_order
 
     def _prepare_sale_vals(self, data):
-        channel = self.chunk_id.reference
+        channel = self.payload_id.sale_channel_id
         partner = self._process_partner(data["address_customer"])
         address_invoice, address_shipping = self._process_addresses(
             partner, data["address_invoicing"], data["address_shipping"]
@@ -101,7 +104,7 @@ class SaleChannelImporter(models.TransientModel):
             return partner
 
     def _find_partner(self, customer_data):
-        channel = self.chunk_id.reference
+        channel = self.payload_id.sale_channel_id
         external_id = customer_data["external_id"]
         binding = self.env["sale.channel.partner"].search(
             [
@@ -181,7 +184,7 @@ class SaleChannelImporter(models.TransientModel):
         return [self._prepare_sale_line(line, sale_order) for line in data["lines"]]
 
     def _prepare_sale_line(self, line_data, sale_order):
-        channel = self.chunk_id.reference
+        channel = self.payload_id.sale_channel_id
         company_id = channel.company_id
 
         product = self.env["product.product"].search(
@@ -283,7 +286,7 @@ class SaleChannelImporter(models.TransientModel):
         self.env["sale.channel.partner"].create(
             {
                 "external_id": external_id,
-                "sale_channel_id": self.chunk_id.reference.id,
+                "sale_channel_id": self.payload_id.sale_channel_id.id,
                 "partner_id": partner.id,
             }
         )
