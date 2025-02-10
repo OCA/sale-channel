@@ -32,18 +32,18 @@ async def create(
     endpoint_id: int = Depends(fastapi_endpoint_id),  # noqa: B008
     env: Environment = Depends(odoo_env),  # noqa: B008
 ) -> List[int]:  # noqa: B008
-    """Create all the chunk with the data of sale order.
-    Sale order will be created in async with the chunk data.
+    """Create all the payloads with the data of sale order.
+    Sale order will be created in async with the payload data.
 
-    Returns a list of chunk info with only id
+    Returns a list of payload info with only id
     """
     endpoint = env["fastapi.endpoint"].sudo().browse(endpoint_id)
-    chunks = (
+    payloads = (
         env["sale.import.service.sale"]
         .with_context(channel_id=endpoint.channel_id.id)
-        .create_chunk(params.model_dump()["sale_orders"])
+        .create_payload(params.model_dump()["sale_orders"])
     )
-    return chunks.ids
+    return payloads.ids
 
 
 @sale_import_api_router.post(

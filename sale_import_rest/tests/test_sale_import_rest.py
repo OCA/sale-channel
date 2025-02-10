@@ -15,12 +15,12 @@ from odoo.addons.sale_import_base.tests.common_sale_order_import import SaleImpo
 class TestSaleOrderImport(SaleImportCase):
     @property
     def payload_multi_sale(self):
-        chunks_data = [
-            self.get_chunk_vals("all")["data_str"],
-            self.get_chunk_vals("all")["data_str"],
+        payloads_data = [
+            self.get_payload_vals("all")["data_str"],
+            self.get_payload_vals("all")["data_str"],
         ]
-        chunks_data[1]["payment"]["reference"] = "PMT-EXAMPLE-002"
-        return {"sale_orders": chunks_data}
+        payloads_data[1]["payment"]["reference"] = "PMT-EXAMPLE-002"
+        return {"sale_orders": payloads_data}
 
     @classmethod
     def setUpClass(cls):
@@ -60,11 +60,11 @@ class TestSaleOrderImport(SaleImportCase):
     def _service_cancel(self, vals, allow_error=False):
         return self._call_path("/sale/cancel", vals, allow_error=allow_error)
 
-    def test_chunks_created(self):
-        chunk_count_initial = self.env["queue.job.chunk"].search_count([])
+    def test_payloads_created(self):
+        payload_count_initial = self.env["sale.import.payload"].search_count([])
         self._service_create(self.payload_multi_sale)
-        chunk_count_after = self.env["queue.job.chunk"].search_count([])
-        self.assertEqual(chunk_count_initial + 2, chunk_count_after)
+        payload_count_after = self.env["sale.import.payload"].search_count([])
+        self.assertEqual(payload_count_initial + 2, payload_count_after)
 
     def test_wrong_key(self):
         self.api_key = "WrongKey"
