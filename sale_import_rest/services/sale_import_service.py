@@ -23,23 +23,20 @@ class SaleImportService(models.AbstractModel):
     def _get_channel(self):
         return self.env["sale.channel"].browse(self._context["channel_id"])
 
-    def create_chunk(self, sale_orders):
+    def create_payload(self, sale_orders):
         channel = self._get_channel()
         if not channel:
             raise ValidationError(_("API key does not map to any sale channel"))
-        vals = [
+        vals_list = [
             {
-                "processor": "sale_channel_importer",
                 "data_str": json.dumps(
                     sale_order, cls=JSONEncoder, sort_keys=True, indent=4
                 ),
-                "model_name": "sale.channel",
-                "record_id": channel.id,
+                "sale_channel_id": channel.id,
             }
             for sale_order in sale_orders
         ]
-        # TODO create all access right
-        return self.env["queue.job.chunk"].sudo().create(vals)
+        return self.env["sale.import.payload"].sudo().create(vals_list)
 
     def cancel(self, name):
         self = self.sudo()
