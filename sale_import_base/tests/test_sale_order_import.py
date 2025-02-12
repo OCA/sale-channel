@@ -320,3 +320,21 @@ class TestSaleOrderImport(SaleImportCase):
         payload = self._helper_create_payload(self.get_payload_vals("invalid"))
         self.assertEqual(payload.state, "fail")
         self.assertIn("ValidationError", payload.state_info)
+
+    def test_vaccuum(self):
+        payload = self._helper_create_payload(self.get_payload_vals("all"))
+        old_date = datetime.datetime.now() - datetime.timedelta(days=370)
+        payload.flush_model()
+        self.env.cr.execute(
+            "UPDATE sale_import_payload SET create_date = %s",
+            (old_date.strftime("%Y-%m-%d %H:%M:%S"),),
+        )
+        self.env["sale.import.payload"].invalidate_model(["create_date"])
+        # Enter test mode to run the autovacuum cron because `_run_vacuum_cleaner`
+        # makes a commit
+        self.registry.enter_test_mode(self.cr)
+        self.addCleanup(self.registry.leave_test_mode)
+        env = self.env(cr=self.registry.cursor())
+        # Run the autovacuum cron
+        env.ref("base.autovacuum_job").method_direct_trigger()
+        self.assertFalse(payload.exists())

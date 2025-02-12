@@ -48,6 +48,9 @@ class SaleChannelImporter(models.TransientModel):
 
         so_vals = self._prepare_sale_vals(data)
         sale_order = self.env["sale.order"].create(so_vals)
+        sale_order.message_post(
+            body=_("Sale Order created from payload %s.") % self.payload_id.id
+        )
         so_line_vals = self._prepare_sale_line_vals(data, sale_order)
         self.env["sale.order.line"].create(so_line_vals)
         self._finalize(sale_order, data)

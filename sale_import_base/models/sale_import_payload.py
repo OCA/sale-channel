@@ -5,6 +5,7 @@
 
 import json
 import traceback
+from datetime import date, timedelta
 
 from psycopg2 import OperationalError
 
@@ -17,16 +18,21 @@ from odoo.addons.queue_job.exception import RetryableJobError
 
 class SaleImportPayload(models.Model):
     _name = "sale.import.payload"
-    _description = "Receive and Store payload to create sale orders"
+    _inherit = ["mail.thread"]
+    _description = "Sale Payload"
     _order = "id desc"
+    _removal_interval = 365
 
     data_str = fields.Text(string="Editable data")
     state = fields.Selection(
         [("pending", "Pending"), ("done", "Done"), ("fail", "Failed")],
         default="pending",
         readonly=True,
+        tracking="1",
     )
-    state_info = fields.Text("Additional state information", readonly=True)
+    state_info = fields.Text(
+        "Additional state information", readonly=True, tracking="1"
+    )
     sale_channel_id = fields.Many2one(
         "sale.channel",
         readonly=True,
@@ -38,9 +44,24 @@ class SaleImportPayload(models.Model):
     )
     stack_trace = fields.Text(readonly=True)
 
+    @api.autovacuum
+    def _delete_old_sale_importer_chunk(self):
+        deletion_limit_date = date.today() - timedelta(days=self._removal_interval)
+        payloads = self.search(
+            [
+                ("create_date", "<", deletion_limit_date),
+                ("state", "=", "done"),
+            ]
+        )
+        payloads.unlink()
+
     @api.model_create_multi
     def create(self, vals):
-        result = super().create(vals)
+        # we use mail.thread to log changes in fields but no need of all tracking stuff
+        # on creation for this technical model
+        result = super(
+            SaleImportPayload, self.with_context(tracking_disable=True)
+        ).create(vals)
         for rec in result:
             rec.enqueue_job()
         return result
@@ -77,7 +98,7 @@ class SaleImportPayload(models.Model):
                 raise
             # TODO maybe it will be simplier to have a kind of inherits
             #  on queue.job to avoid a double error management
-            # so a failling chunk will have a failling job
+            # so a failling payload will have a failling job
             if (
                 isinstance(e, OperationalError)
                 and e.pgcode in PG_CONCURRENCY_ERRORS_TO_RETRY
