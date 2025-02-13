@@ -60,7 +60,10 @@ class SaleChannelImporter(models.TransientModel):
         channel = self.payload_id.sale_channel_id
         partner = self._process_partner(data["address_customer"])
         address_invoice, address_shipping = self._process_addresses(
-            partner, data["address_invoicing"], data["address_shipping"]
+            partner,
+            data["address_invoicing"],
+            data["address_shipping"],
+            channel.archive_addresses,
         )
         so_vals = {
             "partner_id": partner.id,
@@ -117,7 +120,7 @@ class SaleChannelImporter(models.TransientModel):
                 self._binding_partner(partner, customer_data["external_id"])
                 return partner
 
-    def _prepare_partner(self, data, parent_id=None, archived=None):
+    def _prepare_partner(self, data, parent_id=None, archive_addresses=None):
         result = {
             "name": data["name"],
             "street": data.get("street"),
@@ -130,7 +133,7 @@ class SaleChannelImporter(models.TransientModel):
         }
         if parent_id:
             result["parent_id"] = parent_id
-        if archived:
+        if archive_addresses:
             result["active"] = False
         if data.get("country_code"):
             country = self.env["res.country"].search(
@@ -159,9 +162,15 @@ class SaleChannelImporter(models.TransientModel):
     def _should_merge_addresses(self, vals_addr_invoice, vals_addr_shipping):
         return vals_addr_invoice == vals_addr_shipping
 
-    def _process_addresses(self, parent, address_invoice, address_shipping):
-        vals_addr_invoice = self._prepare_partner(address_invoice, parent.id, True)
-        vals_addr_shipping = self._prepare_partner(address_shipping, parent.id, True)
+    def _process_addresses(
+        self, parent, address_invoice, address_shipping, archive_addresses=True
+    ):
+        vals_addr_invoice = self._prepare_partner(
+            address_invoice, parent.id, archive_addresses
+        )
+        vals_addr_shipping = self._prepare_partner(
+            address_shipping, parent.id, archive_addresses
+        )
         if self._should_merge_addresses(vals_addr_invoice, vals_addr_shipping):
             # not technically correct for the shipping addr, but this shouldn't matter
             vals_addr_invoice["type"] = "invoice"

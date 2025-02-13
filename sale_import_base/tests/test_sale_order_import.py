@@ -67,7 +67,7 @@ class TestSaleOrderImport(SaleImportCase):
         """
         Base scenario: import Sale Order with standard data
         -> Create partner
-        -> Create delivery, shipping addresses in inactive state
+        -> Create delivery, shipping addresses in inactive state by default
         """
         partner_count = (
             self.env["res.partner"].with_context(active_test=False).search_count([])
@@ -82,6 +82,30 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertEqual(sale.partner_shipping_id.active, False)
         self.assertEqual(sale.partner_invoice_id.type, "invoice")
         self.assertEqual(sale.partner_invoice_id.active, False)
+
+    def test_create_partner_no_archive(self):
+        """
+        Base scenario: import Sale Order with standard data
+        -> Create partner
+        -> Create delivery, shipping addresses remains active because
+            it has been configured with archive_addresses = False
+        """
+        partner_count = (
+            self.env["res.partner"].with_context(active_test=False).search_count([])
+        )
+        payload_vals = self.get_payload_vals("all")
+        channel = self.env["sale.channel"].browse(payload_vals["sale_channel_id"])
+        channel.archive_addresses = False
+        self._helper_create_payload(payload_vals)
+        partner_count_after_import = (
+            self.env["res.partner"].with_context(active_test=False).search_count([])
+        )
+        self.assertEqual(partner_count_after_import, partner_count + 3)
+        sale = self.get_created_sales()
+        self.assertEqual(sale.partner_shipping_id.type, "delivery")
+        self.assertEqual(sale.partner_shipping_id.active, True)
+        self.assertEqual(sale.partner_invoice_id.type, "invoice")
+        self.assertEqual(sale.partner_invoice_id.active, True)
 
     def test_create_addresses_identical(self):
         """

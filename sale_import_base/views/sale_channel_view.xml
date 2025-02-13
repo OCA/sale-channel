@@ -12,6 +12,7 @@
                         <field name="pricelist_id" />
                         <field name="crm_team_id" />
                         <field name="allow_match_on_email" />
+                        <field name="archive_addresses" />
                         <field name="confirm_order" />
                         <field
                             name="invoice_order"
