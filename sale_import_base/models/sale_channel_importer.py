@@ -81,14 +81,6 @@ class SaleChannelImporter(models.TransientModel):
                     "si_amount_tax": amount.get("amount_tax", 0),
                 }
             )
-        invoice = data.get("invoice")
-        if invoice:
-            so_vals.update(
-                {
-                    "si_force_invoice_date": invoice.get("date"),
-                    "si_force_invoice_number": invoice.get("number"),
-                }
-            )
         if channel.internal_naming_method == "client_order_ref":
             so_vals["name"] = data["name"]
         if data.get("date_order"):

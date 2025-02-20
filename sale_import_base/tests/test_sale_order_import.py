@@ -243,12 +243,6 @@ class TestSaleOrderImport(SaleImportCase):
         self.assertEqual(new_payment.amount, 1173),
         self.assertEqual(new_payment.currency_id.name, "USD")
 
-    def test_invoice_values(self):
-        self._helper_create_payload(self.get_payload_vals("all"))
-        invoice = self.get_created_sales()
-        self.assertEqual(str(invoice.si_force_invoice_date), "1900-12-30")
-        self.assertEqual(invoice.si_force_invoice_number, "IN-123")
-
     def test_validators(self):
         wrong_data = list()
         for itr in range(4):

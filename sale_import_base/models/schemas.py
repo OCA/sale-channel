@@ -39,11 +39,6 @@ class Amount(BaseModel, metaclass=ExtendableModelMeta):
     amount_total: Optional[float] = None
 
 
-class Invoice(BaseModel, metaclass=ExtendableModelMeta):
-    date: date
-    number: str
-
-
 class Payment(BaseModel, metaclass=ExtendableModelMeta):
     mode: str
     amount: float
@@ -59,7 +54,6 @@ class SaleOrder(BaseModel, metaclass=ExtendableModelMeta):
     address_invoicing: Address
     lines: List[SaleOrderLine]
     amount: Optional[Amount] = None
-    invoice: Optional[Invoice] = None
     payment: Optional[Payment] = None
     pricelist_id: Optional[int] = None
     date_order: Optional[date] = None
