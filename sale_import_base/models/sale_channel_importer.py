@@ -187,36 +187,36 @@ class SaleChannelImporter(models.TransientModel):
     def _prepare_sale_line_vals(self, data, sale_order):
         return [self._prepare_sale_line(line, sale_order) for line in data["lines"]]
 
-    def _prepare_sale_line(self, line_data, sale_order):
-        channel = self.payload_id.sale_channel_id
-        company_id = channel.company_id
+    def _get_product_domain(self, line_data):
+        return [("default_code", "=", line_data["product_code"])]
 
-        product = self.env["product.product"].search(
-            [
-                ("default_code", "=", line_data["product_code"]),
-                ("product_tmpl_id.company_id", "=", company_id.id),
-            ]
-        )
+    def _get_product(self, line_data, company):
+        base_product_domain = self._get_product_domain(line_data)
+        domain = base_product_domain + [("product_tmpl_id.company_id", "=", company.id)]
+        product = self.env["product.product"].search(domain)
         if not product:
-            product = self.env["product.product"].search(
-                [
-                    ("default_code", "=", line_data["product_code"]),
-                    ("product_tmpl_id.company_id", "=", False),
-                ]
-            )
+            domain = base_product_domain + [("product_tmpl_id.company_id", "=", False)]
+            product = self.env["product.product"].search(domain)
         if not product:
             raise ValidationError(
                 _(
-                    "There is no active product with the Internal Reference %(code)s "
+                    "No active product found for code  %(code)s "
                     "and related to the company %(company)s."
                 )
-                % {"code": line_data["product_code"], "company": company_id.name}
+                % {"code": line_data["product_code"], "company": company.name}
             )
         elif len(product) > 1:
             raise ValidationError(
                 _("%(product_num)s products found for the code %(code)s.")
                 % {"product_num": len(product), "code": line_data["product_code"]}
             )
+        return product
+
+    def _prepare_sale_line(self, line_data, sale_order):
+        channel = self.payload_id.sale_channel_id
+        company = channel.company_id
+        product = self._get_product(line_data, company)
+
         vals = {
             "product_id": product.id,
             "product_uom_qty": line_data["qty"],
