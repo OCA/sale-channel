@@ -45,6 +45,11 @@ msgid "Se Backend"
 msgstr ""
 
 #. module: sale_channel_search_engine
+#: model:ir.model,name:sale_channel_search_engine.model_se_index
+msgid "Se Index"
+msgstr ""
+
+#. module: sale_channel_search_engine
 #: model:ir.model.fields,field_description:sale_channel_search_engine.field_sale_channel__search_engine_id
 #: model_terms:ir.ui.view,arch_db:sale_channel_search_engine.sale_channel_view_form
 msgid "Search Engine"
