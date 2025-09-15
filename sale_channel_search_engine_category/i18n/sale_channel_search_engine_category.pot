@@ -39,6 +39,11 @@ msgid "Product Category"
 msgstr ""
 
 #. module: sale_channel_search_engine_category
+#: model:ir.model,name:sale_channel_search_engine_category.model_sale_channel
+msgid "Sale Channel"
+msgstr ""
+
+#. module: sale_channel_search_engine_category
 #: model:ir.model.fields,field_description:sale_channel_search_engine_category.field_product_category__se_binding_ids
 msgid "Seacrh Engine Bindings"
 msgstr ""
