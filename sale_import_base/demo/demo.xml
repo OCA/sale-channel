@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="sale_channel.sale_channel_amazon" model="sale.channel">
+        <field name="allow_match_on_email" eval="False" />
+        <field name="pricelist_id" ref="product.list0" />
+    </record>
+    <record id="sale_channel.sale_channel_ebay" model="sale.channel">
+        <field name="allow_match_on_email" eval="True" />
+        <field name="sale_orders_check_amounts_untaxed" eval="True" />
+        <field name="sale_orders_check_amounts_total" eval="True" />
+        <field name="pricelist_id" ref="product.list0" />
+    </record>
+</odoo>

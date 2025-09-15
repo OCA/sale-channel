@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_sale_import_payload_form" model="ir.ui.view">
+        <field name="name">sale.import.payload.form</field>
+        <field name="model">sale.import.payload</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="button_retry"
+                        type="object"
+                        string="Retry job"
+                        attrs="{'invisible': [('state', '=', 'done')]}"
+                        class="btn-primary"
+                    />
+                    <field name="state" widget="statusbar" />
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="create_date" />
+                            <field name="sale_channel_id" />
+                            <field name="state_info" />
+                            <field name="stack_trace" groups="base.group_system" />
+                            <field name="data_str" />
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_ids" widget="mail_thread" />
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_sale_import_payload_tree" model="ir.ui.view">
+        <field name="model">sale.import.payload</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="create_date" />
+                <field name="sale_channel_id" />
+                <field name="state" />
+                <field name="state_info" optional="hide" />
+                <field name="data_str" optional="hide" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_sale_import_payload_search" model="ir.ui.view">
+        <field name="model">sale.import.payload</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="sale_channel_id" />
+                <field name="data_str" />
+                <field name="stack_trace" />
+                <filter
+                    string="Pending"
+                    name="pending"
+                    domain="[('state', '=', 'pending')]"
+                />
+                <filter
+                    string="Failed"
+                    name="failed"
+                    domain="[('state', '=', 'fail')]"
+                />
+                <filter
+                    string="Create Date"
+                    name="filter_create_date"
+                    date="create_date"
+                />
+            </search>
+        </field>
+    </record>
+
+    <record id="action_sale_import_payload" model="ir.actions.act_window">
+        <field name="name">Sale Import</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sale.import.payload</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem
+        id="menu_sale_import_payload"
+        name="Sale Import"
+        sequence="25"
+        groups="group_sale_import_payload"
+        parent="sale.sale_order_menu"
+        action="action_sale_import_payload"
+    />
+
+</odoo>
