@@ -6,11 +6,11 @@ from uuid import uuid4
 
 from odoo.fields import Command
 
-from odoo.addons.connector_search_engine.tests.test_all import TestBindingIndexBase
+from odoo.addons.connector_search_engine.tests.common import TestBindingIndexBaseFake
 from odoo.addons.product.tests.common import ProductAttributesCommon
 
 
-class IndexProduct(ProductAttributesCommon, TestBindingIndexBase):
+class IndexProduct(ProductAttributesCommon, TestBindingIndexBaseFake):
     @classmethod
     def _create_product_template(cls, channels=None):
         vals = {
