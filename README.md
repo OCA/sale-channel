@@ -26,7 +26,7 @@ addon | version | maintainers | summary
 [sale_channel_partner](sale_channel_partner/) | 16.0.0.0.0 |  | Bind sale channels to contacts
 [sale_channel_product](sale_channel_product/) | 16.0.1.0.2 |  | Link Product with sale channel
 [sale_channel_search_engine](sale_channel_search_engine/) | 16.0.0.1.2 |  | Abstract module for configuring a search engine on a sale channel
-[sale_channel_search_engine_category](sale_channel_search_engine_category/) | 16.0.0.1.1 |  | Implement an export of category in search engine based on sale channel link
+[sale_channel_search_engine_category](sale_channel_search_engine_category/) | 16.0.0.1.2 |  | Implement an export of category in search engine based on sale channel link
 [sale_channel_search_engine_demo](sale_channel_search_engine_demo/) | 16.0.0.0.1 |  | Implement an export of category in search engine based on sale channel link
 [sale_channel_search_engine_product](sale_channel_search_engine_product/) | 16.0.0.1.1 |  | Implement an export of category in search engine based on sale channel link
 [sale_import_base](sale_import_base/) | 16.0.2.0.0 | <a href='https://github.com/florian-dacosta'><img src='https://github.com/florian-dacosta.png' width='32' height='32' style='border-radius:50%;' alt='florian-dacosta'/></a> | Base for importing Sale Orders through a JSON file format
