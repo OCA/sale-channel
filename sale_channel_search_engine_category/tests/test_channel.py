@@ -6,10 +6,10 @@ from uuid import uuid4
 
 from odoo.fields import Command
 
-from odoo.addons.connector_search_engine.tests.test_all import TestBindingIndexBase
+from odoo.addons.connector_search_engine.tests.common import TestBindingIndexBaseFake
 
 
-class TestChannel(TestBindingIndexBase):
+class TestChannel(TestBindingIndexBaseFake):
     @classmethod
     def _create_sale_channel_with_search_engine(cls, name):
         search_engine = cls.env["se.backend"].create(
