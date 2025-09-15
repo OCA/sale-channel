@@ -149,3 +149,36 @@ class TestChannel(TestBindingIndexBaseFake):
             self.assertEqual(
                 set(bindings.mapped("state")), {"to_recompute", "to_delete"}
             )
+
+    def test_remove_index(self):
+        self.channel_2.search_engine_id = None
+        # Categ are still linked to the channel
+        self.assertEqual(
+            self.categ_level_1.channel_ids, self.channel_1 | self.channel_2
+        )
+        self.assertEqual(
+            self.categ_level_2.channel_ids, self.channel_1 | self.channel_2
+        )
+        # But index binding are removed
+        for categ in [self.categ_root, self.categ_level_1, self.categ_level_2]:
+            bindings = categ._get_bindings()
+            self.assertEqual(len(bindings), 2)
+            self.assertEqual(
+                set(bindings.mapped("state")), {"to_recompute", "to_delete"}
+            )
+
+    def test_remove_and_add_index(self):
+        se = self.channel_2.search_engine_id
+        self.channel_2.search_engine_id = None
+        self.channel_2.search_engine_id = se
+        self.assertEqual(
+            self.categ_level_1.channel_ids, self.channel_1 | self.channel_2
+        )
+        self.assertEqual(
+            self.categ_level_2.channel_ids, self.channel_1 | self.channel_2
+        )
+
+        for categ in [self.categ_root, self.categ_level_1, self.categ_level_2]:
+            bindings = categ._get_bindings()
+            self.assertEqual(len(bindings), 2)
+            self.assertEqual(set(bindings.mapped("state")), {"to_recompute"})
