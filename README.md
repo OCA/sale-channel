@@ -29,6 +29,7 @@ addon | version | maintainers | summary
 [sale_channel_search_engine_category](sale_channel_search_engine_category/) | 16.0.0.1.1 |  | Implement an export of category in search engine based on sale channel link
 [sale_channel_search_engine_demo](sale_channel_search_engine_demo/) | 16.0.0.0.1 |  | Implement an export of category in search engine based on sale channel link
 [sale_channel_search_engine_product](sale_channel_search_engine_product/) | 16.0.0.1.1 |  | Implement an export of category in search engine based on sale channel link
+[sale_import_base](sale_import_base/) | 16.0.2.0.0 | <a href='https://github.com/florian-dacosta'><img src='https://github.com/florian-dacosta.png' width='32' height='32' style='border-radius:50%;' alt='florian-dacosta'/></a> | Base for importing Sale Orders through a JSON file format
 
 [//]: # (end addons)
 
