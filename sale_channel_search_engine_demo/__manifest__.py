@@ -30,4 +30,5 @@
         "demo/se_index_demo.xml",
         "demo/sale_channel_demo.xml",
     ],
+    "installable": False,
 }
