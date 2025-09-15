@@ -23,5 +23,6 @@ msgstr "Prodotto"
 
 #. module: sale_channel_product
 #: model:ir.model.fields,field_description:sale_channel_product.field_product_template__channel_ids
+#: model_terms:ir.ui.view,arch_db:sale_channel_product.product_template_search_view
 msgid "Sale Channel"
 msgstr "Canale di vendita"
