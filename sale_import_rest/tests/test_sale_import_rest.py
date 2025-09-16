@@ -8,6 +8,7 @@ from odoo import SUPERUSER_ID
 from odoo.tests import tagged
 
 from odoo.addons.fastapi.context import odoo_env_ctx
+from odoo.addons.fastapi.tests.common import default_exception_handler
 from odoo.addons.sale_import_base.tests.common_sale_order_import import SaleImportCase
 
 
@@ -33,7 +34,10 @@ class TestSaleOrderImport(SaleImportCase):
             "sale_import_rest.fastapi_endpoint_sale_import_demo"
         )
         cls.app = cls.fastapi_sale_import_app._get_app()
-        cls.client = TestClient(cls.app, raise_server_exceptions=True)
+        # we do not use _create_test_client from fastapi.tests.common because
+        # it bypasses the authentification and we are testing it here.
+        cls.app.exception_handlers.setdefault(Exception, default_exception_handler)
+        cls.client = TestClient(cls.app, raise_server_exceptions=False)
         cls._ctx_token = odoo_env_ctx.set(cls.env)
 
     @classmethod
