@@ -8,5 +8,9 @@ class AccountMove(models.Model):
     _inherit = "account.move"
 
     sale_channel_id = fields.Many2one(
-        "sale.channel", string="Sale Channel", ondelete="restrict"
+        "sale.channel",
+        string="Sale Channel",
+        ondelete="restrict",
+        readonly=True,
+        states={"draft": [("readonly", False)]},
     )
