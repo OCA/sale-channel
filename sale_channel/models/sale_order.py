@@ -3,11 +3,15 @@
 
 from odoo import fields, models
 
+from odoo.addons.sale.models.sale_order import READONLY_FIELD_STATES
+
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    sale_channel_id = fields.Many2one("sale.channel", ondelete="restrict")
+    sale_channel_id = fields.Many2one(
+        "sale.channel", ondelete="restrict", states=READONLY_FIELD_STATES
+    )
 
     def _prepare_invoice(self):
         res = super()._prepare_invoice()
