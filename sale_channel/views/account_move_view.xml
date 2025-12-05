@@ -10,7 +10,7 @@
                 expr="//group[@id='other_tab_group']//field[@name='invoice_origin']"
                 position="after"
             >
-                <field name="sale_channel_id" />
+                <field name="sale_channel_id" readonly="state != 'draft'" />
             </xpath>
         </field>
     </record>
