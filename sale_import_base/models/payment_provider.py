@@ -10,4 +10,4 @@ class PaymentProvider(models.Model):
 
     ref = fields.Char()
 
-    _sql_constraints = [("uniq_ref", "uniq(ref)", "The Provider ref must be uniq")]
+    _sql_constraints = [("unique_ref", "unique(ref)", "The Provider ref must be uniq")]
