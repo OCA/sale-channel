@@ -2,7 +2,6 @@
 # @author Sébastien BEAU <sebastien.beau@akretion.com>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-
 import json
 import traceback
 from datetime import date, timedelta
@@ -72,7 +71,9 @@ class SaleImportPayload(models.Model):
     def enqueue_job(self):
         # by pass job for easier debugging
         # will be True if odoo is started with option --dev=pdb
-        if "pdb" in odoo.tools.config.get("dev_mode"):
+        if "pdb" in odoo.tools.config.get("dev_mode") or self.env.context.get(
+            "test_queue_job_no_delay"
+        ):
             return self.process()
         else:
             return self.with_delay().process()
@@ -97,7 +98,7 @@ class SaleImportPayload(models.Model):
             if "pdb" in odoo.tools.config.get("dev_mode"):
                 raise
             # TODO maybe it will be simplier to have a kind of inherits
-            #  on queue.job to avoid a double error management
+            #  on queue.job to avoid a double error management
             # so a failling payload will have a failling job
             if (
                 isinstance(e, OperationalError)

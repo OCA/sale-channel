@@ -14,10 +14,7 @@
                         <field name="allow_match_on_email" />
                         <field name="archive_addresses" />
                         <field name="confirm_order" />
-                        <field
-                            name="invoice_order"
-                            attrs="{'invisible': [('confirm_order', '=', False)]}"
-                        />
+                        <field name="invoice_order" invisible="not confirm_order" />
                     </group>
                     <group name="check_amounts" string="Check imported values">
                         <field

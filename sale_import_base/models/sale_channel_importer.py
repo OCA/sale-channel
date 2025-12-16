@@ -1,7 +1,7 @@
 #  Copyright (c) Akretion 2020
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl)
 
-from odoo import _, fields, models
+from odoo import Command, _, fields, models
 from odoo.exceptions import ValidationError
 
 from .schemas import SaleOrder
@@ -242,18 +242,37 @@ class SaleChannelImporter(models.TransientModel):
         if not data.get("payment"):
             return
         pmt_data = data["payment"]
-        provider = self.env["payment.provider"].search([("ref", "=", pmt_data["mode"])])
+
+        provider = self.env["payment.provider"].search(
+            [
+                ("ref", "=", pmt_data["mode"]),
+                ("company_id", "=", sale_order.company_id.id),
+            ],
+            limit=1,
+        )
+
         if not provider:
             raise ValidationError(
-                _("Missing Provider with code {}").format(pmt_data["mode"])
+                _("Missing Payment Provider with reference '%(mode)s'")
+                % {"mode": pmt_data["mode"]}
             )
+
+        if not provider.journal_id:
+            raise ValidationError(
+                _(
+                    "The payment provider '%(provider_name)s' must have a "
+                    "payment journal configured to process imported payments."
+                )
+                % {"provider_name": provider.display_name}
+            )
+
         if pmt_data.get("currency_code"):
             currency = self.env["res.currency"].search(
                 [("name", "=", pmt_data["currency_code"])]
             )
             if not currency:
                 raise ValidationError(
-                    _("Missing currency {}").format(pmt_data["currency_code"])
+                    _("Missing currency %s") % pmt_data["currency_code"]
                 )
             if currency != sale_order.currency_id:
                 raise ValidationError(
@@ -266,23 +285,31 @@ class SaleChannelImporter(models.TransientModel):
                         "pricelist_currency": sale_order.currency_id.name,
                     }
                 )
+
         country = (
             sale_order.partner_invoice_id.country_id.id
             or sale_order.partner_id.country_id.id
         )
+
+        payment_method = provider.payment_method_ids[:1]
+        if not payment_method:
+            raise ValidationError(
+                _("Provider %s has no payment methods configured") % provider.name
+            )
         payment_vals = {
             "partner_id": sale_order.partner_id.id,
             "provider_id": provider.id,
+            "payment_method_id": payment_method.id,
             "state": "done",
+            "operation": "offline",
             "last_state_change": fields.Datetime.now(),
             "amount": pmt_data["amount"],
-            "fees": 0.00,
             "reference": pmt_data["reference"],
             "provider_reference": pmt_data.get("provider_reference"),
-            "sale_order_ids": [(4, sale_order.id, 0)],
+            "sale_order_ids": [Command.link(sale_order.id)],
             "currency_id": sale_order.currency_id.id,
             "partner_country_id": country,
-            "invoice_ids": [(6, 0, sale_order.invoice_ids.ids)],
+            "invoice_ids": [Command.set(sale_order.invoice_ids.ids)],
         }
         return self.env["payment.transaction"].create(payment_vals)
 

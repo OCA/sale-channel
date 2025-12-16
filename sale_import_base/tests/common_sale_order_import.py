@@ -1,8 +1,10 @@
 #  Copyright (c) Akretion 2020
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl)
+
 import json
 from copy import deepcopy
 
+from odoo import Command
 from odoo.tests import tagged
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
@@ -87,10 +89,14 @@ class SaleImportCase(TestSaleCommonNoDuplicates, ExtendableMixin):
         cls.setUpMisc()
         cls.setUpProducts()
         cls.fiscal_pos_a.auto_apply = True
+        cls.default_pl = cls.env["product.pricelist"].create(
+            {
+                "name": "Public Pricelist",
+            }
+        )
         cls.sale_order_example_vals_all = full
-        cls.sale_order_example_vals_all["pricelist_id"] = cls.env.ref(
-            "product.list0"
-        ).id
+
+        cls.sale_order_example_vals_all["pricelist_id"] = cls.default_pl.id
         cls.sale_order_example_vals_minimum = minimum
         cls.sale_order_example_vals_mixed = mixed
         cls.sale_order_example_vals_invalid = invalid
@@ -112,33 +118,58 @@ class SaleImportCase(TestSaleCommonNoDuplicates, ExtendableMixin):
 
     @classmethod
     def setUpPaymentProvider(cls):
-        # Create manual provider
-        cls.env["payment.provider"]._fields["code"].selection.append(
-            ("credit_card", "Credit Card")
+        # 1. Create/find the engine payment method (Engine level)
+        payment_method = cls.env["payment.method"].search(
+            [("code", "=", "credit_card")], limit=1
         )
-        cls.env["payment.provider"].create(
+        if not payment_method:
+            payment_method = cls.env["payment.method"].create(
+                {
+                    "name": "Credit Card",
+                    "code": "credit_card",
+                }
+            )
+
+        # 2. Create/find the accounting payment method (Accounting level)
+        account_method = cls.env["account.payment.method"].search(
+            [("code", "=", "credit_card"), ("payment_type", "=", "inbound")], limit=1
+        )
+        if not account_method:
+            account_method = cls.env["account.payment.method"].create(
+                {
+                    "name": "Credit Card",
+                    "code": "credit_card",
+                    "payment_type": "inbound",
+                }
+            )
+
+        # 3. Create the provider
+        provider = cls.env["payment.provider"].create(
             {
                 "name": "Credit Card",
                 "ref": "credit_card",
-                "code": "credit_card",
+                "code": "none",  # Generic manual provider
                 "company_id": cls.company_data["company"].id,
+                "payment_method_ids": [Command.set([payment_method.id])],
+                "journal_id": cls.company_data["default_journal_bank"].id,
+                "state": "test",
+                "is_published": True,
             }
         )
-        method = cls.env["account.payment.method"].create(
+
+        # 4. Link the provider to a specific line on the journal
+        cls.company_data["default_journal_bank"].write(
             {
-                "code": "credit_card",
-                "name": "Credit Card",
-                "payment_type": "inbound",
+                "inbound_payment_method_line_ids": [
+                    Command.create(
+                        {
+                            "name": "Credit Card",
+                            "payment_method_id": account_method.id,
+                            "payment_provider_id": provider.id,
+                        }
+                    )
+                ]
             }
-        )
-        cls.env["account.payment.method.line"].create(
-            [
-                {
-                    "name": method.code,
-                    "payment_method_id": method.id,
-                    "journal_id": cls.company_data["default_journal_bank"].id,
-                }
-            ]
         )
 
     @classmethod

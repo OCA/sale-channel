@@ -10,7 +10,7 @@
                         name="button_retry"
                         type="object"
                         string="Retry job"
-                        attrs="{'invisible': [('state', '=', 'done')]}"
+                        invisible="state == 'done'"
                         class="btn-primary"
                     />
                     <field name="state" widget="statusbar" />
@@ -36,13 +36,13 @@
     <record id="view_sale_import_payload_tree" model="ir.ui.view">
         <field name="model">sale.import.payload</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="create_date" />
                 <field name="sale_channel_id" />
                 <field name="state" />
                 <field name="state_info" optional="hide" />
                 <field name="data_str" optional="hide" />
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -76,7 +76,7 @@
         <field name="name">Sale Import</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">sale.import.payload</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <menuitem
