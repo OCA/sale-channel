@@ -196,9 +196,9 @@ class TestSaleOrderImport(SaleImportCase):
     def test_product_missing(self):
         """Test product code validation effectively blocks the job"""
         payload_vals_wrong_product_code = self.get_payload_vals("all")
-        payload_vals_wrong_product_code["data_str"]["lines"][0][
-            "product_code"
-        ] = "doesn't exist"
+        payload_vals_wrong_product_code["data_str"]["lines"][0]["product_code"] = (
+            "doesn't exist"
+        )
         payload = self._helper_create_payload(payload_vals_wrong_product_code)
         self.assertEqual(payload.state, "fail")
 
@@ -242,9 +242,9 @@ class TestSaleOrderImport(SaleImportCase):
         self.tax_sale_a.amount = 5
         self.fiscal_pos_a.country_id = self.env.ref("base.ch")
         payload_vals_other_country = self.get_payload_vals("all")
-        payload_vals_other_country["data_str"]["address_shipping"][
-            "country_code"
-        ] = "CH"
+        payload_vals_other_country["data_str"]["address_shipping"]["country_code"] = (
+            "CH"
+        )
         del payload_vals_other_country["data_str"]["address_shipping"]["state_code"]
         self._helper_create_payload(payload_vals_other_country)
         self.assertEqual(self.get_created_sales().fiscal_position_id, self.fiscal_pos_a)
@@ -264,7 +264,7 @@ class TestSaleOrderImport(SaleImportCase):
         new_payment = self.get_created_sales().transaction_ids
         self.assertEqual(new_payment.reference, "PMT-EXAMPLE-001")
         self.assertEqual(new_payment.provider_reference, "T123")
-        self.assertEqual(new_payment.amount, 1173),
+        (self.assertEqual(new_payment.amount, 1173),)
         self.assertEqual(new_payment.currency_id.name, "USD")
 
     def test_validators(self):

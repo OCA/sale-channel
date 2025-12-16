@@ -2,7 +2,6 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl)
 
 from datetime import date
-from typing import List, Optional
 
 from extendable_pydantic import ExtendableModelMeta
 from pydantic import BaseModel  # pylint: disable=missing-manifest-dependency
@@ -11,14 +10,14 @@ from pydantic import BaseModel  # pylint: disable=missing-manifest-dependency
 class Address(BaseModel, metaclass=ExtendableModelMeta):
     name: str
     street: str
-    street2: Optional[str] = None
+    street2: str | None = None
     zip: str
     city: str
-    email: Optional[str] = None
-    state_code: Optional[str] = None
+    email: str | None = None
+    state_code: str | None = None
     country_code: str
-    phone: Optional[str] = None
-    mobile: Optional[str] = None
+    phone: str | None = None
+    mobile: str | None = None
 
 
 class Customer(Address):
@@ -29,14 +28,14 @@ class SaleOrderLine(BaseModel, metaclass=ExtendableModelMeta):
     product_code: str
     qty: float
     price_unit: float
-    description: Optional[str] = None
-    discount: Optional[float] = None
+    description: str | None = None
+    discount: float | None = None
 
 
 class Amount(BaseModel, metaclass=ExtendableModelMeta):
-    amount_tax: Optional[float] = None
-    amount_untaxed: Optional[float] = None
-    amount_total: Optional[float] = None
+    amount_tax: float | None = None
+    amount_untaxed: float | None = None
+    amount_total: float | None = None
 
 
 class Payment(BaseModel, metaclass=ExtendableModelMeta):
@@ -44,7 +43,7 @@ class Payment(BaseModel, metaclass=ExtendableModelMeta):
     amount: float
     reference: str
     currency_code: str
-    provider_reference: Optional[str] = None
+    provider_reference: str | None = None
 
 
 class SaleOrder(BaseModel, metaclass=ExtendableModelMeta):
@@ -52,8 +51,8 @@ class SaleOrder(BaseModel, metaclass=ExtendableModelMeta):
     address_customer: Customer
     address_shipping: Address
     address_invoicing: Address
-    lines: List[SaleOrderLine]
-    amount: Optional[Amount] = None
-    payment: Optional[Payment] = None
-    pricelist_id: Optional[int] = None
-    date_order: Optional[date] = None
+    lines: list[SaleOrderLine]
+    amount: Amount | None = None
+    payment: Payment | None = None
+    pricelist_id: int | None = None
+    date_order: date | None = None

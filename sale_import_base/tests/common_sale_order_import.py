@@ -78,7 +78,7 @@ class TestSaleCommonNoDuplicates(AccountTestInvoicingCommon):
 class SaleImportCase(TestSaleCommonNoDuplicates, ExtendableMixin):
     @classmethod
     def setUpClass(cls):
-        super(SaleImportCase, cls).setUpClass()
+        super().setUpClass()
         cls.init_extendable_registry()
         account_user = cls.env.user
         cls.env = cls.env(user=cls.env.ref("base.user_root"))
