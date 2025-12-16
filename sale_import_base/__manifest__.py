@@ -3,7 +3,7 @@
 {
     "name": "Sale Import Base",
     "summary": "Base for importing Sale Orders through a JSON file format",
-    "version": "16.0.2.0.0",
+    "version": "16.0.2.0.1",
     "category": "Generic Modules/Sale",
     "author": "Akretion, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/sale-channel",
