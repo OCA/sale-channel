@@ -404,7 +404,7 @@ msgid "State"
 msgstr ""
 
 #. module: sale_import_base
-#: model:ir.model.constraint,message:sale_import_base.constraint_payment_provider_uniq_ref
+#: model:ir.model.constraint,message:sale_import_base.constraint_payment_provider_unique_ref
 msgid "The Provider ref must be uniq"
 msgstr ""
 
