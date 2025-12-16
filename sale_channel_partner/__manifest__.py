@@ -3,7 +3,7 @@
 {
     "name": "Sale Channel Partner",
     "summary": "Bind sale channels to contacts",
-    "version": "16.0.0.0.0",
+    "version": "18.0.1.0.0",
     "category": "Generic Modules/Sale",
     "author": "Akretion, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/sale-channel",
@@ -16,5 +16,5 @@
         "views/sale_channel_partner_view.xml",
     ],
     "demo": ["demo/demo.xml"],
-    "installable": False,
+    "installable": True,
 }

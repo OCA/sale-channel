@@ -4,11 +4,11 @@
     <record id="sale_channel_partner_view_tree" model="ir.ui.view">
         <field name="model">sale.channel.partner</field>
         <field name="arch" type="xml">
-            <tree create="false">
+            <list create="false">
                 <field name="external_id" />
                 <field name="sale_channel_id" />
                 <field name="partner_id" />
-            </tree>
+            </list>
         </field>
     </record>
 </odoo>
