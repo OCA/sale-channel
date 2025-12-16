@@ -320,8 +320,8 @@ msgstr "Fornitore pagamento"
 #: code:addons/sale_import_base/models/sale_channel_importer.py:0
 #, python-format
 msgid ""
-"Payment currency %(currency)s differs from the Sale Order pricelist currency"
-" %(pricelist_currency)s"
+"Payment currency %(currency)s differs from the Sale Order pricelist currency "
+"%(pricelist_currency)s"
 msgstr ""
 "La valuta pagamento %(currency)s è diversa dalla valuta del listino vendita "
 "%(pricelist_currency)s"
@@ -413,7 +413,7 @@ msgid "State"
 msgstr "Stato"
 
 #. module: sale_import_base
-#: model:ir.model.constraint,message:sale_import_base.constraint_payment_provider_uniq_ref
+#: model:ir.model.constraint,message:sale_import_base.constraint_payment_provider_unique_ref
 msgid "The Provider ref must be uniq"
 msgstr "Il riferimento fornitore deve essere univoco"
 
