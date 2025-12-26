@@ -9,5 +9,4 @@
             eval="[Command.set([ref('sale_import_rest.group_sale_import_rest_api')])]"
         />
     </record>
-
 </odoo>

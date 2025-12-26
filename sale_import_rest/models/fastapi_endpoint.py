@@ -1,7 +1,6 @@
 # Copyright 2022 ACSONE SA/NV
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/LGPL).
 
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import APIKeyHeader
@@ -43,7 +42,6 @@ def api_key_based_authenticated_partner_impl(
 
 
 class FastapiEndpoint(models.Model):
-
     _inherit = "fastapi.endpoint"
 
     app: str = fields.Selection(
@@ -56,7 +54,7 @@ class FastapiEndpoint(models.Model):
     )
     channel_id = fields.Many2one("sale.channel", "Channel")
 
-    def _get_fastapi_routers(self) -> List[APIRouter]:
+    def _get_fastapi_routers(self) -> list[APIRouter]:
         if self.app == "sale_import":
             return [sale_import_api_router]
         return super()._get_fastapi_routers()
@@ -73,7 +71,7 @@ class FastapiEndpoint(models.Model):
                 )
 
     @api.model
-    def _fastapi_app_fields(self) -> List[str]:
+    def _fastapi_app_fields(self) -> list[str]:
         fields = super()._fastapi_app_fields()
         fields.append("sale_import_auth_method")
         return fields
@@ -81,7 +79,7 @@ class FastapiEndpoint(models.Model):
     def _get_app(self):
         app = super()._get_app()
         if self.app == "sale_import":
-            app.dependency_overrides[
-                authenticated_partner_impl
-            ] = api_key_based_authenticated_partner_impl
+            app.dependency_overrides[authenticated_partner_impl] = (
+                api_key_based_authenticated_partner_impl
+            )
         return app

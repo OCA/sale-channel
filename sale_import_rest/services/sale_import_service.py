@@ -13,7 +13,7 @@ class JSONEncoder(json.JSONEncoder):
             return obj.isoformat()
         elif isinstance(obj, datetime.date):
             return obj.isoformat()
-        return super(JSONEncoder, self).default(obj)
+        return super().default(obj)
 
 
 class SaleImportService(models.AbstractModel):

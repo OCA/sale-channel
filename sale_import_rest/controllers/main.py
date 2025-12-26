@@ -2,8 +2,6 @@
 #  License AGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
 
 
-from typing import Dict, List
-
 from fastapi import APIRouter, Depends
 
 from odoo.api import Environment
@@ -31,7 +29,7 @@ async def create(
     params: SaleImportInput,
     endpoint_id: int = Depends(fastapi_endpoint_id),  # noqa: B008
     env: Environment = Depends(odoo_env),  # noqa: B008
-) -> List[int]:  # noqa: B008
+) -> list[int]:  # noqa: B008
     """Create all the payloads with the data of sale order.
     Sale order will be created in async with the payload data.
 
@@ -54,7 +52,7 @@ async def cancel(
     vals: SaleCancelInput,
     endpoint_id: int = Depends(fastapi_endpoint_id),  # noqa: B008
     env: Environment = Depends(odoo_env),  # noqa: B008
-) -> Dict:  # noqa: B008
+) -> dict:  # noqa: B008
     """Cancel a sale order based on it's name"""
     endpoint = env["fastapi.endpoint"].sudo().browse(endpoint_id)
     env["sale.import.service.sale"].with_context(

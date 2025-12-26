@@ -9,5 +9,4 @@
         <field name="key">ASecureKeyApiRest</field>
         <field name="user_id" eval="ref('user_import')" />
     </record>
-
 </odoo>
