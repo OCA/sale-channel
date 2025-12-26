@@ -50,7 +50,6 @@ class FastapiEndpoint(models.Model):
     )
     sale_import_auth_method = fields.Selection(
         selection=[("api_key", "Api Key")],
-        string="Authenciation method",
     )
     channel_id = fields.Many2one("sale.channel", "Channel")
 

@@ -3,7 +3,7 @@
 {
     "name": "Sale Import REST",
     "summary": "REST API for importig Sale Orders",
-    "version": "16.0.0.0.0",
+    "version": "18.0.1.0.0",
     "category": "Generic Modules/Sale",
     "author": "Akretion, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/sale-channel",
@@ -25,5 +25,5 @@
         "demo/fastapi_endpoint_demo.xml",
     ],
     "installable": True,
-    "external_dependencies": {"python": ["fastapi", "extendable_pydantic"]},
+    "external_dependencies": {"python": ["fastapi", "extendable_pydantic", "httpx"]},
 }
