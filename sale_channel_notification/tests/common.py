@@ -1,50 +1,51 @@
-# Copyright 2024 Akretion (http://www.akretion.com).
-# @author Mathieu DELVA <mathieu.delva@akretion.com>
-# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
+# Copyright 2026 Akretion (http://www.akretion.com).
+# @author Mathieu Delva <mathieu.delva@akretion.com>
+# @author Florian Mounier <florian.mounier@akretion.com>
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+from decorator import contextmanager
 
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import RecordCapturer, TransactionCase
 
 
 class Common(TransactionCase):
     @classmethod
     def setUpClass(cls):
-        super(Common, cls).setUpClass()
-        partner_id = cls.env.ref("base.res_partner_2")
-        sale_channel_id = cls.env.ref("sale_channel.sale_channel_amazon")
-        model_id = cls.env["ir.model"].search([("model", "=", "sale.order")])
-        template_id = cls.env.ref("sale.mail_template_sale_confirmation")
-        picking_template_id = cls.env.ref(
-            "stock.mail_template_data_delivery_confirmation"
-        )
-        product_id = cls.env.ref("sale.product_product_4e")
-        picking_model_id = cls.env["ir.model"].search([("model", "=", "stock.picking")])
-        sale_channel_id.write(
+        super().setUpClass()
+        cls.env = cls.env(context=dict(cls.env.context, tracking_disable=True))
+
+        cls.partner = cls.env.ref("base.res_partner_2")
+        cls.sale_channel_1 = cls.env.ref("sale_channel.sale_channel_amazon")
+        cls.sale_channel_2 = cls.env.ref("sale_channel.sale_channel_ebay")
+        cls.template_1 = cls.env.ref("sale.mail_template_sale_confirmation")
+        product = cls.env.ref("sale.product_product_4e")
+
+        cls.sale_channel_1.write(
             {
+                "custom_notifications": True,
                 "notification_ids": [
                     (
                         0,
                         0,
                         {
                             "notification_type": "sale_confirmation",
-                            "model_id": model_id.id,
-                            "template_id": template_id.id,
+                            "template_id": cls.template_1.id,
                         },
                     )
-                ]
+                ],
             }
         )
 
         cls.order_id = cls.env["sale.order"].create(
             {
-                "partner_id": partner_id.id,
-                "sale_channel_id": sale_channel_id.id,
+                "partner_id": cls.partner.id,
+                "sale_channel_id": cls.sale_channel_1.id,
                 "order_line": [
                     (
                         0,
                         0,
                         {
-                            "product_id": product_id.id,
+                            "product_id": product.id,
                             "product_uom_qty": 1,
                         },
                     )
@@ -52,27 +53,16 @@ class Common(TransactionCase):
             }
         )
 
-        sale_channel_id.write(
-            {
-                "notification_ids": [
-                    (
-                        0,
-                        0,
-                        {
-                            "notification_type": "sale_confirmation",
-                            "model_id": model_id.id,
-                            "template_id": template_id.id,
-                        },
-                    ),
-                    (
-                        0,
-                        0,
-                        {
-                            "notification_type": "picking_shipped",
-                            "model_id": picking_model_id.id,
-                            "template_id": picking_template_id.id,
-                        },
-                    ),
-                ]
-            }
-        )
+        cls.default_capture_domain = [
+            ("model", "=", "sale.order"),
+            ("res_id", "=", cls.order_id.id),
+        ]
+
+    @contextmanager
+    def capture_mails_messages(self, domain=None):
+        domain = domain or self.default_capture_domain
+        with (
+            RecordCapturer(self.env["mail.mail"], domain) as mails,
+            RecordCapturer(self.env["mail.message"], domain) as messages,
+        ):
+            yield mails, messages

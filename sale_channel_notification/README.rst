@@ -28,11 +28,15 @@ Sale Channel Notification
 
 |badge1| |badge2| |badge3| |badge4| |badge5|
 
-Simple module that adds the posibility to link an email template to an action.
-To configure a new sale channel notification go to sale-->configuration-->Sale channel
-For the moment you can create a notification for the confirmation of the sale 
-and for the confirmation of a delivery
-To create a new one, you just need to choose notification type and template mail
+This module adds the posibility to customize odoo notifications per
+channel.
+
+To enable custom notifications for a channel, go to
+``Sale > Configuration > Sale Channels`` and check the "Custom
+Notifications" option.
+
+You will now be able to set up a new sale channel notification for an
+action in the Notification tab that should appear.
 
 **Table of contents**
 
@@ -53,17 +57,18 @@ Credits
 =======
 
 Authors
-~~~~~~~
+-------
 
 * Akretion
 
 Contributors
-~~~~~~~~~~~~
+------------
 
-* Mathieu Delva <mathieu.delva@akretion.com>
+- Mathieu Delva <mathieu.delva@akretion.com>
+- Florian Mounier <florian.mounier@akretion.com>
 
 Maintainers
-~~~~~~~~~~~
+-----------
 
 This module is maintained by the OCA.
 
