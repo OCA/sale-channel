@@ -1,2 +1,5 @@
 odoo-test-helper >= 1.1.0
 vcrpy-unittest
+
+odoo-addon-sale_channel @ git+https://github.com/OCA/sale-channel@refs/pull/45/head#subdirectory=setup/sale_channel
+odoo-addon-sale_channel_notification @ git+https://github.com/OCA/sale-channel@refs/pull/45/head#subdirectory=setup/sale_channel_notification
