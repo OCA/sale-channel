@@ -12,6 +12,13 @@ class TestSaleChannelNotificationStock(Common):
         cls.template_picking = cls.env.ref(
             "stock.mail_template_data_delivery_confirmation"
         )
+        cls.template_picking.subject = "Your order has been shipped"
+        cls.template_picking_ready = cls.template_picking.copy(
+            {
+                "name": "Outgoing picking ready",
+            }
+        )
+        cls.template_picking_ready.subject = "Your order is ready to be shipped"
         cls.sale_channel_1.notification_ids |= cls.env[
             "sale.channel.notification"
         ].create(
@@ -19,11 +26,32 @@ class TestSaleChannelNotificationStock(Common):
                 "notification_type": "outgoing_picking_shipped",
                 "template_id": cls.template_picking.id,
             }
+        ) | cls.env[
+            "sale.channel.notification"
+        ].create(
+            {
+                "notification_type": "outgoing_picking_ready",
+                "template_id": cls.template_picking_ready.id,
+            }
         )
         cls.default_capture_domain = [
             ("model", "=", "stock.picking"),
         ]
         cls.order_id.company_id.stock_move_email_validation = True
+
+    def test_action_outgoing_picking_ready_send(self):
+        self.order_id.action_confirm()
+        picking_id = self.order_id.picking_ids
+        picking_id.action_confirm()
+        for move in picking_id.move_ids:
+            move.quantity_done = move.product_uom_qty
+
+        with self.capture_mails_messages() as (new_mails, new_messages):
+            self.assertEqual(picking_id.action_assign(), True)
+
+        self.assertEqual(len(new_mails.records), 1)
+        self.assertEqual(len(new_messages.records), 1)
+        self.assertEqual(new_mails.records.subject, "Your order is ready to be shipped")
 
     def test_action_outgoing_picking_shipped_send(self):
         self.order_id.action_confirm()
@@ -38,6 +66,7 @@ class TestSaleChannelNotificationStock(Common):
 
         self.assertEqual(len(new_mails.records), 1)
         self.assertEqual(len(new_messages.records), 1)
+        self.assertEqual(new_mails.records.subject, "Your order has been shipped")
 
     def test_action_outgoing_picking_shipped_not_enabled(self):
         self.sale_channel_1.custom_notifications = False
