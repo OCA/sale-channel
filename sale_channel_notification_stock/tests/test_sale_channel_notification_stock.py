@@ -39,15 +39,56 @@ class TestSaleChannelNotificationStock(Common):
         ]
         cls.order_id.company_id.stock_move_email_validation = True
 
-    def test_action_outgoing_picking_ready_send(self):
-        self.order_id.action_confirm()
-        picking_id = self.order_id.picking_ids
-        picking_id.action_confirm()
-        for move in picking_id.move_ids:
-            move.quantity_done = move.product_uom_qty
+    def test_action_outgoing_picking_ready_send_stock(self):
+        with self.capture_mails_messages() as (new_mails, new_messages):
+            self.order_id.action_confirm()
+        self.assertEqual(len(new_mails.records), 1)
+        self.assertEqual(len(new_messages.records), 2)
+        self.assertEqual(new_mails.records.subject, "Your order is ready to be shipped")
 
         with self.capture_mails_messages() as (new_mails, new_messages):
+            picking_id = self.order_id.picking_ids
+            picking_id.action_confirm()
+            for move in picking_id.move_ids:
+                move.quantity_done = move.product_uom_qty
+
             self.assertEqual(picking_id.action_assign(), True)
+            picking_id.flush_recordset()
+
+        self.assertEqual(len(new_mails.records), 0)
+        self.assertEqual(len(new_messages.records), 0)
+
+    def test_action_outgoing_picking_ready_send_no_stock(self):
+        product = self.order_id.order_line.product_id
+        # Empty stock
+        reserving_all_order = self.order_id.copy()
+        reserving_all_order.order_line.product_uom_qty = product.qty_available
+        reserving_all_order.action_confirm()
+
+        with self.capture_mails_messages() as (new_mails, new_messages):
+            self.order_id.action_confirm()
+            picking_id = self.order_id.picking_ids
+            picking_id.action_confirm()
+
+        self.assertEqual(len(new_mails.records), 0)
+        self.assertEqual(len(new_messages.records), 1)
+
+        # Replenish stock
+        self.env["stock.quant"].create(
+            {
+                "product_id": product.id,
+                "product_uom_id": self.order_id.order_line.product_uom.id,
+                "location_id": self.env.ref("stock.stock_location_stock").id,
+                "quantity": 50,
+            }
+        )
+
+        with self.capture_mails_messages() as (new_mails, new_messages):
+            for move in picking_id.move_ids:
+                move.quantity_done = move.product_uom_qty
+
+            self.assertEqual(picking_id.action_assign(), True)
+            picking_id.flush_recordset()
 
         self.assertEqual(len(new_mails.records), 1)
         self.assertEqual(len(new_messages.records), 1)
@@ -63,6 +104,7 @@ class TestSaleChannelNotificationStock(Common):
             self.assertEqual(
                 picking_id.with_context(skip_immediate=True).button_validate(), True
             )
+            picking_id.flush_recordset()
 
         self.assertEqual(len(new_mails.records), 1)
         self.assertEqual(len(new_messages.records), 1)
@@ -79,6 +121,7 @@ class TestSaleChannelNotificationStock(Common):
             self.assertEqual(
                 picking_id.with_context(skip_immediate=True).button_validate(), True
             )
+            picking_id.flush_recordset()
 
         self.assertEqual(len(new_mails.records), 0)
         # Normal notification is sent
@@ -96,6 +139,7 @@ class TestSaleChannelNotificationStock(Common):
             self.assertEqual(
                 picking_id.with_context(skip_immediate=True).button_validate(), True
             )
+            picking_id.flush_recordset()
 
         self.assertEqual(len(new_mails.records), 0)
         self.assertEqual(len(new_messages.records), 0)
