@@ -8,18 +8,33 @@ from odoo import models
 class StockPicking(models.Model):
     _inherit = "stock.picking"
 
-    def _action_done(self):
-        result = super()._action_done()
-        for record in self:
+    def action_assign(self):
+        result = super().action_assign()
+        for record in self.filtered(
+            lambda pick: (
+                pick.state == "assigned" and pick.picking_type_id.code == "outgoing"
+            )
+        ):
             sale_channel = record.move_ids.mapped(
                 "sale_line_id.order_id.sale_channel_id"
-            ).filtered(lambda x: x.custom_notifications)
+            ).filtered(lambda channel: channel.custom_notifications)
 
-            if (
-                record.picking_type_id.code == "outgoing"
-                and record.date_done
-                and sale_channel
-            ):
+            if sale_channel:
+                sale_channel[0]._send_notification("outgoing_picking_ready", record)
+        return result
+
+    def _action_done(self):
+        result = super()._action_done()
+        for record in self.filtered(
+            lambda pick: (
+                pick.state == "done" and pick.picking_type_id.code == "outgoing"
+            )
+        ):
+            sale_channel = record.move_ids.mapped(
+                "sale_line_id.order_id.sale_channel_id"
+            ).filtered(lambda channel: channel.custom_notifications)
+
+            if sale_channel:
                 sale_channel[0]._send_notification("outgoing_picking_shipped", record)
         return result
 
@@ -28,11 +43,13 @@ class StockPicking(models.Model):
         return super(
             StockPicking,
             self.filtered(
-                lambda picking: not (
-                    picking.picking_type_id.code == "outgoing"
-                    and picking.move_ids.mapped(
-                        "sale_line_id.order_id.sale_channel_id"
-                    ).filtered(lambda x: x.custom_notifications)
+                lambda picking: (
+                    not (
+                        picking.picking_type_id.code == "outgoing"
+                        and picking.move_ids.mapped(
+                            "sale_line_id.order_id.sale_channel_id"
+                        ).filtered(lambda x: x.custom_notifications)
+                    )
                 )
             ),
         )._send_confirmation_email()

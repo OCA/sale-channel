@@ -10,6 +10,10 @@ class SaleChannelNotification(models.Model):
     def _get_all_notification(self):
         return {
             **super()._get_all_notification(),
+            "outgoing_picking_ready": {
+                "name": _("Outgoing picking ready"),
+                "model": "stock.picking",
+            },
             "outgoing_picking_shipped": {
                 "name": _("Outgoing picking shipped"),
                 "model": "stock.picking",
