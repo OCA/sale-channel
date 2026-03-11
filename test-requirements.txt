@@ -1,0 +1,1 @@
+odoo-addon-sale_channel @ git+https://github.com/OCA/sale-channel.git@refs/pull/26/head#subdirectory=sale_channel
