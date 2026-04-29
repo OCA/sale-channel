@@ -6,13 +6,12 @@ from uuid import uuid4
 
 from odoo.fields import Command
 
-from odoo.addons.connector_search_engine.tests.test_all import TestBindingIndexBase
+from odoo.addons.connector_search_engine.tests.common import TestBindingIndexBase
 
 
 class TestChannel(TestBindingIndexBase):
-    @classmethod
-    def _create_sale_channel_with_search_engine(cls, name):
-        search_engine = cls.env["se.backend"].create(
+    def _create_sale_channel_with_search_engine(self, name):
+        search_engine = self.env["se.backend"].create(
             {
                 "name": "Fake SE",
                 "tech_name": uuid4(),
@@ -21,42 +20,40 @@ class TestChannel(TestBindingIndexBase):
                     Command.create(
                         {
                             "name": "Categ Index",
-                            "model_id": cls.env["ir.model"]
+                            "model_id": self.env["ir.model"]
                             .search([("model", "=", "product.category")], limit=1)
                             .id,
-                            "lang_id": cls.env.ref("base.lang_en").id,
+                            "lang_id": self.env.ref("base.lang_en").id,
                             "serializer_type": "fake",
                         }
                     )
                 ],
             }
         )
-        return cls.env["sale.channel"].create(
+        return self.env["sale.channel"].create(
             {
                 "name": name,
                 "search_engine_id": search_engine.id,
             }
         )
 
-    @classmethod
-    def create_categ(cls, name, parent=None, channels=None):
+    def create_categ(self, name, parent=None, channels=None):
         vals = {"name": name}
         if parent:
             vals["parent_id"] = parent.id
         if channels:
             vals["channel_ids"] = channels.ids
-        return cls.env["product.category"].create(vals)
+        return self.env["product.category"].create(vals)
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.channel_1 = cls._create_sale_channel_with_search_engine("Channel 1")
-        cls.channel_2 = cls._create_sale_channel_with_search_engine("Channel 2")
-        cls.channels = cls.channel_1 + cls.channel_2
+    def setUp(self):
+        super().setUp()
+        self.channel_1 = self._create_sale_channel_with_search_engine("Channel 1")
+        self.channel_2 = self._create_sale_channel_with_search_engine("Channel 2")
+        self.channels = self.channel_1 + self.channel_2
 
-        cls.categ_root = cls.create_categ("Root", channels=cls.channels)
-        cls.categ_level_1 = cls.create_categ("Level 1", cls.categ_root)
-        cls.categ_level_2 = cls.create_categ("Level 2", cls.categ_level_1)
+        self.categ_root = self.create_categ("Root", channels=self.channels)
+        self.categ_level_1 = self.create_categ("Level 1", self.categ_root)
+        self.categ_level_2 = self.create_categ("Level 2", self.categ_level_1)
 
     def test_create_categ(self):
         self.assertEqual(self.categ_level_1.channel_ids, self.channels)
