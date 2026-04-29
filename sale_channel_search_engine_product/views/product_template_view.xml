@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version='1.0' encoding='utf-8' ?>
 <odoo>
-
     <record id="product_template_view_form" model="ir.ui.view">
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_only_form_view" />
@@ -12,47 +11,37 @@
                     icon="fa-list-ul"
                     type="object"
                     groups="connector_search_engine.group_connector_search_engine_user"
-                    attrs="{'invisible': [('count_se_binding_total', '=', 0)]}"
+                    invisible="count_se_binding_total == 0"
                 >
                     <div class="o_field_widget o_stat_info">
-                            <field name="count_se_binding_total" invisible="1" />
-                            <span class="o_stat_value">
-                                <i
-                                attrs="{'invisible': [
-                                    '|',
-                                    ('count_se_binding_pending', '>', 0),
-                                    ('count_se_binding_error', '>', 0)
-                                   ]}"
+                        <field name="count_se_binding_total" invisible="1" />
+                        <span class="o_stat_value">
+                            <i
+                                invisible="count_se_binding_pending &gt; 0 or count_se_binding_error &gt; 0"
                                 class="fa fa-thumbs-o-up text-success o_column_title"
                                 aria-hidden="true"
                             > :
                                     <field name="count_se_binding_done" />
                                 </i>
-                                <i
-                                attrs="{'invisible': [
-                                    '|',
-                                    ('count_se_binding_pending', '=', 0),
-                                    ('count_se_binding_error', '>', 0)
-                                   ]}"
+                            <i
+                                invisible="count_se_binding_pending == 0 or count_se_binding_error &gt; 0"
                                 class="fa fa-spinner text-warning"
                                 aria-hidden="true"
                             > :
                                     <field name="count_se_binding_pending" />
                                 </i>
-                                <i
-                                attrs="{'invisible': [('count_se_binding_error', '=', 0)]}"
+                            <i
+                                invisible="count_se_binding_error == 0"
                                 class="fa fa-exclamation-triangle text-danger"
                                 aria-hidden="true"
                             > :
                                     <field name="count_se_binding_error" />
                                 </i>
-                            </span>
-                            <span>Index</span>
-                       </div>
+                        </span>
+                        <span>Index</span>
+                    </div>
                 </button>
             </div>
         </field>
     </record>
-
-
 </odoo>
