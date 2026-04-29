@@ -12,7 +12,8 @@
                     name="open_se_binding"
                     icon="fa-list-ul"
                     type="object"
-                ><span>Bindings</span>
+                >
+                    <span>Bindings</span>
                 </button>
             </div>
             <group name="general_info" position="after">
