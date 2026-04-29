@@ -24,7 +24,9 @@ class SEIndexableRecord(models.AbstractModel):
         # the field "channel_ids" defined
         # in most of case just inherit of sale.channel.owner
         for channel in records.channel_ids:
-            items = records.filtered(lambda s: channel in s.channel_ids)
+            items = records.filtered(
+                lambda s, channel=channel: channel in s.channel_ids
+            )
             indexes = channel.search_engine_id.index_ids.filtered(
                 lambda s: s.model_id.model == self._name
             )
