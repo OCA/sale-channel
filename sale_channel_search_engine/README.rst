@@ -1,7 +1,3 @@
-.. image:: https://odoo-community.org/readme-banner-image
-   :target: https://odoo-community.org/get-involved?utm_source=readme
-   :alt: Odoo Community Association
-
 ==========================
 Sale Channel Search Engine
 ==========================
@@ -17,22 +13,23 @@ Sale Channel Search Engine
 .. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
     :target: https://odoo-community.org/page/development-status
     :alt: Alpha
-.. |badge2| image:: https://img.shields.io/badge/license-AGPL--3-blue.png
+.. |badge2| image:: https://img.shields.io/badge/licence-AGPL--3-blue.png
     :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
     :alt: License: AGPL-3
 .. |badge3| image:: https://img.shields.io/badge/github-OCA%2Fsale--channel-lightgray.png?logo=github
-    :target: https://github.com/OCA/sale-channel/tree/16.0/sale_channel_search_engine
+    :target: https://github.com/OCA/sale-channel/tree/18.0/sale_channel_search_engine
     :alt: OCA/sale-channel
 .. |badge4| image:: https://img.shields.io/badge/weblate-Translate%20me-F47D42.png
-    :target: https://translation.odoo-community.org/projects/sale-channel-16-0/sale-channel-16-0-sale_channel_search_engine
+    :target: https://translation.odoo-community.org/projects/sale-channel-18-0/sale-channel-18-0-sale_channel_search_engine
     :alt: Translate me on Weblate
 .. |badge5| image:: https://img.shields.io/badge/runboat-Try%20me-875A7B.png
-    :target: https://runboat.odoo-community.org/builds?repo=OCA/sale-channel&target_branch=16.0
+    :target: https://runboat.odoo-community.org/builds?repo=OCA/sale-channel&target_branch=18.0
     :alt: Try me on Runboat
 
 |badge1| |badge2| |badge3| |badge4| |badge5|
 
-Generic module to export product/category linked to a sale channel into a search engine
+Generic module to export product/category linked to a sale channel into
+a search engine
 
 .. IMPORTANT::
    This is an alpha version, the data model and design can change at any time without warning.
@@ -48,15 +45,17 @@ Changelog
 =========
 
 16.0.0.1.0 (2023-10-10)
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 **Bugfixes**
 
 - Prevent MRO conflicts by avoiding to define a new abstract model based
-  on the *se.indexable.record* model. This will prevent the MRO conflict when
-  one addon extends an existing model to make it indexable by inheriting from the
-  *se.indexable.record* model and another addon extends the same model and makes
-  it indexable by inheriting from a subclass of *se.indexable.record*. (`#12 <https://github.com/OCA/sale-channel/issues/12>`_)
+  on the *se.indexable.record* model. This will prevent the MRO conflict
+  when one addon extends an existing model to make it indexable by
+  inheriting from the *se.indexable.record* model and another addon
+  extends the same model and makes it indexable by inheriting from a
+  subclass of *se.indexable.record*.
+  (`#12 <https://github.com/OCA/sale-channel/issues/12>`__)
 
 Bug Tracker
 ===========
@@ -64,7 +63,7 @@ Bug Tracker
 Bugs are tracked on `GitHub Issues <https://github.com/OCA/sale-channel/issues>`_.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
-`feedback <https://github.com/OCA/sale-channel/issues/new?body=module:%20sale_channel_search_engine%0Aversion:%2016.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
+`feedback <https://github.com/OCA/sale-channel/issues/new?body=module:%20sale_channel_search_engine%0Aversion:%2018.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
 
 Do not contact contributors directly about support or help with technical issues.
 
@@ -72,19 +71,19 @@ Credits
 =======
 
 Authors
-~~~~~~~
+-------
 
 * Akretion
 
 Contributors
-~~~~~~~~~~~~
+------------
 
-* Sébastien Beau <sebastien.beau@akretion.com>
-* Raphaël Reverdy <raphael.reverdy@akretion.com>
-* Laurent Mignon <laurent.mignon@acsone.eu>
+- Sébastien Beau <sebastien.beau@akretion.com>
+- Raphaël Reverdy <raphael.reverdy@akretion.com>
+- Laurent Mignon <laurent.mignon@acsone.eu>
 
 Maintainers
-~~~~~~~~~~~
+-----------
 
 This module is maintained by the OCA.
 
@@ -96,6 +95,6 @@ OCA, or the Odoo Community Association, is a nonprofit organization whose
 mission is to support the collaborative development of Odoo features and
 promote its widespread use.
 
-This module is part of the `OCA/sale-channel <https://github.com/OCA/sale-channel/tree/16.0/sale_channel_search_engine>`_ project on GitHub.
+This module is part of the `OCA/sale-channel <https://github.com/OCA/sale-channel/tree/18.0/sale_channel_search_engine>`_ project on GitHub.
 
 You are welcome to contribute. To learn how please visit https://odoo-community.org/page/Contribute.
