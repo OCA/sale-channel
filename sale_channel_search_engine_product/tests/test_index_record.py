@@ -6,26 +6,25 @@ from uuid import uuid4
 
 from odoo.fields import Command
 
-from odoo.addons.connector_search_engine.tests.test_all import TestBindingIndexBase
+from odoo.addons.connector_search_engine.tests.common import TestBindingIndexBase
 from odoo.addons.product.tests.common import ProductAttributesCommon
 
 
 class IndexProduct(ProductAttributesCommon, TestBindingIndexBase):
-    @classmethod
-    def _create_product_template(cls, channels=None):
+    def _create_product_template(self, channels=None):
         vals = {
             "name": "Indexable Product",
-            "categ_id": cls.product_category.id,
+            "categ_id": self.product_category.id,
             "attribute_line_ids": [
                 Command.create(
                     {
-                        "attribute_id": cls.size_attribute.id,
+                        "attribute_id": self.size_attribute.id,
                         "value_ids": [
                             Command.set(
                                 [
-                                    cls.size_attribute_s.id,
-                                    cls.size_attribute_m.id,
-                                    cls.size_attribute_l.id,
+                                    self.size_attribute_s.id,
+                                    self.size_attribute_m.id,
+                                    self.size_attribute_l.id,
                                 ]
                             )
                         ],
@@ -35,11 +34,10 @@ class IndexProduct(ProductAttributesCommon, TestBindingIndexBase):
         }
         if channels:
             vals["channel_ids"] = [Command.set(channels.ids)]
-        return cls.env["product.template"].create(vals)
+        return self.env["product.template"].create(vals)
 
-    @classmethod
-    def _create_sale_channel_with_search_engine(cls):
-        search_engine = cls.env["se.backend"].create(
+    def _create_sale_channel_with_search_engine(self):
+        search_engine = self.env["se.backend"].create(
             {
                 "name": "Fake SE",
                 "tech_name": uuid4(),
@@ -48,29 +46,28 @@ class IndexProduct(ProductAttributesCommon, TestBindingIndexBase):
                     Command.create(
                         {
                             "name": "Product Index",
-                            "model_id": cls.env["ir.model"]
+                            "model_id": self.env["ir.model"]
                             .search([("model", "=", "product.product")], limit=1)
                             .id,
-                            "lang_id": cls.env.ref("base.lang_en").id,
+                            "lang_id": self.env.ref("base.lang_en").id,
                             "serializer_type": "fake",
                         }
                     )
                 ],
             }
         )
-        return cls.env["sale.channel"].create(
+        return self.env["sale.channel"].create(
             {
                 "name": "My super shop",
                 "search_engine_id": search_engine.id,
             }
         )
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.channel = cls._create_sale_channel_with_search_engine()
-        cls.search_engine = cls.channel.search_engine_id
-        cls.product_index = cls.search_engine.index_ids[0]
+    def setUp(self):
+        super().setUp()
+        self.channel = self._create_sale_channel_with_search_engine()
+        self.search_engine = self.channel.search_engine_id
+        self.product_index = self.search_engine.index_ids[0]
 
     def test_create_with_channel(self):
         product_template = self._create_product_template(self.channel)
