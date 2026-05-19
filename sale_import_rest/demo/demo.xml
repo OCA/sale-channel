@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="sale_channel_api_rest" model="sale.channel">
+        <field name="name">Api rest</field>
+    </record>
+
+    <record id="api_key_rest" model="auth.api.key">
+        <field name="name">Demo Api Key for Api Rest</field>
+        <field name="key">ASecureKeyApiRest</field>
+        <field name="user_id" eval="ref('user_import')" />
+    </record>
+</odoo>

@@ -1,1 +1,2 @@
 odoo-test-helper >= 1.1.0
+odoo-addon-sale_import_base @ git+https://github.com/OCA/sale-channel.git@refs/pull/43/head#subdirectory=sale_import_base
