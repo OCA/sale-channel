@@ -4,7 +4,7 @@
 
 {
     "name": "Sale Channel Notification Async",
-    "version": "16.0.1.0.0",
+    "version": "18.0.1.0.0",
     "author": "Akretion, Odoo Community Association (OCA)",
     "summary": "Asynchronous notifications for sale channels",
     "depends": ["sale_channel_notification", "queue_job"],

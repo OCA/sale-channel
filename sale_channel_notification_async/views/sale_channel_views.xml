@@ -13,7 +13,7 @@
         />
         <field name="arch" type="xml">
             <xpath
-                expr="//field[@name='notification_ids']/tree/field[@name='template_id']"
+                expr="//field[@name='notification_ids']/list/field[@name='template_id']"
                 position="after"
             >
                 <field name="use_async" />

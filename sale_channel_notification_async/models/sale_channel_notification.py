@@ -1,7 +1,7 @@
 # Copyright 2026 Akretion (http://www.akretion.com).
 # @author Florian Mounier <florian.mounier@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-from odoo import _, fields, models
+from odoo import fields, models
 
 
 class SaleChannelNotification(models.Model):
@@ -12,7 +12,7 @@ class SaleChannelNotification(models.Model):
     def send(self, record):
         if self.use_async:
             self.with_delay(
-                description=_(
+                description=self.env._(
                     "Sale Channel {name} {type} Notification for {record}"
                 ).format(
                     name=self.sale_channel_id.name,

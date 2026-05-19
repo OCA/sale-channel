@@ -31,7 +31,8 @@ class TestSaleChannelNotificationAsync(Common):
         last_job = self.env["queue.job"].search([], order="id desc", limit=1)
         self.assertEqual(
             last_job.name,
-            f"Sale Channel Amazon sale_confirmation Notification for {self.order_id.name}",
+            "Sale Channel Amazon sale_confirmation Notification "
+            f"for {self.order_id.name}",
         )
 
     def test_sale_channel_notification_async_sync(self):
