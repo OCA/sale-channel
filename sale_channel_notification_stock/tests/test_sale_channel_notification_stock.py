@@ -26,9 +26,7 @@ class TestSaleChannelNotificationStock(Common):
                 "notification_type": "outgoing_picking_shipped",
                 "template_id": cls.template_picking.id,
             }
-        ) | cls.env[
-            "sale.channel.notification"
-        ].create(
+        ) | cls.env["sale.channel.notification"].create(
             {
                 "notification_type": "outgoing_picking_ready",
                 "template_id": cls.template_picking_ready.id,
@@ -50,7 +48,7 @@ class TestSaleChannelNotificationStock(Common):
             picking_id = self.order_id.picking_ids
             picking_id.action_confirm()
             for move in picking_id.move_ids:
-                move.quantity_done = move.product_uom_qty
+                move.quantity = move.product_uom_qty
 
             self.assertEqual(picking_id.action_assign(), True)
             picking_id.flush_recordset()
@@ -85,7 +83,7 @@ class TestSaleChannelNotificationStock(Common):
 
         with self.capture_mails_messages() as (new_mails, new_messages):
             for move in picking_id.move_ids:
-                move.quantity_done = move.product_uom_qty
+                move.quantity = move.product_uom_qty
 
             self.assertEqual(picking_id.action_assign(), True)
             picking_id.flush_recordset()
@@ -99,7 +97,7 @@ class TestSaleChannelNotificationStock(Common):
         picking_id = self.order_id.picking_ids
         picking_id.action_confirm()
         for move in picking_id.move_ids:
-            move.quantity_done = move.product_uom_qty
+            move.quantity = move.product_uom_qty
         with self.capture_mails_messages() as (new_mails, new_messages):
             self.assertEqual(
                 picking_id.with_context(skip_immediate=True).button_validate(), True
@@ -116,7 +114,7 @@ class TestSaleChannelNotificationStock(Common):
         picking_id = self.order_id.picking_ids
         picking_id.action_confirm()
         for move in picking_id.move_ids:
-            move.quantity_done = move.product_uom_qty
+            move.quantity = move.product_uom_qty
         with self.capture_mails_messages() as (new_mails, new_messages):
             self.assertEqual(
                 picking_id.with_context(skip_immediate=True).button_validate(), True
@@ -134,7 +132,7 @@ class TestSaleChannelNotificationStock(Common):
         picking_id = self.order_id.picking_ids
         picking_id.action_confirm()
         for move in picking_id.move_ids:
-            move.quantity_done = move.product_uom_qty
+            move.quantity = move.product_uom_qty
         with self.capture_mails_messages() as (new_mails, new_messages):
             self.assertEqual(
                 picking_id.with_context(skip_immediate=True).button_validate(), True

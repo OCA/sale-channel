@@ -1,7 +1,7 @@
 # Copyright 2026 Akretion (http://www.akretion.com).
 # @author Florian Mounier <florian.mounier@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-from odoo import _, models
+from odoo import models
 
 
 class SaleChannelNotification(models.Model):
@@ -11,11 +11,11 @@ class SaleChannelNotification(models.Model):
         return {
             **super()._get_all_notification(),
             "outgoing_picking_ready": {
-                "name": _("Outgoing picking ready"),
+                "name": self.env._("Outgoing picking ready"),
                 "model": "stock.picking",
             },
             "outgoing_picking_shipped": {
-                "name": _("Outgoing picking shipped"),
+                "name": self.env._("Outgoing picking shipped"),
                 "model": "stock.picking",
             },
         }

@@ -36,7 +36,6 @@ class StockPicking(models.Model):
 
         for record in self:
             old_state = picking_states.get(record.id)
-            print(record.state, old_state)
             if (
                 record.state == "assigned" and old_state not in ["assigned", "done"]
             ) or (record.state == "done" and old_state != "done"):

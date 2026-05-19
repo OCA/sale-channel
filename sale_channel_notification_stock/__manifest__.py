@@ -4,7 +4,7 @@
 
 {
     "name": "Sale Channel Notification Stock",
-    "version": "16.0.1.0.0",
+    "version": "18.0.1.0.0",
     "author": "Akretion, Odoo Community Association (OCA)",
     "summary": "Sale channels notifications for stock management",
     "depends": ["sale_channel_notification", "stock"],
