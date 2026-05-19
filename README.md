@@ -26,6 +26,7 @@ addon | version | maintainers | summary
 [sale_channel_partner](sale_channel_partner/) | 18.0.1.0.0 |  | Bind sale channels to contacts
 [sale_channel_product](sale_channel_product/) | 18.0.1.0.0 |  | Link Product with sale channel
 [sale_channel_search_engine](sale_channel_search_engine/) | 18.0.1.0.0 |  | Abstract module for configuring a search engine on a sale channel
+[sale_channel_search_engine_product](sale_channel_search_engine_product/) | 18.0.1.0.0 |  | Implement an export of category in search engine based on sale channel link
 
 
 Unported addons
@@ -34,7 +35,6 @@ addon | version | maintainers | summary
 --- | --- | --- | ---
 [sale_channel_search_engine_category](sale_channel_search_engine_category/) | 16.0.0.1.0 (unported) |  | Implement an export of category in search engine based on sale channel link
 [sale_channel_search_engine_demo](sale_channel_search_engine_demo/) | 16.0.0.0.1 (unported) |  | Implement an export of category in search engine based on sale channel link
-[sale_channel_search_engine_product](sale_channel_search_engine_product/) | 16.0.0.1.0 (unported) |  | Implement an export of category in search engine based on sale channel link
 
 [//]: # (end addons)
 
