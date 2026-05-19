@@ -1,12 +1,13 @@
 [project]
 name = "odoo-addons-oca-sale-channel"
-version = "18.0.20260519.0"
+version = "18.0.20260519.1"
 dependencies = [
     "odoo-addon-sale_channel==18.0.*",
     "odoo-addon-sale_channel_category==18.0.*",
     "odoo-addon-sale_channel_partner==18.0.*",
     "odoo-addon-sale_channel_product==18.0.*",
     "odoo-addon-sale_channel_search_engine==18.0.*",
+    "odoo-addon-sale_channel_search_engine_category==18.0.*",
     "odoo-addon-sale_channel_search_engine_product==18.0.*",
 ]
 classifiers=[
