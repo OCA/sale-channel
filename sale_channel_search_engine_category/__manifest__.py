@@ -6,21 +6,16 @@
     "name": "Sale Channel Search Engine Category",
     "summary": "Implement an export of category in search engine based on "
     "sale channel link",
-    "version": "16.0.0.1.0",
+    "version": "18.0.1.0.0",
     "development_status": "Alpha",
     "category": "Uncategorized",
     "website": "https://github.com/OCA/sale-channel",
     "author": " Akretion, Odoo Community Association (OCA)",
     "license": "AGPL-3",
-    "external_dependencies": {
-        "python": [],
-        "bin": [],
-    },
     "depends": [
         "sale_channel_search_engine",
         "sale_channel_category",
     ],
     "data": [],
-    "demo": [],
-    "installable": False,
+    "installable": True,
 }
