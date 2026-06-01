@@ -1,6 +1,6 @@
 #  Copyright (c) Akretion 2020
 #  License AGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html)
-from odoo import _, fields, models
+from odoo import fields, models
 
 
 class SaleChannel(models.Model):
@@ -15,7 +15,7 @@ class SaleChannel(models.Model):
     )
     count_sale_channel_partners = fields.Integer(
         string="Sale Channel Partner count",
-        compute=_compute_count_sale_channel_partners,
+        compute="_compute_count_sale_channel_partners",
     )
 
     def button_open_bindings(self):
@@ -23,10 +23,10 @@ class SaleChannel(models.Model):
             "sale_channel_partner.sale_channel_partner_view_tree"
         ).id
         act = {
-            "name": _("Partner bindings"),
+            "name": self.env._("Partner bindings"),
             "res_model": "sale.channel.partner",
             "type": "ir.actions.act_window",
-            "views": [(tree_view_id, "tree")],
+            "views": [(tree_view_id, "list")],
             "domain": [("sale_channel_id", "=", self.id)],
         }
         return act
