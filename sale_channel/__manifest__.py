@@ -3,7 +3,7 @@
 {
     "name": "Sale Channel",
     "summary": "Adds the notion of sale channels",
-    "version": "18.0.1.0.1",
+    "version": "19.0.1.0.0",
     "category": "Generic Modules/Sale",
     "author": "Akretion, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/sale-channel",
