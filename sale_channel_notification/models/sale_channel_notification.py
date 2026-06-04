@@ -1,21 +1,45 @@
-# Copyright 2024 Akretion (https://www.akretion.com).
+# Copyright 2026 Akretion (http://www.akretion.com).
+# @author Sébastien BEAU <sebastien.beau@akretion.com>
 # @author Mathieu Delva <mathieu.delva@akretion.com>
+# @author Florian Mounier <florian.mounier@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+import logging
 
 from odoo import api, fields, models
 from odoo.tools.translate import _
 
+_logger = logging.getLogger(__name__)
+
 
 class SaleChannelNotification(models.Model):
     _name = "sale.channel.notification"
+    _description = "Sale Channel Notification"
 
     sale_channel_id = fields.Many2one("sale.channel")
     notification_type = fields.Selection(
         selection="_selection_notification_type",
         required=True,
     )
-    model_id = fields.Many2one("ir.model", "Model", required=True, ondelete="cascade")
-    template_id = fields.Many2one("mail.template", "Mail Template", required=True)
+    model_id = fields.Many2one(
+        "ir.model",
+        "Model",
+        required=True,
+        compute="_compute_model_id",
+        ondelete="cascade",
+    )
+    template_id = fields.Many2one(
+        "mail.template",
+        "Mail Template",
+        required=True,
+    )
+
+    _sql_constraints = [
+        (
+            "sale_channel_notification_unique",
+            "UNIQUE(sale_channel_id, notification_type)",
+            "A notification type can only be set once per sale channel",
+        )
+    ]
 
     def _selection_notification_type(self):
         notifications = self._get_all_notification()
@@ -27,31 +51,41 @@ class SaleChannelNotification(models.Model):
                 "name": _("Sale Confirmation"),
                 "model": "sale.order",
             },
-            "picking_shipped": {
-                "name": _("Picking Shipped"),
-                "model": "stock.picking",
-            },
         }
 
-    @api.onchange("notification_type")
-    def on_notification_type_change(self):
-        self.ensure_one()
-        notifications = self._get_all_notification()
-        if self.notification_type:
-            model = notifications[self.notification_type].get("model")
-            if model:
-                self.model_id = self.env["ir.model"].search([("model", "=", model)])
-                return {"domain": {"model_id": [("id", "=", self.model_id.id)]}}
-            else:
-                return {"domain": {"model_id": []}}
+    @api.depends("notification_type")
+    def _compute_model_id(self):
+        for record in self:
+            notifications = self._get_all_notification()
 
-    def send(self, record_id):
+            if record.notification_type not in notifications:
+                _logger.warning(
+                    "Notification type '%s' is not a valid notification type",
+                    record.notification_type,
+                )
+                record.model_id = False
+                continue
+
+            record.model_id = (
+                self.env["ir.model"].search(
+                    [
+                        (
+                            "model",
+                            "=",
+                            notifications[record.notification_type]["model"],
+                        )
+                    ]
+                )
+                if record.notification_type
+                else False
+            )
+
+    def send(self, record):
         self.ensure_one()
-        return (
-            self.sudo()
-            .template_id.with_context(**self._get_template_context())
-            .send_mail(record_id)
-        )
+        self._send(record, **self._get_template_context())
+
+    def _send(self, record, **kwargs):
+        return self.sudo().template_id.with_context(**kwargs).send_mail(record.id)
 
     def _get_template_context(self):
         return {
