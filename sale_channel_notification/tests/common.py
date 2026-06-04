@@ -3,7 +3,7 @@
 # @author Florian Mounier <florian.mounier@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from decorator import contextmanager
+from contextlib import contextmanager
 
 from odoo.tests.common import RecordCapturer, TransactionCase
 

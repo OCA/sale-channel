@@ -3,13 +3,16 @@
 # @author Mathieu Delva <mathieu.delva@akretion.com>
 # @author Florian Mounier <florian.mounier@akretion.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+import logging
 
 from odoo import api, fields, models
-from odoo.tools.translate import _
+
+_logger = logging.getLogger(__name__)
 
 
 class SaleChannelNotification(models.Model):
     _name = "sale.channel.notification"
+    _description = "Sale Channel Notification"
 
     sale_channel_id = fields.Many2one("sale.channel")
     notification_type = fields.Selection(
@@ -44,7 +47,7 @@ class SaleChannelNotification(models.Model):
     def _get_all_notification(self):
         return {
             "sale_confirmation": {
-                "name": _("Sale Confirmation"),
+                "name": self.env._("Sale Confirmation"),
                 "model": "sale.order",
             },
         }
@@ -53,6 +56,15 @@ class SaleChannelNotification(models.Model):
     def _compute_model_id(self):
         for record in self:
             notifications = self._get_all_notification()
+
+            if record.notification_type not in notifications:
+                _logger.warning(
+                    "Notification type '%s' is not a valid notification type",
+                    record.notification_type,
+                )
+                record.model_id = False
+                continue
+
             record.model_id = (
                 self.env["ir.model"].search(
                     [

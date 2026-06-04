@@ -7,7 +7,7 @@
 {
     "name": "Sale Channel Notification",
     "summary": "Custom notifications for sale channels",
-    "version": "16.0.1.0.1",
+    "version": "18.0.1.0.0",
     "category": "Sale Channel",
     "website": "https://github.com/OCA/sale-channel",
     "author": "Akretion,Odoo Community Association (OCA)",
