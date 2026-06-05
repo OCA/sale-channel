@@ -1,0 +1,2 @@
+- Mathieu Delva \<mathieu.delva@akretion.com\>
+- Florian Mounier \<florian.mounier@akretion.com\>

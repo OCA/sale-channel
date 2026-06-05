@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Copyright 2026 Akretion (http://www.akretion.com).
+    @author Sébastien BEAU <sebastien.beau@akretion.com>
+    @author Mathieu Delva <mathieu.delva@akretion.com>
+    @author Florian Mounier <florian.mounier@akretion.com>
+    License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+-->
+<odoo>
+    <record id="sale_channel_view_form" model="ir.ui.view">
+        <field name="model">sale.channel</field>
+        <field name="inherit_id" ref="sale_channel.sale_channel_view_form" />
+        <field name="arch" type="xml">
+            <group name="general_info" position="inside">
+                <field name="custom_notifications" />
+            </group>
+
+            <notebook position="inside">
+                <page
+                    name="sale_notification"
+                    string="Notifications"
+                    invisible="not custom_notifications"
+                >
+                    <field name="notification_ids" nolabel="1" required="1">
+                        <list editable="bottom">
+                            <field name="notification_type" />
+                            <field name="model_id" />
+                            <field
+                                name="template_id"
+                                domain="[('model_id', '=', model_id)]"
+                            />
+                        </list>
+                    </field>
+                </page>
+            </notebook>
+        </field>
+    </record>
+</odoo>
