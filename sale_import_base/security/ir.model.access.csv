@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sale_channel_importer,access_sale_channel_importer,model_sale_channel_importer,base.group_user,1,0,0,0
+access_sale_import_payload_full,sale.import.payload full,model_sale_import_payload,sale_import_base.group_sale_import_payload,1,1,1,1
