@@ -58,15 +58,15 @@ Authors
 Contributors
 ------------
 
--  Kevin Khao <kevin.khao@akretion.com>
--  Sébastien Beau <sebastien.beau@akretion.com>
+- Kevin Khao <kevin.khao@akretion.com>
+- Sébastien Beau <sebastien.beau@akretion.com>
 
 Other credits
 -------------
 
 The development of this module has been financially supported by:
 
--  Akretion <`www.akretion.com\\> <http://www.akretion.com\>>`__
+- Akretion <`www.akretion.com\\> <http://www.akretion.com\>>`__
 
 Maintainers
 -----------
