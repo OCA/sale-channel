@@ -1,0 +1,124 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sale_channel_notification
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 14.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-15 14:46+0000\n"
+"PO-Revision-Date: 2026-07-15 14:46+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sale_channel_notification
+#: model:ir.model.constraint,message:sale_channel_notification.constraint_sale_channel_notification_sale_channel_notification_unique
+msgid "A notification type can only be set once per sale channel"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel_notification__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel_notification__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel__custom_notifications
+msgid "Custom Notifications"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel__display_name
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel_notification__display_name
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_order__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model.fields,help:sale_channel_notification.field_sale_channel__custom_notifications
+msgid "Enable custom notifications for this channel"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel__id
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel_notification__id
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_order__id
+msgid "ID"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel____last_update
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel_notification____last_update
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_order____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel_notification__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel_notification__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel_notification__template_id
+msgid "Mail Template"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel_notification__model_id
+msgid "Model"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel__notification_ids
+msgid "Notification"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel_notification__notification_type
+msgid "Notification Type"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model_terms:ir.ui.view,arch_db:sale_channel_notification.sale_channel_view_form
+msgid "Notifications"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model,name:sale_channel_notification.model_sale_channel
+#: model:ir.model.fields,field_description:sale_channel_notification.field_sale_channel_notification__sale_channel_id
+msgid "Sale Channel"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model,name:sale_channel_notification.model_sale_channel_notification
+msgid "Sale Channel Notification"
+msgstr ""
+
+#. module: sale_channel_notification
+#: code:addons/sale_channel_notification/models/sale_channel_notification.py:0
+#, python-format
+msgid "Sale Confirmation"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model,name:sale_channel_notification.model_sale_order
+msgid "Sale Order"
+msgstr ""
+
+#. module: sale_channel_notification
+#: model:ir.model.fields,help:sale_channel_notification.field_sale_channel__notification_ids
+msgid "Send mail for predefined events"
+msgstr ""
