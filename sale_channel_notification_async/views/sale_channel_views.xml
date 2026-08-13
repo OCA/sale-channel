@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    Copyright 2026 Akretion (http://www.akretion.com).
+    @author Florian Mounier <florian.mounier@akretion.com>
+    License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+-->
+<odoo>
+    <record id="sale_channel_view_form" model="ir.ui.view">
+        <field name="model">sale.channel</field>
+        <field
+            name="inherit_id"
+            ref="sale_channel_notification.sale_channel_view_form"
+        />
+        <field name="arch" type="xml">
+            <xpath
+                expr="//field[@name='notification_ids']/tree/field[@name='template_id']"
+                position="after"
+            >
+                <field name="use_async" />
+            </xpath>
+        </field>
+    </record>
+</odoo>
