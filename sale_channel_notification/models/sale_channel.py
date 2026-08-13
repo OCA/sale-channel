@@ -22,12 +22,9 @@ class SaleChannel(models.Model):
     )
 
     def _send_notification(self, notification, record):
-        notif = self.env["sale.channel.notification"].search(
-            [
-                ("sale_channel_id", "=", self.id),
-                ("notification_type", "=", notification),
-            ],
-            limit=1,
+        self.ensure_one()
+        notif = self.notification_ids.filtered(
+            lambda s: s.notification_type == notification
         )
         if not notif:
             return False

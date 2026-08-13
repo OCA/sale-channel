@@ -1,1 +1,3 @@
-from . import sale_channel, sale_channel_notification, sale_order
+from . import sale_channel
+from . import sale_channel_notification
+from . import sale_order

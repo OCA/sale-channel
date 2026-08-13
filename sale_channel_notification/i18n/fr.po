@@ -16,8 +16,9 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: sale_channel_notification
-#: model:ir.model.constraint,message:sale_channel_notification.constraint_sale_channel_notification_sale_channel_notification_unique
-msgid "A notification type can only be set once per sale channel"
+#: code:addons/sale_channel_notification/models/sale_channel_notification.py:0
+#, python-format
+msgid "A notification type can only be set once per sale channel."
 msgstr "Un type de notification ne peut être défini qu'une seule fois par canal de vente."
 
 #. module: sale_channel_notification

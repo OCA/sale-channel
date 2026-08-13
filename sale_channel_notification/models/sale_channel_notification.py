@@ -6,6 +6,7 @@
 import logging
 
 from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 from odoo.tools.translate import _
 
 _logger = logging.getLogger(__name__)
@@ -33,13 +34,19 @@ class SaleChannelNotification(models.Model):
         required=True,
     )
 
-    _sql_constraints = [
-        (
-            "sale_channel_notification_unique",
-            "UNIQUE(sale_channel_id, notification_type)",
-            "A notification type can only be set once per sale channel",
-        )
-    ]
+    @api.constrains("sale_channel_id", "notification_type")
+    def _check_sale_channel_notification_unique(self):
+        for record in self:
+
+            domain = [
+                ("id", "!=", record.id),
+                ("sale_channel_id", "=", record.sale_channel_id.id),
+                ("notification_type", "=", record.notification_type),
+            ]
+            if self.search_count(domain) > 0:
+                raise ValidationError(
+                    _("A notification type can only be set once per sale channel.")
+                )
 
     def _selection_notification_type(self):
         notifications = self._get_all_notification()
