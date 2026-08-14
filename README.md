@@ -17,7 +17,11 @@ sale-channel
 
 [//]: # (addons)
 
-This part will be replaced when running the oca-gen-addons-table script from OCA/maintainer-tools.
+Available addons
+----------------
+addon | version | maintainers | summary
+--- | --- | --- | ---
+[sale_channel](sale_channel/) | 19.0.1.0.0 |  | Adds the notion of sale channels
 
 [//]: # (end addons)
 

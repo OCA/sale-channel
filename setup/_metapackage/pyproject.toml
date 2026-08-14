@@ -1,0 +1,11 @@
+[project]
+name = "odoo-addons-oca-sale-channel"
+version = "19.0.20260814.0"
+dependencies = [
+    "odoo-addon-sale_channel==19.0.*",
+]
+classifiers=[
+    "Programming Language :: Python",
+    "Framework :: Odoo",
+    "Framework :: Odoo :: 19.0",
+]
