@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright (c) Akretion 2020 -->
+<!-- License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="sale_channel_view_form" model="ir.ui.view">
+        <field name="model">sale.channel</field>
+        <field name="arch" type="xml">
+            <form string="Sale Channel">
+                <sheet>
+                    <div class="oe_button_box" name="button_box" />
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="bg-danger"
+                        invisible="active == True"
+                    />
+                    <h1 class="mt0">
+                        <field name="name" />
+                    </h1>
+                    <group name="general_info" string="General information">
+                        <field name="active" invisible="1" />
+                        <field name="channel_type" />
+                        <field name="company_id" groups="base.group_multi_company" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="sale_channel_view_tree" model="ir.ui.view">
+        <field name="model">sale.channel</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+            </list>
+        </field>
+    </record>
+
+    <record id="sale_channel_view_search" model="ir.ui.view">
+        <field name="model">sale.channel</field>
+        <field name="arch" type="xml">
+            <search string="Sale Channels">
+                <field name="name" />
+                <filter
+                    string="Archived"
+                    name="inactive"
+                    domain="[('active','=',False)]"
+                />
+            </search>
+        </field>
+    </record>
+
+    <record id="sale_channel_action" model="ir.actions.act_window">
+        <field name="name">Sale Channels</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">sale.channel</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="menuitem_sale_channels"
+        name="Sale Channels"
+        parent="sale.menu_sale_config"
+        action="sale_channel_action"
+    />
+</odoo>
