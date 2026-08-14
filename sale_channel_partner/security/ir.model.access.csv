@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sale_channel_partner,sale.channel.partner,model_sale_channel_partner,sales_team.group_sale_salesman,1,0,0,0
+access_sale_channel_partner_manager,sale.channel.partner,model_sale_channel_partner,sales_team.group_sale_manager,1,1,1,1
