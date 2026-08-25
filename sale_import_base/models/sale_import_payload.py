@@ -43,6 +43,7 @@ class SaleImportPayload(models.Model):
         store=True,
     )
     stack_trace = fields.Text(readonly=True)
+    sale_order_id = fields.Many2one("sale.order", readonly=True)
 
     @api.autovacuum
     def _delete_old_sale_importer_chunk(self):
@@ -72,7 +73,9 @@ class SaleImportPayload(models.Model):
     def enqueue_job(self):
         # by pass job for easier debugging
         # will be True if odoo is started with option --dev=pdb
-        if "pdb" in odoo.tools.config.get("dev_mode"):
+        if "pdb" in odoo.tools.config.get("dev_mode") or self.env.context.get(
+            "sale_import_no_delay"
+        ):
             return self.process()
         else:
             return self.with_delay().process()
@@ -89,12 +92,15 @@ class SaleImportPayload(models.Model):
         try:
             with self.env.cr.savepoint():
                 importer = self._get_importer()
-                result = importer.run()
+                sale_order = importer.run()
         except RetryableJobError:
             raise
         except Exception as e:
             # will be True if odoo is started with option --dev=pdb
-            if "pdb" in odoo.tools.config.get("dev_mode"):
+            # raise error when job are by passed
+            if "pdb" in odoo.tools.config.get("dev_mode") or self.env.context.get(
+                "sale_import_no_delay"
+            ):
                 raise
             # TODO maybe it will be simplier to have a kind of inherits
             #  on queue.job to avoid a double error management
@@ -110,6 +116,5 @@ class SaleImportPayload(models.Model):
             self.state_info = type(e).__name__ + str(e.args)
             self.stack_trace = traceback.format_exc()
             return False
-        self.state_info = ""
-        self.state = "done"
-        return result
+        self.write({"state_info": "", "state": "done", "sale_order_id": sale_order.id})
+        return sale_order
