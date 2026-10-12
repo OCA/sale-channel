@@ -19,14 +19,14 @@ class SaleChannel(models.Model):
     )
 
     def button_open_bindings(self):
-        tree_view_id = self.env.ref(
+        list_view_id = self.env.ref(
             "sale_channel_partner.sale_channel_partner_view_tree"
         ).id
         act = {
             "name": _("Partner bindings"),
             "res_model": "sale.channel.partner",
             "type": "ir.actions.act_window",
-            "views": [(tree_view_id, "tree")],
+            "views": [(list_view_id, "list")],
             "domain": [("sale_channel_id", "=", self.id)],
         }
         return act
