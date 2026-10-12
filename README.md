@@ -23,7 +23,7 @@ addon | version | maintainers | summary
 --- | --- | --- | ---
 [sale_channel](sale_channel/) | 18.0.1.0.1 |  | Adds the notion of sale channels
 [sale_channel_category](sale_channel_category/) | 18.0.1.0.0 |  | Link Category with sale channel
-[sale_channel_partner](sale_channel_partner/) | 18.0.1.0.0 |  | Bind sale channels to contacts
+[sale_channel_partner](sale_channel_partner/) | 18.0.1.0.1 |  | Bind sale channels to contacts
 [sale_channel_product](sale_channel_product/) | 18.0.1.0.0 |  | Link Product with sale channel
 [sale_channel_search_engine](sale_channel_search_engine/) | 18.0.1.0.0 |  | Abstract module for configuring a search engine on a sale channel
 [sale_channel_search_engine_category](sale_channel_search_engine_category/) | 18.0.1.0.0 |  | Implement an export of category in search engine based on sale channel link
