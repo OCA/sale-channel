@@ -1,0 +1,457 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sale_import_base
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2025-11-10 11:42+0000\n"
+"Last-Translator: mymage <stefano.consolaro@mymage.it>\n"
+"Language-Team: none\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.10.4\n"
+
+#. module: sale_import_base
+#. odoo-python
+#: code:addons/sale_import_base/models/sale_channel_importer.py:0
+#, python-format
+msgid "%(product_num)s products found for the code %(code)s."
+msgstr "%(product_num)s prodotti trovati per il codice %(code)s."
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel__sale_orders_check_amounts_total
+msgid "(technical) Check total amounts against imported values"
+msgstr "(tecnico) Controllo valori totali rispetto ai valori importati"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel__sale_orders_check_amounts_untaxed
+msgid "(technical) Check untaxed amounts against imported values"
+msgstr "(tecnico) Controllo valori imponibili rispetto ai valori importati"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_order__si_amount_tax
+msgid "(technical) Tax amount from import"
+msgstr "(tecnico) Valore imposta da importazione"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_order__si_amount_total
+msgid "(technical) Total amount from import"
+msgstr "(tecnico) Valore totale da importazione"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_order__si_amount_untaxed
+msgid "(technical) Untaxed amount from import"
+msgstr "(tecnico) Valore imponibile da importazione"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__message_needaction
+msgid "Action Needed"
+msgstr "Azione richiesta"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__state_info
+msgid "Additional state information"
+msgstr "Informazioni addizionali stato"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel__allow_match_on_email
+msgid "Allow customer match on email"
+msgstr "Consente corrispondenza cliente su e-mail"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__message_attachment_count
+msgid "Attachment Count"
+msgstr "Conteggio allegati"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel__archive_addresses
+msgid "Automatically archive partner's addresses"
+msgstr "Archivia automaticamente gli indirizzi del partner"
+
+#. module: sale_import_base
+#: model_terms:ir.ui.view,arch_db:sale_import_base.sale_channel_view_form
+msgid "Check imported values"
+msgstr "Controllo valori importati"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__company_id
+msgid "Company"
+msgstr "Azienda"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel__confirm_order
+msgid "Confirm Order"
+msgstr "Conferma ordine"
+
+#. module: sale_import_base
+#: model:ir.model.fields,help:sale_import_base.field_sale_channel__confirm_order
+msgid "Confirm order after import"
+msgstr "Conferma ordine dopo importazione"
+
+#. module: sale_import_base
+#: model_terms:ir.ui.view,arch_db:sale_import_base.view_sale_import_payload_search
+msgid "Create Date"
+msgstr "Data creazione"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel_importer__create_uid
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__create_uid
+msgid "Created by"
+msgstr "Creato da"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel_importer__create_date
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__create_date
+msgid "Created on"
+msgstr "Creato il"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel__crm_team_id
+msgid "Crm Team"
+msgstr "Team CRM"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel_importer__display_name
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__display_name
+msgid "Display Name"
+msgstr "Nome visualizzato"
+
+#. module: sale_import_base
+#: model:ir.model.fields.selection,name:sale_import_base.selection__sale_import_payload__state__done
+msgid "Done"
+msgstr "Eseguito"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__data_str
+msgid "Editable data"
+msgstr "Dati modificabili"
+
+#. module: sale_import_base
+#: model:ir.model.fields.selection,name:sale_import_base.selection__sale_channel__internal_naming_method__client_order_ref
+msgid "External identifier"
+msgstr "Identificatore esterno"
+
+#. module: sale_import_base
+#: model:ir.model.fields.selection,name:sale_import_base.selection__sale_import_payload__state__fail
+#: model_terms:ir.ui.view,arch_db:sale_import_base.view_sale_import_payload_search
+msgid "Failed"
+msgstr "Fallito"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__message_follower_ids
+msgid "Followers"
+msgstr "Seguito da"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Seguito da (partner)"
+
+#. module: sale_import_base
+#: model:ir.model.fields,help:sale_import_base.field_sale_channel__invoice_order
+msgid "Generate invoice after import"
+msgstr "Genera fattura dopo importazione"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__has_message
+msgid "Has Message"
+msgstr "Ha un messaggio"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel_importer__id
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__id
+msgid "ID"
+msgstr "ID"
+
+#. module: sale_import_base
+#: model:ir.model.fields,help:sale_import_base.field_sale_import_payload__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Se selezionata, nuovi messaggi richiedono attenzione."
+
+#. module: sale_import_base
+#: model:ir.model.fields,help:sale_import_base.field_sale_import_payload__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Se selezionata, alcuni messaggi hanno un errore di consegna."
+
+#. module: sale_import_base
+#: model:exception.rule,name:sale_import_base.exc_wrong_total_amount
+msgid "Inconsistent total amounts"
+msgstr "Valori totali non consistenti"
+
+#. module: sale_import_base
+#: model:exception.rule,name:sale_import_base.exc_wrong_untaxed_amount
+msgid "Inconsistent untaxed amounts"
+msgstr "Valori imponibile non consistenti"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel__internal_naming_method
+msgid "Internal Naming Method"
+msgstr "Metodo denominazione interno"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel__invoice_order
+msgid "Invoice Order"
+msgstr "Ordine fattura"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__message_is_follower
+msgid "Is Follower"
+msgstr "Segue"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel_importer____last_update
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload____last_update
+msgid "Last Modified on"
+msgstr "Ultima modifica il"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel_importer__write_uid
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__write_uid
+msgid "Last Updated by"
+msgstr "Ultimo aggiornamento di"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel_importer__write_date
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__write_date
+msgid "Last Updated on"
+msgstr "Ultimo aggiornamento il"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__message_main_attachment_id
+msgid "Main Attachment"
+msgstr "Allegato principale"
+
+#. module: sale_import_base
+#: model:res.groups,name:sale_import_base.group_sale_import_payload
+msgid "Manage Sale Payloads"
+msgstr "Gestione ricarico vendite"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__message_has_error
+msgid "Message Delivery error"
+msgstr "Errore di consegna messaggio"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__message_ids
+msgid "Messages"
+msgstr "Messaggi"
+
+#. module: sale_import_base
+#. odoo-python
+#: code:addons/sale_import_base/models/sale_channel_importer.py:0
+#, python-format
+msgid "Missing Provider with code {}"
+msgstr "Manca fornitore con codice {}"
+
+#. module: sale_import_base
+#. odoo-python
+#: code:addons/sale_import_base/models/sale_channel_importer.py:0
+#, python-format
+msgid "Missing State %(state_code)s for country %(country_name)s"
+msgstr "Manca stato %(state_code)s per nazione %(country_name)s"
+
+#. module: sale_import_base
+#. odoo-python
+#: code:addons/sale_import_base/models/sale_channel_importer.py:0
+#, python-format
+msgid "Missing country {}"
+msgstr "Manca nazione {}"
+
+#. module: sale_import_base
+#. odoo-python
+#: code:addons/sale_import_base/models/sale_channel_importer.py:0
+#, python-format
+msgid "Missing currency {}"
+msgstr "Manca valuta {}"
+
+#. module: sale_import_base
+#: model:ir.model.fields.selection,name:sale_import_base.selection__sale_channel__internal_naming_method__name
+msgid "Native"
+msgstr "Nativo"
+
+#. module: sale_import_base
+#. odoo-python
+#: code:addons/sale_import_base/models/sale_channel_importer.py:0
+#, python-format
+msgid ""
+"No active product found for code  %(code)s and related to the company "
+"%(company)s."
+msgstr ""
+"Nessun prodotto attivo trovato per il codice %(code)s e relativo all'azienda "
+"%(company)s."
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Numero di azioni"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__message_has_error_counter
+msgid "Number of errors"
+msgstr "Numero di errori"
+
+#. module: sale_import_base
+#: model:ir.model.fields,help:sale_import_base.field_sale_import_payload__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Numero di messaggi che richiedono un'azione"
+
+#. module: sale_import_base
+#: model:ir.model.fields,help:sale_import_base.field_sale_import_payload__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Numero di messaggi con errore di consegna"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel_importer__payload_id
+msgid "Payload"
+msgstr "Carico"
+
+#. module: sale_import_base
+#: model:ir.model,name:sale_import_base.model_payment_provider
+msgid "Payment Provider"
+msgstr "Fornitore pagamento"
+
+#. module: sale_import_base
+#. odoo-python
+#: code:addons/sale_import_base/models/sale_channel_importer.py:0
+#, python-format
+msgid ""
+"Payment currency %(currency)s differs from the Sale Order pricelist currency "
+"%(pricelist_currency)s"
+msgstr ""
+"La valuta pagamento %(currency)s è diversa dalla valuta del listino vendita "
+"%(pricelist_currency)s"
+
+#. module: sale_import_base
+#: model:ir.model.fields.selection,name:sale_import_base.selection__sale_import_payload__state__pending
+#: model_terms:ir.ui.view,arch_db:sale_import_base.view_sale_import_payload_search
+msgid "Pending"
+msgstr "In sospeso"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_channel__pricelist_id
+msgid "Pricelist"
+msgstr "Listino prezzi"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_payment_provider__ref
+msgid "Ref"
+msgstr "Rif."
+
+#. module: sale_import_base
+#: model_terms:ir.ui.view,arch_db:sale_import_base.view_sale_import_payload_form
+msgid "Retry job"
+msgstr "Riprova lavoro"
+
+#. module: sale_import_base
+#: model:ir.model,name:sale_import_base.model_sale_channel
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__sale_channel_id
+msgid "Sale Channel"
+msgstr "Canale di vendita"
+
+#. module: sale_import_base
+#: model:ir.model,name:sale_import_base.model_sale_channel_importer
+msgid "Sale Channel Importer"
+msgstr "Importatore canale di vendita"
+
+#. module: sale_import_base
+#: model:ir.actions.act_window,name:sale_import_base.action_sale_import_payload
+#: model:ir.ui.menu,name:sale_import_base.menu_sale_import_payload
+msgid "Sale Import"
+msgstr "Importa vendita"
+
+#. module: sale_import_base
+#: model_terms:ir.ui.view,arch_db:sale_import_base.sale_channel_view_form
+msgid "Sale Import Parameters"
+msgstr "Parametri importa vendita"
+
+#. module: sale_import_base
+#. odoo-python
+#: code:addons/sale_import_base/models/sale_channel_importer.py:0
+#, python-format
+msgid "Sale Order created from payload %s."
+msgstr "Ordine di vendita creato dal carico %s."
+
+#. module: sale_import_base
+#. odoo-python
+#: code:addons/sale_import_base/models/sale_channel_importer.py:0
+#, python-format
+msgid "Sale Order {} has already been created"
+msgstr "L'ordine di vendita {} è già stato creato"
+
+#. module: sale_import_base
+#: model:ir.model.fields,help:sale_import_base.field_sale_channel__internal_naming_method
+msgid ""
+"Sale Orders can use either Odoo native sequenced numbering, or the external "
+"identifier"
+msgstr ""
+"L'ordine di vendita può usare sia la numerazione sequenziale originale Odoo "
+"o l'identificatore esterno"
+
+#. module: sale_import_base
+#: model:ir.model,name:sale_import_base.model_sale_import_payload
+msgid "Sale Payload"
+msgstr "Carico vendita"
+
+#. module: sale_import_base
+#: model:ir.model,name:sale_import_base.model_sale_order
+msgid "Sales Order"
+msgstr "Ordine di vendita"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__stack_trace
+msgid "Stack Trace"
+msgstr "Traccia stack"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__state
+msgid "State"
+msgstr "Stato"
+
+#. module: sale_import_base
+#: model:ir.model.constraint,message:sale_import_base.constraint_payment_provider_unique_ref
+msgid "The Provider ref must be uniq"
+msgstr "Il riferimento fornitore deve essere univoco"
+
+#. module: sale_import_base
+#: model:exception.rule,description:sale_import_base.exc_wrong_total_amount
+msgid ""
+"The amount computed in Odoo doesn't match with the imported total amount.\n"
+"There is an error related to tax calculations."
+msgstr ""
+"Il valore calcolato in Odoo non corrisponde con il totale valore importato.\n"
+"C'è un errore relativo al calcolo dell'imposta."
+
+#. module: sale_import_base
+#: model:exception.rule,description:sale_import_base.exc_wrong_untaxed_amount
+msgid ""
+"The amount computed in Odoo doesn't match with the imported untaxed amount.\n"
+"There is an error related to the amount calculation."
+msgstr ""
+"Il valore calcolato in Odoo non corrisponde con il valore imponibile "
+"importato.\n"
+"C'è un errore relativo al calcolo del valore."
+
+#. module: sale_import_base
+#: model_terms:ir.ui.view,arch_db:sale_import_base.sale_channel_view_form
+msgid "Total amounts"
+msgstr "Valori totali"
+
+#. module: sale_import_base
+#: model_terms:ir.ui.view,arch_db:sale_import_base.sale_channel_view_form
+msgid "Untaxed amounts"
+msgstr "Valori imponibili"
+
+#. module: sale_import_base
+#: model:ir.model.fields,field_description:sale_import_base.field_sale_import_payload__website_message_ids
+msgid "Website Messages"
+msgstr "Messaggi sito web"
+
+#. module: sale_import_base
+#: model:ir.model.fields,help:sale_import_base.field_sale_import_payload__website_message_ids
+msgid "Website communication history"
+msgstr "Cronologia comunicazioni sito web"
