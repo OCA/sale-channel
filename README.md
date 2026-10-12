@@ -22,6 +22,7 @@ Available addons
 addon | version | maintainers | summary
 --- | --- | --- | ---
 [sale_channel](sale_channel/) | 19.0.1.0.0 |  | Adds the notion of sale channels
+[sale_channel_product](sale_channel_product/) | 19.0.1.0.0 |  | Link Product with sale channel
 
 [//]: # (end addons)
 
