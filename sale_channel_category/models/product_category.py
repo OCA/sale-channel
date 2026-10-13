@@ -3,6 +3,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import api, fields, models
+from odoo.orm.identifiers import NewId
 
 
 class ProductCategory(models.Model):
@@ -23,6 +24,6 @@ class ProductCategory(models.Model):
         for record in self:
             if record.parent_id:
                 record.channel_ids = record.parent_id.channel_ids
-                if not isinstance(record.id, models.NewId):
+                if not isinstance(record.id, NewId):
                     # skip onchange
                     record._on_sale_channel_modified()

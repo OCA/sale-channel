@@ -1,2 +1,4 @@
 - Sébastien Beau \<<sebastien.beau@akretion.com>\>
 - [Heliconia Solutions Pvt. Ltd.](https://www.heliconia.io)
+- [CIT-Services](cit-services.eu)
+  - Prayag \<<prayag.k@cit-services.eu>\>
