@@ -3,14 +3,14 @@
 {
     "name": "Sale Channel",
     "summary": "Adds the notion of sale channels",
-    "version": "19.0.1.0.0",
+    "version": "20.0.1.0.0",
     "category": "Generic Modules/Sale",
     "author": "Akretion, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/sale-channel",
     "depends": ["sale_management"],
     "license": "AGPL-3",
     "data": [
-        "security/ir.model.access.csv",
+        "security/ir.access.csv",
         "views/sale_order_view.xml",
         "views/account_move_view.xml",
         "views/sale_channel_view.xml",
