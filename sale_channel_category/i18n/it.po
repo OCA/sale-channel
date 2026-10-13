@@ -1,0 +1,33 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sale_channel_category
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2023-12-06 18:35+0000\n"
+"Last-Translator: mymage <stefano.consolaro@mymage.it>\n"
+"Language-Team: none\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.17\n"
+
+#. module: sale_channel_category
+#: model:ir.model,name:sale_channel_category.model_product_category
+msgid "Product Category"
+msgstr "Categoria prodotto"
+
+#. module: sale_channel_category
+#: model:ir.model.fields,field_description:sale_channel_category.field_sale_channel__root_categ_ids
+msgid "Root Categ"
+msgstr "Categoria radice"
+
+#. module: sale_channel_category
+#: model:ir.model,name:sale_channel_category.model_sale_channel
+#: model:ir.model.fields,field_description:sale_channel_category.field_product_category__channel_ids
+msgid "Sale Channel"
+msgstr "Canale di vendita"
