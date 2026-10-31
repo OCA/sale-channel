@@ -6,5 +6,5 @@ from odoo import models
 
 
 class ProductTemplate(models.Model):
-    _inherit = ["product.template", "sale.channel.owner"]
+    _inherit = ["product.template", "sale.channel.owner"]  # noqa: RUF012
     _name = "product.template"
