@@ -11,7 +11,7 @@
                         name="button_open_bindings"
                         type="object"
                         class="oe_stat_button"
-                        icon="fa-link"
+                        icon="link"
                     >
                         <field name="count_sale_channel_partners" widget="statinfo" />
                     </button>

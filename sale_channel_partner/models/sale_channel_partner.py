@@ -7,9 +7,7 @@ class SaleChannelPartner(models.Model):
     _name = "sale.channel.partner"
     _description = "Sale Channel Partner"
 
-    sale_channel_id = fields.Many2one(
-        "sale.channel", "Sale Channel", required=True, ondelete="cascade"
-    )
+    sale_channel_id = fields.Many2one("sale.channel", required=True, ondelete="cascade")
     partner_id = fields.Many2one(
         "res.partner", "Contact", required=True, ondelete="cascade"
     )
