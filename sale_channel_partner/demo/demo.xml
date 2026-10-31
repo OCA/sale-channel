@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <record id="sale_channel_partner_colleen_amazon" model="sale.channel.partner">
         <field name="partner_id" ref="base.res_partner_address_28" />
