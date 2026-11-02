@@ -1,7 +1,3 @@
-.. image:: https://odoo-community.org/readme-banner-image
-   :target: https://odoo-community.org/get-involved?utm_source=readme
-   :alt: Odoo Community Association
-
 ===================================
 Sale Channel Search Engine Category
 ===================================
@@ -17,7 +13,7 @@ Sale Channel Search Engine Category
 .. |badge1| image:: https://img.shields.io/badge/maturity-Alpha-red.png
     :target: https://odoo-community.org/page/development-status
     :alt: Alpha
-.. |badge2| image:: https://img.shields.io/badge/license-AGPL--3-blue.png
+.. |badge2| image:: https://img.shields.io/badge/licence-AGPL--3-blue.png
     :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
     :alt: License: AGPL-3
 .. |badge3| image:: https://img.shields.io/badge/github-OCA%2Fsale--channel-lightgray.png?logo=github
@@ -45,8 +41,45 @@ category linked to a sale channel
 .. contents::
    :local:
 
+Configuration
+=============
+
+There is two way of use this module.
+
+1) One category tree
+
+On the sale channel, select only one category and tick
+"should_publish_root" to False.
+
+This is the recommended design if you have a tree like:
+
+- Shop / Bikes / Gravel
+- Shop / Bikes / Road
+- Shop / Accessories
+
+Bind "shop" category to the sale channel.
+
+With this design each shop / channel has is own tree.
+
+2) Multiple category tree
+
+On the sale channel, add multiple root categories.
+
+With the following categories:
+
+- Bikes / Gravel
+- Bikes / Road
+- Accessories
+
+Categories Bikes and Accessories need to be bound to the sale channel.
+
 Changelog
 =========
+
+18.0.1.1.0
+----------
+
+- Add the should_publish_root option
 
 16.0.0.1.0 (2023-10-10)
 -----------------------
@@ -86,6 +119,7 @@ Contributors
 ------------
 
 - Sébastien Beau <sebastien.beau@akretion.com>
+- Raphaël Reverdy <raphael.reverdy@akretion.com>
 
 Maintainers
 -----------

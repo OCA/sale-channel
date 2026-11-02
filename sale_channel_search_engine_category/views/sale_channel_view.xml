@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="sale_channel_view_form" model="ir.ui.view">
+        <field name="model">sale.channel</field>
+        <field name="inherit_id" ref="sale_channel_category.sale_channel_view_form" />
+        <field name="arch" type="xml">
+            <field name="root_categ_ids" position="after">
+                <field name="should_publish_root" />
+            </field>
+        </field>
+    </record>
+</odoo>

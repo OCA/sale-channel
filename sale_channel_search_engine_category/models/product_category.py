@@ -15,3 +15,17 @@ class ProductCategory(models.Model):
 
     def _on_sale_channel_modified(self):
         self._synchronize_channel_index()
+
+    def _add_to_index(self, indexes):
+        bindings = self.env["se.binding"]
+        for index in indexes:
+            channel = self.env["sale.channel"].search(
+                [("search_engine_id", "=", index.backend_id.id)], limit=1
+            )
+            records = self
+            if channel and not channel.should_publish_root:
+                # don't publish root categ
+                records = self.filtered("parent_id")
+            if records:
+                bindings |= super(ProductCategory, records)._add_to_index(index)
+        return bindings
