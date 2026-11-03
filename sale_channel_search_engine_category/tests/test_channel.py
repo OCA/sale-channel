@@ -10,7 +10,7 @@ from odoo.addons.connector_search_engine.tests.common import TestBindingIndexBas
 
 
 class TestChannel(TestBindingIndexBase):
-    def _create_sale_channel_with_search_engine(self, name):
+    def _create_sale_channel_with_search_engine(self, name, should_publish_root=True):
         search_engine = self.env["se.backend"].create(
             {
                 "name": "Fake SE",
@@ -34,6 +34,7 @@ class TestChannel(TestBindingIndexBase):
             {
                 "name": name,
                 "search_engine_id": search_engine.id,
+                "should_publish_root": should_publish_root,
             }
         )
 
@@ -145,4 +146,26 @@ class TestChannel(TestBindingIndexBase):
             self.assertEqual(len(bindings), 2)
             self.assertEqual(
                 set(bindings.mapped("state")), {"to_recompute", "to_delete"}
+            )
+
+    def test_create_channel_not_publish_root(self):
+        channel_3 = self._create_sale_channel_with_search_engine(
+            "Channel 3", should_publish_root=False
+        )
+        channel_3.root_categ_ids = self.categ_root
+        self.assertEqual(self.categ_level_1.channel_ids, self.channels | channel_3)
+        self.assertEqual(self.categ_level_2.channel_ids, self.channels | channel_3)
+        self.assertFalse(
+            self.categ_root._get_bindings(channel_3.search_engine_id.index_ids)
+        )
+        for categ in [self.categ_level_1, self.categ_level_2]:
+            self.assertEqual(
+                categ._get_bindings(channel_3.search_engine_id.index_ids).state,
+                "to_recompute",
+            )
+        # other channels still publish the root
+        for channel in self.channels:
+            self.assertEqual(
+                self.categ_root._get_bindings(channel.search_engine_id.index_ids).state,
+                "to_recompute",
             )

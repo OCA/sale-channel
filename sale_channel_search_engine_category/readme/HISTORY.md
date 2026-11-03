@@ -1,3 +1,7 @@
+## 18.0.1.1.0
+
+- Add the should_publish_root option
+
 ## 16.0.0.1.0 (2023-10-10)
 
 **Bugfixes**
