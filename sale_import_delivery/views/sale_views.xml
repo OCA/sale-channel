@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 KMEE
+     License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="sale_channel_view_form" model="ir.ui.view">
+        <field name="model">sale.channel</field>
+        <field name="inherit_id" ref="sale_import_base.sale_channel_view_form" />
+        <field name="arch" type="xml">
+            <field name="crm_team_id" position="after">
+                <field name="sale_import_carrier_id" />
+            </field>
+        </field>
+    </record>
+    <record id="view_order_form" model="ir.ui.view">
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="arch" type="xml">
+            <page name="other_information" position="inside">
+                <group
+                    name="channel_shipping"
+                    string="Channel shipping"
+                    attrs="{'invisible': [('channel_carrier_code', '=', False), ('channel_shipping_amount', '=', 0)]}"
+                >
+                    <field name="channel_carrier_code" />
+                    <field name="channel_shipping_amount" />
+                </group>
+            </page>
+        </field>
+    </record>
+</odoo>
